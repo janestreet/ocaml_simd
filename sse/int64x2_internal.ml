@@ -1,0 +1,120 @@
+type t = int64x2#
+
+external low_of
+  :  int64#
+  -> (t[@unboxed])
+  = "ocaml_simd_unreachable" "caml_int64x2_low_of_int64"
+[@@noalloc] [@@builtin]
+
+external low_to
+  :  (t[@unboxed])
+  -> int64#
+  = "ocaml_simd_unreachable" "caml_int64x2_low_to_int64"
+[@@noalloc] [@@builtin]
+
+external of_int8x16 : int8x16# -> t = "ocaml_simd_unreachable" "caml_vec128_cast"
+[@@noalloc] [@@unboxed] [@@builtin]
+
+external of_int16x8 : int16x8# -> t = "ocaml_simd_unreachable" "caml_vec128_cast"
+[@@noalloc] [@@unboxed] [@@builtin]
+
+external of_int32x4 : int32x4# -> t = "ocaml_simd_unreachable" "caml_vec128_cast"
+[@@noalloc] [@@unboxed] [@@builtin]
+
+external of_float32x4 : float32x4# -> t = "ocaml_simd_unreachable" "caml_vec128_cast"
+[@@noalloc] [@@unboxed] [@@builtin]
+
+external of_float64x2 : float64x2# -> t = "ocaml_simd_unreachable" "caml_vec128_cast"
+[@@noalloc] [@@unboxed] [@@builtin]
+
+external const1 : int64# -> (t[@unboxed]) = "ocaml_simd_unreachable" "caml_int64x2_const1"
+[@@noalloc] [@@builtin]
+
+external add : t -> t -> t = "ocaml_simd_unreachable" "caml_sse2_int64x2_add"
+[@@noalloc] [@@unboxed] [@@builtin]
+
+external sub : t -> t -> t = "ocaml_simd_unreachable" "caml_sse2_int64x2_sub"
+[@@noalloc] [@@unboxed] [@@builtin]
+
+external cmpeq : t -> t -> t = "ocaml_simd_unreachable" "caml_sse41_int64x2_cmpeq"
+[@@noalloc] [@@unboxed] [@@builtin]
+
+external cmpgt : t -> t -> t = "ocaml_simd_unreachable" "caml_sse42_int64x2_cmpgt"
+[@@noalloc] [@@unboxed] [@@builtin]
+
+external sll : t -> int64x2# -> t = "ocaml_simd_unreachable" "caml_sse2_int64x2_sll"
+[@@noalloc] [@@unboxed] [@@builtin]
+
+external srl : t -> int64x2# -> t = "ocaml_simd_unreachable" "caml_sse2_int64x2_srl"
+[@@noalloc] [@@unboxed] [@@builtin]
+
+external and_ : t -> t -> t = "ocaml_simd_unreachable" "caml_sse2_vec128_and"
+[@@noalloc] [@@unboxed] [@@builtin]
+
+external andnot : not:t -> t -> t = "ocaml_simd_unreachable" "caml_sse2_vec128_andnot"
+[@@noalloc] [@@unboxed] [@@builtin]
+
+external or_ : t -> t -> t = "ocaml_simd_unreachable" "caml_sse2_vec128_or"
+[@@noalloc] [@@unboxed] [@@builtin]
+
+external xor : t -> t -> t = "ocaml_simd_unreachable" "caml_sse2_vec128_xor"
+[@@noalloc] [@@unboxed] [@@builtin]
+
+external slli
+  :  (int[@untagged])
+  -> (t[@unboxed])
+  -> (t[@unboxed])
+  = "ocaml_simd_unreachable" "caml_sse2_int64x2_slli"
+[@@noalloc] [@@builtin]
+
+external srli
+  :  (int[@untagged])
+  -> (t[@unboxed])
+  -> (t[@unboxed])
+  = "ocaml_simd_unreachable" "caml_sse2_int64x2_srli"
+[@@noalloc] [@@builtin]
+
+external high_64_to_low_64
+  :  t
+  -> t
+  -> t
+  = "ocaml_simd_unreachable" "caml_sse_vec128_high_64_to_low_64"
+[@@noalloc] [@@unboxed] [@@builtin]
+
+external low_64_to_high_64
+  :  t
+  -> t
+  -> t
+  = "ocaml_simd_unreachable" "caml_sse_vec128_low_64_to_high_64"
+[@@noalloc] [@@unboxed] [@@builtin]
+
+external interleave_high_64
+  :  t
+  -> t
+  -> t
+  = "ocaml_simd_unreachable" "caml_sse2_vec128_interleave_high_64"
+[@@noalloc] [@@unboxed] [@@builtin]
+
+external interleave_low_64
+  :  t
+  -> t
+  -> t
+  = "ocaml_simd_unreachable" "caml_sse2_vec128_interleave_low_64"
+[@@noalloc] [@@unboxed] [@@builtin]
+
+external blendv_64
+  :  t
+  -> t
+  -> int64x2#
+  -> t
+  = "ocaml_simd_unreachable" "caml_sse41_vec128_blendv_64"
+[@@noalloc] [@@unboxed] [@@builtin]
+
+external dup_low_64 : t -> t = "ocaml_simd_unreachable" "caml_sse3_vec128_dup_low_64"
+[@@noalloc] [@@unboxed] [@@builtin]
+
+external movemask_64
+  :  (t[@unboxed])
+  -> (int[@untagged])
+  = "ocaml_simd_unreachable" "caml_sse2_vec128_movemask_64"
+[@@noalloc] [@@builtin]

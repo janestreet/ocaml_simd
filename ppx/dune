@@ -1,0 +1,8 @@
+(library
+ (name ppx_simd)
+ (public_name ocaml_simd.ppx)
+ (kind ppx_rewriter)
+ (libraries ocaml_simd ppxlib)
+ (ppx_runtime_libraries ocaml_simd)
+ (preprocess
+  (pps ppx_jane ppxlib.metaquot)))

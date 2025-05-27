@@ -1,0 +1,11 @@
+(library
+ (foreign_stubs
+  (language c)
+  (names sse_stubs)
+  (flags :standard -msse4.2))
+ (name ocaml_simd_sse)
+ (public_name ocaml_simd.sse)
+ (libraries unboxed.float_u unboxed.float32_u unboxed.int32_u unboxed.int64_u
+   base)
+ (preprocess
+  (pps ppx_simd)))

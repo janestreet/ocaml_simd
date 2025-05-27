@@ -1,0 +1,6 @@
+(library
+ (name ocaml_simd)
+ (public_name ocaml_simd)
+ (libraries)
+ (preprocess
+  (pps ppx_jane)))

@@ -1,3 +1,5 @@
+@@ portable
+
 type t = int16x8#
 type mask = int16x8#
 
@@ -121,7 +123,6 @@ external shuffle_upper
   :  (Ocaml_simd.Shuffle4.t[@untagged])
   -> (t[@unboxed])
   -> (t[@unboxed])
-  -> (t[@unboxed])
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shuffle_high_16"
 [@@noalloc] [@@builtin]
 
@@ -130,7 +131,6 @@ external shuffle_upper
     inlining. *)
 external shuffle_lower
   :  (Ocaml_simd.Shuffle4.t[@untagged])
-  -> (t[@unboxed])
   -> (t[@unboxed])
   -> (t[@unboxed])
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shuffle_low_16"

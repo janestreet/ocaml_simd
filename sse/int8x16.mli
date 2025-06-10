@@ -1,3 +1,5 @@
+@@ portable
+
 type t = int8x16#
 type mask = int8x16#
 

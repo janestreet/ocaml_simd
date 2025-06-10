@@ -3,8 +3,8 @@ module I = Int8x16_internal
 type t = int8x16#
 type mask = int8x16#
 
-external box : t -> int8x16 = "%box_vec128"
-external unbox : int8x16 -> t = "%unbox_vec128"
+external box : t -> int8x16 @@ portable = "%box_vec128"
+external unbox : int8x16 -> t @@ portable = "%unbox_vec128"
 
 module String = Load_store.String_Int8x16
 module Bytes = Load_store.Bytes_Int8x16
@@ -13,6 +13,7 @@ module Bigstring = Load_store.Bigstring_Int8x16
 external const1
   :  (int[@untagged])
   -> (t[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_int8x16_const1"
 [@@noalloc] [@@builtin]
 
@@ -34,6 +35,7 @@ external const
   -> (int[@untagged])
   -> (int[@untagged])
   -> (t[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_int8x16_const16"
 [@@noalloc] [@@builtin]
 
@@ -41,6 +43,7 @@ external extract
   :  idx:(int[@untagged])
   -> (t[@unboxed])
   -> (int[@untagged])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_sse41_int8x16_extract"
 [@@noalloc] [@@builtin]
 
@@ -49,6 +52,7 @@ external insert
   -> (t[@unboxed])
   -> (int[@untagged])
   -> (t[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_sse41_int8x16_insert"
 [@@noalloc] [@@builtin]
 
@@ -139,6 +143,7 @@ external shifti_left_bytes
   :  (int[@untagged])
   -> (t[@unboxed])
   -> (t[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shift_left_bytes"
 [@@noalloc] [@@builtin]
 
@@ -146,6 +151,7 @@ external shifti_right_bytes
   :  (int[@untagged])
   -> (t[@unboxed])
   -> (t[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shift_right_bytes"
 [@@noalloc] [@@builtin]
 
@@ -154,6 +160,7 @@ external concat_shift_right_bytes
   -> (t[@unboxed])
   -> (t[@unboxed])
   -> (t[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_ssse3_vec128_align_right_bytes"
 [@@noalloc] [@@builtin]
 
@@ -177,6 +184,7 @@ external multi_sum_absolute_differences_unsigned
   -> (t[@unboxed])
   -> (t[@unboxed])
   -> (int16x8#[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_sse41_int8x16_multi_sad_unsigned"
 [@@noalloc] [@@builtin]
 

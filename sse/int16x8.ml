@@ -3,8 +3,8 @@ module I = Int16x8_internal
 type t = int16x8#
 type mask = int16x8#
 
-external box : t -> int16x8 = "%box_vec128"
-external unbox : int16x8 -> t = "%unbox_vec128"
+external box : t -> int16x8 @@ portable = "%box_vec128"
+external unbox : int16x8 -> t @@ portable = "%unbox_vec128"
 
 module String = Load_store.String_Int16x8
 module Bytes = Load_store.Bytes_Int16x8
@@ -13,6 +13,7 @@ module Bigstring = Load_store.Bigstring_Int16x8
 external const1
   :  (int[@untagged])
   -> (t[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_int16x8_const1"
 [@@noalloc] [@@builtin]
 
@@ -26,6 +27,7 @@ external const
   -> (int[@untagged])
   -> (int[@untagged])
   -> (t[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_int16x8_const8"
 [@@noalloc] [@@builtin]
 
@@ -33,7 +35,7 @@ external shuffle_upper
   :  (Ocaml_simd.Shuffle4.t[@untagged])
   -> (t[@unboxed])
   -> (t[@unboxed])
-  -> (t[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shuffle_high_16"
 [@@noalloc] [@@builtin]
 
@@ -41,7 +43,7 @@ external shuffle_lower
   :  (Ocaml_simd.Shuffle4.t[@untagged])
   -> (t[@unboxed])
   -> (t[@unboxed])
-  -> (t[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shuffle_low_16"
 [@@noalloc] [@@builtin]
 
@@ -49,6 +51,7 @@ external extract
   :  idx:(int[@untagged])
   -> (t[@unboxed])
   -> (int[@untagged])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_sse41_int16x8_extract"
 [@@noalloc] [@@builtin]
 
@@ -57,6 +60,7 @@ external insert
   -> (t[@unboxed])
   -> (int[@untagged])
   -> (t[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_sse41_int16x8_insert"
 [@@noalloc] [@@builtin]
 
@@ -118,6 +122,7 @@ external blend
   -> (t[@unboxed])
   -> (t[@unboxed])
   -> (t[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_sse41_vec128_blend_16"
 [@@noalloc] [@@builtin]
 
@@ -138,6 +143,7 @@ external shifti_left_bytes
   :  (int[@untagged])
   -> (t[@unboxed])
   -> (t[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shift_left_bytes"
 [@@noalloc] [@@builtin]
 
@@ -145,6 +151,7 @@ external shifti_right_bytes
   :  (int[@untagged])
   -> (t[@unboxed])
   -> (t[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shift_right_bytes"
 [@@noalloc] [@@builtin]
 
@@ -152,6 +159,7 @@ external shifti_left_logical
   :  (int[@untagged])
   -> (t[@unboxed])
   -> (t[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_int16x8_slli"
 [@@noalloc] [@@builtin]
 
@@ -159,6 +167,7 @@ external shifti_right_logical
   :  (int[@untagged])
   -> (t[@unboxed])
   -> (t[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_int16x8_srli"
 [@@noalloc] [@@builtin]
 
@@ -166,6 +175,7 @@ external shifti_right_arithmetic
   :  (int[@untagged])
   -> (t[@unboxed])
   -> (t[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_int16x8_srai"
 [@@noalloc] [@@builtin]
 

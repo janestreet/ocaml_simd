@@ -5,8 +5,8 @@ module R = Float_ctrl.Round
 type t = float64x2#
 type mask = int64x2#
 
-external box : t -> float64x2 = "%box_vec128"
-external unbox : float64x2 -> t = "%unbox_vec128"
+external box : t -> float64x2 @@ portable = "%box_vec128"
+external unbox : float64x2 -> t @@ portable = "%unbox_vec128"
 
 module String = Load_store.String_Float64x2
 module Bytes = Load_store.Bytes_Float64x2
@@ -19,6 +19,7 @@ module Float_u_array = Load_store.Float_u_array
 external const1
   :  float#
   -> (t[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_float64x2_const1"
 [@@noalloc] [@@builtin]
 
@@ -26,6 +27,7 @@ external const
   :  float#
   -> float#
   -> (t[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_float64x2_const2"
 [@@noalloc] [@@builtin]
 
@@ -34,6 +36,7 @@ external shuffle
   -> (t[@unboxed])
   -> (t[@unboxed])
   -> (t[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shuffle_64"
 [@@noalloc] [@@builtin]
 
@@ -42,6 +45,7 @@ external blend
   -> (t[@unboxed])
   -> (t[@unboxed])
   -> (t[@unboxed])
+  @@ portable
   = "ocaml_simd_unreachable" "caml_sse41_vec128_blend_64"
 [@@noalloc] [@@builtin]
 

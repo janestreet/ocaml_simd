@@ -1,3 +1,5 @@
+@@ portable
+
 type t = int64x2#
 type mask = int64x2#
 

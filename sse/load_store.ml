@@ -2,14 +2,14 @@ open Stdlib
 
 type bigstring = (char, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
 
-module type String = sig
+module type String = sig @@ portable
   type t : vec128
 
   val get : local_ string -> byte:int -> t
   val unsafe_get : local_ string -> byte:int -> t
 end
 
-module type Bytes = sig
+module type Bytes = sig @@ portable
   type t : vec128
 
   val get : local_ bytes -> byte:int -> t
@@ -18,7 +18,7 @@ module type Bytes = sig
   val unsafe_set : local_ bytes -> byte:int -> t -> unit
 end
 
-module type Bigstring = sig
+module type Bigstring = sig @@ portable
   type t : vec128
 
   val unaligned_get : local_ bigstring -> byte:int -> t
@@ -39,8 +39,19 @@ module String (T : sig
     type t : vec128
   end) =
 struct
-  external get : (string[@local_opt]) -> byte:int -> T.t = "%caml_string_getu128#"
-  external unsafe_get : (string[@local_opt]) -> byte:int -> T.t = "%caml_string_getu128u#"
+  external get
+    :  (string[@local_opt])
+    -> byte:int
+    -> T.t
+    @@ portable
+    = "%caml_string_getu128#"
+
+  external unsafe_get
+    :  (string[@local_opt])
+    -> byte:int
+    -> T.t
+    @@ portable
+    = "%caml_string_getu128u#"
 end
 
 module Bytes (T : sig
@@ -48,15 +59,34 @@ module Bytes (T : sig
     type t : vec128
   end) =
 struct
-  external get : (bytes[@local_opt]) -> byte:int -> T.t = "%caml_bytes_getu128#"
-  external unsafe_get : (bytes[@local_opt]) -> byte:int -> T.t = "%caml_bytes_getu128u#"
-  external set : (bytes[@local_opt]) -> byte:int -> T.t -> unit = "%caml_bytes_setu128#"
+  external get
+    :  (bytes[@local_opt])
+    -> byte:int
+    -> T.t
+    @@ portable
+    = "%caml_bytes_getu128#"
+
+  external unsafe_get
+    :  (bytes[@local_opt])
+    -> byte:int
+    -> T.t
+    @@ portable
+    = "%caml_bytes_getu128u#"
+
+  external set
+    :  (bytes[@local_opt])
+    -> byte:int
+    -> T.t
+    -> unit
+    @@ portable
+    = "%caml_bytes_setu128#"
 
   external unsafe_set
     :  (bytes[@local_opt])
     -> byte:int
     -> T.t
     -> unit
+    @@ portable
     = "%caml_bytes_setu128u#"
 end
 
@@ -69,24 +99,28 @@ struct
     :  (bigstring[@local_opt])
     -> byte:int
     -> T.t
+    @@ portable
     = "%caml_bigstring_getu128#"
 
   external unsafe_unaligned_get
     :  (bigstring[@local_opt])
     -> byte:int
     -> T.t
+    @@ portable
     = "%caml_bigstring_getu128u#"
 
   external aligned_get
     :  (bigstring[@local_opt])
     -> byte:int
     -> T.t
+    @@ portable
     = "%caml_bigstring_geta128#"
 
   external unsafe_aligned_get
     :  (bigstring[@local_opt])
     -> byte:int
     -> T.t
+    @@ portable
     = "%caml_bigstring_geta128u#"
 
   external unaligned_set
@@ -94,6 +128,7 @@ struct
     -> byte:int
     -> T.t
     -> unit
+    @@ portable
     = "%caml_bigstring_setu128#"
 
   external unsafe_unaligned_set
@@ -101,6 +136,7 @@ struct
     -> byte:int
     -> T.t
     -> unit
+    @@ portable
     = "%caml_bigstring_setu128u#"
 
   external aligned_set
@@ -108,6 +144,7 @@ struct
     -> byte:int
     -> T.t
     -> unit
+    @@ portable
     = "%caml_bigstring_seta128#"
 
   external unsafe_aligned_set
@@ -115,36 +152,83 @@ struct
     -> byte:int
     -> T.t
     -> unit
+    @@ portable
     = "%caml_bigstring_seta128u#"
 end
 
 module Float_array = struct
   type t = float64x2#
 
-  external get : float array -> idx:int -> t = "%caml_float_array_get128#"
-  external unsafe_get : float array -> idx:int -> t = "%caml_float_array_get128u#"
-  external set : float array -> idx:int -> t -> unit = "%caml_float_array_set128#"
-  external unsafe_set : float array -> idx:int -> t -> unit = "%caml_float_array_set128u#"
+  external get : float array -> idx:int -> t @@ portable = "%caml_float_array_get128#"
+
+  external unsafe_get
+    :  float array
+    -> idx:int
+    -> t
+    @@ portable
+    = "%caml_float_array_get128u#"
+
+  external set
+    :  float array
+    -> idx:int
+    -> t
+    -> unit
+    @@ portable
+    = "%caml_float_array_set128#"
+
+  external unsafe_set
+    :  float array
+    -> idx:int
+    -> t
+    -> unit
+    @@ portable
+    = "%caml_float_array_set128u#"
 end
 
 module Floatarray = struct
   type t = float64x2#
 
-  external get : floatarray -> idx:int -> t = "%caml_floatarray_get128#"
-  external unsafe_get : floatarray -> idx:int -> t = "%caml_floatarray_get128u#"
-  external set : floatarray -> idx:int -> t -> unit = "%caml_floatarray_set128#"
-  external unsafe_set : floatarray -> idx:int -> t -> unit = "%caml_floatarray_set128u#"
+  external get : floatarray -> idx:int -> t @@ portable = "%caml_floatarray_get128#"
+
+  external unsafe_get
+    :  floatarray
+    -> idx:int
+    -> t
+    @@ portable
+    = "%caml_floatarray_get128u#"
+
+  external set
+    :  floatarray
+    -> idx:int
+    -> t
+    -> unit
+    @@ portable
+    = "%caml_floatarray_set128#"
+
+  external unsafe_set
+    :  floatarray
+    -> idx:int
+    -> t
+    -> unit
+    @@ portable
+    = "%caml_floatarray_set128u#"
 end
 
 module Float_iarray = struct
   type t = float64x2#
 
-  external get : (float iarray[@local_opt]) -> idx:int -> t = "%caml_float_array_get128#"
+  external get
+    :  (float iarray[@local_opt])
+    -> idx:int
+    -> t
+    @@ portable
+    = "%caml_float_array_get128#"
 
   external unsafe_get
     :  (float iarray[@local_opt])
     -> idx:int
     -> t
+    @@ portable
     = "%caml_float_array_get128u#"
 end
 
@@ -158,11 +242,13 @@ module Immediate_array = struct
   external get_tagged
     : ('a : immediate64).
     'a array -> idx:int -> t
+    @@ portable
     = "%caml_int_array_get128#"
 
   external unsafe_get_tagged
     : ('a : immediate64).
     'a array -> idx:int -> t
+    @@ portable
     = "%caml_int_array_get128u#"
 
   let get_and_untag arr ~idx =
@@ -178,11 +264,13 @@ module Immediate_array = struct
   external set_raw
     : ('a : immediate64).
     'a array -> idx:int -> t -> unit
+    @@ portable
     = "%caml_int_array_set128#"
 
   external unsafe_set_raw
     : ('a : immediate64).
     'a array -> idx:int -> t -> unit
+    @@ portable
     = "%caml_int_array_set128u#"
 
   let set_tagged arr ~idx v =
@@ -216,11 +304,13 @@ module Immediate_iarray = struct
   external get_tagged
     : ('a : immediate64).
     ('a iarray[@local_opt]) -> idx:int -> t
+    @@ portable
     = "%caml_int_array_get128#"
 
   external unsafe_get_tagged
     : ('a : immediate64).
     ('a iarray[@local_opt]) -> idx:int -> t
+    @@ portable
     = "%caml_int_array_get128u#"
 
   let get_and_untag (local_ arr) ~idx =
@@ -237,12 +327,18 @@ end
 module Float_u_array = struct
   type t = float64x2#
 
-  external get : float# array -> idx:int -> t = "%caml_unboxed_float_array_get128#"
+  external get
+    :  float# array
+    -> idx:int
+    -> t
+    @@ portable
+    = "%caml_unboxed_float_array_get128#"
 
   external unsafe_get
     :  float# array
     -> idx:int
     -> t
+    @@ portable
     = "%caml_unboxed_float_array_get128u#"
 
   external set
@@ -250,6 +346,7 @@ module Float_u_array = struct
     -> idx:int
     -> t
     -> unit
+    @@ portable
     = "%caml_unboxed_float_array_set128#"
 
   external unsafe_set
@@ -257,18 +354,25 @@ module Float_u_array = struct
     -> idx:int
     -> t
     -> unit
+    @@ portable
     = "%caml_unboxed_float_array_set128u#"
 end
 
 module Float32_u_array = struct
   type t = float32x4#
 
-  external get : float32# array -> idx:int -> t = "%caml_unboxed_float32_array_get128#"
+  external get
+    :  float32# array
+    -> idx:int
+    -> t
+    @@ portable
+    = "%caml_unboxed_float32_array_get128#"
 
   external unsafe_get
     :  float32# array
     -> idx:int
     -> t
+    @@ portable
     = "%caml_unboxed_float32_array_get128u#"
 
   external set
@@ -276,6 +380,7 @@ module Float32_u_array = struct
     -> idx:int
     -> t
     -> unit
+    @@ portable
     = "%caml_unboxed_float32_array_set128#"
 
   external unsafe_set
@@ -283,18 +388,25 @@ module Float32_u_array = struct
     -> idx:int
     -> t
     -> unit
+    @@ portable
     = "%caml_unboxed_float32_array_set128u#"
 end
 
 module Int64_u_array = struct
   type t = int64x2#
 
-  external get : int64# array -> idx:int -> t = "%caml_unboxed_int64_array_get128#"
+  external get
+    :  int64# array
+    -> idx:int
+    -> t
+    @@ portable
+    = "%caml_unboxed_int64_array_get128#"
 
   external unsafe_get
     :  int64# array
     -> idx:int
     -> t
+    @@ portable
     = "%caml_unboxed_int64_array_get128u#"
 
   external set
@@ -302,6 +414,7 @@ module Int64_u_array = struct
     -> idx:int
     -> t
     -> unit
+    @@ portable
     = "%caml_unboxed_int64_array_set128#"
 
   external unsafe_set
@@ -309,6 +422,7 @@ module Int64_u_array = struct
     -> idx:int
     -> t
     -> unit
+    @@ portable
     = "%caml_unboxed_int64_array_set128u#"
 end
 
@@ -319,12 +433,14 @@ module Nativeint_u_array = struct
     :  nativeint# array
     -> idx:int
     -> t
+    @@ portable
     = "%caml_unboxed_nativeint_array_get128#"
 
   external unsafe_get
     :  nativeint# array
     -> idx:int
     -> t
+    @@ portable
     = "%caml_unboxed_nativeint_array_get128u#"
 
   external set
@@ -332,6 +448,7 @@ module Nativeint_u_array = struct
     -> idx:int
     -> t
     -> unit
+    @@ portable
     = "%caml_unboxed_nativeint_array_set128#"
 
   external unsafe_set
@@ -339,18 +456,25 @@ module Nativeint_u_array = struct
     -> idx:int
     -> t
     -> unit
+    @@ portable
     = "%caml_unboxed_nativeint_array_set128u#"
 end
 
 module Int32_u_array = struct
   type t = int32x4#
 
-  external get : int32# array -> idx:int -> t = "%caml_unboxed_int32_array_get128#"
+  external get
+    :  int32# array
+    -> idx:int
+    -> t
+    @@ portable
+    = "%caml_unboxed_int32_array_get128#"
 
   external unsafe_get
     :  int32# array
     -> idx:int
     -> t
+    @@ portable
     = "%caml_unboxed_int32_array_get128u#"
 
   external set
@@ -358,6 +482,7 @@ module Int32_u_array = struct
     -> idx:int
     -> t
     -> unit
+    @@ portable
     = "%caml_unboxed_int32_array_set128#"
 
   external unsafe_set
@@ -365,6 +490,7 @@ module Int32_u_array = struct
     -> idx:int
     -> t
     -> unit
+    @@ portable
     = "%caml_unboxed_int32_array_set128u#"
 end
 

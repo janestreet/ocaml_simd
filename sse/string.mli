@@ -1,3 +1,5 @@
+@@ portable
+
 (** {v
  Refer to the Intel Intrinsics Guide (SSE4.2) for detailed specifications.
     https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html

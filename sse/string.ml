@@ -15,6 +15,7 @@ module Byte = struct
     -> a_len:(int[@untagged])
     -> b_len:(int[@untagged])
     -> (mask[@unboxed])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestrm"
   [@@noalloc] [@@builtin]
 
@@ -25,6 +26,7 @@ module Byte = struct
     -> a_len:(int[@untagged])
     -> b_len:(int[@untagged])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestra"
   [@@noalloc] [@@builtin]
 
@@ -35,6 +37,7 @@ module Byte = struct
     -> a_len:(int[@untagged])
     -> b_len:(int[@untagged])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestrc"
   [@@noalloc] [@@builtin]
 
@@ -45,6 +48,7 @@ module Byte = struct
     -> a_len:(int[@untagged])
     -> b_len:(int[@untagged])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestri"
   [@@noalloc] [@@builtin]
 
@@ -55,6 +59,7 @@ module Byte = struct
     -> a_len:(int[@untagged])
     -> b_len:(int[@untagged])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestro"
   [@@noalloc] [@@builtin]
 
@@ -63,6 +68,7 @@ module Byte = struct
     -> a:(t[@unboxed])
     -> b:(t[@unboxed])
     -> (mask[@unboxed])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistrm"
   [@@noalloc] [@@builtin]
 
@@ -71,6 +77,7 @@ module Byte = struct
     -> a:(t[@unboxed])
     -> b:(t[@unboxed])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistra"
   [@@noalloc] [@@builtin]
 
@@ -79,6 +86,7 @@ module Byte = struct
     -> a:(t[@unboxed])
     -> b:(t[@unboxed])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistrc"
   [@@noalloc] [@@builtin]
 
@@ -87,6 +95,7 @@ module Byte = struct
     -> a:(t[@unboxed])
     -> b:(t[@unboxed])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistri"
   [@@noalloc] [@@builtin]
 
@@ -95,6 +104,7 @@ module Byte = struct
     -> a:(t[@unboxed])
     -> b:(t[@unboxed])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistro"
   [@@noalloc] [@@builtin]
 
@@ -105,6 +115,7 @@ module Byte = struct
     -> a_len:(int[@untagged])
     -> b_len:(int[@untagged])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestrs"
   [@@noalloc] [@@builtin]
 
@@ -115,6 +126,7 @@ module Byte = struct
     -> a_len:(int[@untagged])
     -> b_len:(int[@untagged])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestrz"
   [@@noalloc] [@@builtin]
 
@@ -123,6 +135,7 @@ module Byte = struct
     -> a:(t[@unboxed])
     -> b:(t[@unboxed])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistrs"
   [@@noalloc] [@@builtin]
 
@@ -131,6 +144,7 @@ module Byte = struct
     -> a:(t[@unboxed])
     -> b:(t[@unboxed])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistrz"
   [@@noalloc] [@@builtin]
 
@@ -151,6 +165,7 @@ module Word = struct
     -> a_len:(int[@untagged])
     -> b_len:(int[@untagged])
     -> (mask[@unboxed])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestrm"
   [@@noalloc] [@@builtin]
 
@@ -161,6 +176,7 @@ module Word = struct
     -> a_len:(int[@untagged])
     -> b_len:(int[@untagged])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestra"
   [@@noalloc] [@@builtin]
 
@@ -171,6 +187,7 @@ module Word = struct
     -> a_len:(int[@untagged])
     -> b_len:(int[@untagged])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestrc"
   [@@noalloc] [@@builtin]
 
@@ -181,6 +198,7 @@ module Word = struct
     -> a_len:(int[@untagged])
     -> b_len:(int[@untagged])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestri"
   [@@noalloc] [@@builtin]
 
@@ -191,6 +209,7 @@ module Word = struct
     -> a_len:(int[@untagged])
     -> b_len:(int[@untagged])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestro"
   [@@noalloc] [@@builtin]
 
@@ -199,6 +218,7 @@ module Word = struct
     -> a:(t[@unboxed])
     -> b:(t[@unboxed])
     -> (mask[@unboxed])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistrm"
   [@@noalloc] [@@builtin]
 
@@ -207,6 +227,7 @@ module Word = struct
     -> a:(t[@unboxed])
     -> b:(t[@unboxed])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistra"
   [@@noalloc] [@@builtin]
 
@@ -215,6 +236,7 @@ module Word = struct
     -> a:(t[@unboxed])
     -> b:(t[@unboxed])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistrc"
   [@@noalloc] [@@builtin]
 
@@ -223,6 +245,7 @@ module Word = struct
     -> a:(t[@unboxed])
     -> b:(t[@unboxed])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistri"
   [@@noalloc] [@@builtin]
 
@@ -231,6 +254,7 @@ module Word = struct
     -> a:(t[@unboxed])
     -> b:(t[@unboxed])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistro"
   [@@noalloc] [@@builtin]
 
@@ -241,6 +265,7 @@ module Word = struct
     -> a_len:(int[@untagged])
     -> b_len:(int[@untagged])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestrs"
   [@@noalloc] [@@builtin]
 
@@ -251,6 +276,7 @@ module Word = struct
     -> a_len:(int[@untagged])
     -> b_len:(int[@untagged])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestrz"
   [@@noalloc] [@@builtin]
 
@@ -259,6 +285,7 @@ module Word = struct
     -> a:(t[@unboxed])
     -> b:(t[@unboxed])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistrs"
   [@@noalloc] [@@builtin]
 
@@ -267,6 +294,7 @@ module Word = struct
     -> a:(t[@unboxed])
     -> b:(t[@unboxed])
     -> (int[@untagged])
+    @@ portable
     = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistrz"
   [@@noalloc] [@@builtin]
 

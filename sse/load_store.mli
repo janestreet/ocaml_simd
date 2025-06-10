@@ -1,8 +1,10 @@
+@@ portable
+
 open Stdlib
 
 type bigstring = (char, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
 
-module type String = sig
+module type String = sig @@ portable
   (** [t] is one of the 16-byte vector types. *)
   type t : vec128
 
@@ -15,7 +17,7 @@ module type String = sig
   val unsafe_get : local_ string -> byte:int -> t
 end
 
-module type Bytes = sig
+module type Bytes = sig @@ portable
   (** [t] is one of the 16-byte vector types. *)
   type t : vec128
 
@@ -36,7 +38,7 @@ module type Bytes = sig
   val unsafe_set : local_ bytes -> byte:int -> t -> unit
 end
 
-module type Bigstring = sig
+module type Bigstring = sig @@ portable
   (** [t] is one of the 16-byte vector types. *)
   type t : vec128
 

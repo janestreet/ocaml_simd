@@ -1,3 +1,5 @@
+@@ portable
+
 (* Specified here (instead of Ocaml_simd) so this library can use the constants
    without ppx_simd or x-lib-inlining. *)
 

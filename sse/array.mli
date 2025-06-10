@@ -1,3 +1,5 @@
+@@ portable
+
 type ('a : vec128) t = 'a array
 
 val init : ('a : vec128). n:int -> f:(int -> 'a) -> 'a t

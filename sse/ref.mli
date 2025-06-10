@@ -1,3 +1,5 @@
+@@ portable
+
 type ('a : vec128) t = { mutable contents : 'a }
 
 val create : ('a : vec128). 'a -> 'a t

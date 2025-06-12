@@ -19,7 +19,7 @@ depends: [
   "unboxed"
   "vec"
   "dune"             {>= "3.17.0"}
-  "ppxlib"           {= "0.33.0+jst"}
+  "ppxlib"           {= "0.33.0+ox"}
 ]
 available: arch != "arm32" & arch != "x86_32"
 synopsis: "SIMD intrinsics supported by the OxCaml compiler."

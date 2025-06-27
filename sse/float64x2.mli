@@ -23,20 +23,13 @@ val set : float# -> float# -> t
 (** Argument must be a literal or an unboxing function applied to a literal. Compiles to a
     static vector literal. Exposed as an external so user code can compile without
     cross-library inlining. *)
-external const1
-  :  float#
-  -> (t[@unboxed])
-  = "ocaml_simd_unreachable" "caml_float64x2_const1"
+external const1 : float# -> t = "ocaml_simd_unreachable" "caml_float64x2_const1"
 [@@noalloc] [@@builtin]
 
 (** Arguments must be literals or unboxing functions applied to literals. Compiles to a
     static vector literal. Exposed as an external so user code can compile without
     cross-library inlining. *)
-external const
-  :  float#
-  -> float#
-  -> (t[@unboxed])
-  = "ocaml_simd_unreachable" "caml_float64x2_const2"
+external const : float# -> float# -> t = "ocaml_simd_unreachable" "caml_float64x2_const2"
 [@@noalloc] [@@builtin]
 
 (* Load/Store *)
@@ -79,7 +72,7 @@ val is_nan : t -> mask
 val is_not_nan : t -> mask
 
 (** [_mm_movemask_pd] *)
-val movemask : mask -> int
+val movemask : mask -> int64#
 
 (** Identity. *)
 val bitmask : mask -> int64x2#
@@ -91,22 +84,17 @@ val select : mask -> fail:t -> pass:t -> t
 
 (** [idx] must be in [0,1]. Compiles to shufpd,branch,blendpd. Only use this if you need a
     dynamic index. *)
-val insert : idx:int -> t -> float# -> t
+val insert : idx:int64# -> t -> float# -> t
 
 (** [idx] must be in [0,1]. Compiles to branch,shufpd. Only use this if you need a dynamic
     index. *)
-val extract : idx:int -> t -> float#
+val extract : idx:int64# -> t -> float#
 
 (** Identity. *)
 val extract0 : t -> float#
 
-type splat =
-  { a : float#
-  ; b : float#
-  }
-
 (** Compiles to shufps, builds record. Only use this for debugging / printing / etc. *)
-val splat : t -> splat
+val splat : t -> #(float# * float#)
 
 (** [_mm_unpackhi_pd] *)
 val interleave_upper : lower:t -> upper:t -> t
@@ -127,9 +115,9 @@ val duplicate_lower : t -> t
     Exposed as an external so user code can compile without cross-library inlining. *)
 external blend
   :  (Ocaml_simd.Blend2.t[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  -> t
+  -> t
+  -> t
   = "ocaml_simd_unreachable" "caml_sse41_vec128_blend_64"
 [@@noalloc] [@@builtin]
 
@@ -137,9 +125,9 @@ external blend
     [0,1]. Exposed as an external so user code can compile without cross-library inlining. *)
 external shuffle
   :  (Ocaml_simd.Shuffle2.t[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  -> t
+  -> t
+  -> t
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shuffle_64"
 [@@noalloc] [@@builtin]
 

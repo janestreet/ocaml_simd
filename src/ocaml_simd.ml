@@ -12,13 +12,36 @@ module Blend8 = Abstract (struct end)
 module Shuffle2 = Abstract (struct end)
 module Shuffle4 = Abstract (struct end)
 
+module Float = struct
+  module Comparison = struct
+    type t =
+      | Equal
+      | Less
+      | Less_or_equal
+      | Unordered
+      | Not_equal
+      | Not_less
+      | Not_less_or_equal
+      | Ordered
+  end
+
+  module Rounding = struct
+    type t =
+      | Nearest
+      | Negative_infinity
+      | Positive_infinity
+      | Zero
+      | Current
+  end
+end
+
 module String = struct
-  module Bstr = Abstract (struct end)
-  module Bstrm = Abstract (struct end)
-  module Bstri = Abstract (struct end)
-  module Wstr = Abstract (struct end)
-  module Wstrm = Abstract (struct end)
-  module Wstri = Abstract (struct end)
+  module Bytes = Abstract (struct end)
+  module Bytesm = Abstract (struct end)
+  module Bytesi = Abstract (struct end)
+  module Words = Abstract (struct end)
+  module Wordsm = Abstract (struct end)
+  module Wordsi = Abstract (struct end)
 
   module Signed = struct
     type t =

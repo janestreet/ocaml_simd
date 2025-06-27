@@ -2,13 +2,13 @@ type t = float32x4#
 
 external low_of
   :  float32#
-  -> (t[@unboxed])
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_float32x4_low_of_float32"
 [@@noalloc] [@@builtin]
 
 external low_to
-  :  (t[@unboxed])
+  :  t
   -> float32#
   @@ portable
   = "ocaml_simd_unreachable" "caml_float32x4_low_to_float32"
@@ -50,10 +50,10 @@ external of_float64x2
 [@@noalloc] [@@unboxed] [@@builtin]
 
 external cmp
-  :  (Float_ctrl.Compare.t[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
-  -> (int32x4#[@unboxed])
+  :  (Ocaml_simd.Float.Comparison.t[@untagged])
+  -> t
+  -> t
+  -> int32x4#
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse_float32x4_cmp"
 [@@noalloc] [@@builtin]
@@ -124,18 +124,18 @@ external horizontal_sub
 [@@noalloc] [@@unboxed] [@@builtin]
 
 external dp
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse41_float32x4_dp"
 [@@noalloc] [@@builtin]
 
 external round
-  :  (Float_ctrl.Round.t[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  (Ocaml_simd.Float.Rounding.t[@untagged])
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse41_float32x4_round"
 [@@noalloc] [@@builtin]

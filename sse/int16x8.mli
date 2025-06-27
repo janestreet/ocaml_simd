@@ -15,31 +15,37 @@ val zero : unit -> t
 val one : unit -> t
 
 (** [_mm_set1_epi16] Compiles to movd,pshufb. *)
-val set1 : int -> t
+val set1 : int64# -> t
 
 (** [_mm_set_epi16] Compiles to 4x movd,4x pinsr,3x punpcklw. *)
-val set : int -> int -> int -> int -> int -> int -> int -> int -> t
+val set
+  :  int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> t
 
 (** Argument must be an unsigned 16-bit int literal. Compiles to a static vector literal.
     Exposed as an external so user code can compile without cross-library inlining. *)
-external const1
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  = "ocaml_simd_unreachable" "caml_int16x8_const1"
+external const1 : int64# -> t = "ocaml_simd_unreachable" "caml_int16x8_const1"
 [@@noalloc] [@@builtin]
 
 (** Arguments must be unsigned 16-bit int literals. Compiles to a static vector literal.
     Exposed as an external so user code can compile without cross-library inlining. *)
 external const
-  :  (int[@untagged])
-  -> (int[@untagged])
-  -> (int[@untagged])
-  -> (int[@untagged])
-  -> (int[@untagged])
-  -> (int[@untagged])
-  -> (int[@untagged])
-  -> (int[@untagged])
-  -> (t[@unboxed])
+  :  int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> t
   = "ocaml_simd_unreachable" "caml_int16x8_const8"
 [@@noalloc] [@@builtin]
 
@@ -77,27 +83,27 @@ val equal : t -> t -> mask
 (** [_mm_insert_epi16]: [idx] must be in [0,7]. Exposed as an external so user code can
     compile without cross-library inlining. *)
 external insert
-  :  idx:(int[@untagged])
-  -> (t[@unboxed])
-  -> (int[@untagged])
-  -> (t[@unboxed])
+  :  idx:int64#
+  -> t
+  -> int64#
+  -> t
   = "ocaml_simd_unreachable" "caml_sse41_int16x8_insert"
 [@@noalloc] [@@builtin]
 
 (** [_mm_extract_epi16]: [idx] must be in [0,7]. Exposed as an external so user code can
     compile without cross-library inlining. *)
 external extract
-  :  idx:(int[@untagged])
-  -> (t[@unboxed])
-  -> (int[@untagged])
+  :  idx:int64#
+  -> t
+  -> int64#
   = "ocaml_simd_unreachable" "caml_sse41_int16x8_extract"
 [@@noalloc] [@@builtin]
 
 (** Compiles to movd,movzx. *)
-val extract0 : t -> int
+val extract0 : t -> int64#
 
 (** Compiles to movd,7x pextr. Only use this for debugging / printing / etc. *)
-val splat : t -> int * int * int * int * int * int * int * int
+val splat : t -> #(int64# * int64# * int64# * int64# * int64# * int64# * int64# * int64#)
 
 (** [_mm_unpackhi_epi16] *)
 val interleave_upper : lower:t -> upper:t -> t
@@ -110,9 +116,9 @@ val interleave_lower : lower:t -> upper:t -> t
     cross-library inlining. *)
 external blend
   :  (Ocaml_simd.Blend8.t[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  -> t
+  -> t
+  -> t
   = "ocaml_simd_unreachable" "caml_sse41_vec128_blend_16"
 [@@noalloc] [@@builtin]
 
@@ -121,8 +127,8 @@ external blend
     inlining. *)
 external shuffle_upper
   :  (Ocaml_simd.Shuffle4.t[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  -> t
+  -> t
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shuffle_high_16"
 [@@noalloc] [@@builtin]
 
@@ -131,8 +137,8 @@ external shuffle_upper
     inlining. *)
 external shuffle_lower
   :  (Ocaml_simd.Shuffle4.t[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  -> t
+  -> t
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shuffle_low_16"
 [@@noalloc] [@@builtin]
 
@@ -175,56 +181,56 @@ val neg : t -> t
 val abs : t -> t
 
 (** Compiles to movq,psll. *)
-val shift_left_logical : t -> int -> t
+val shift_left_logical : t -> int64# -> t
 
 (** Compiles to movq,psrl. *)
-val shift_right_logical : t -> int -> t
+val shift_right_logical : t -> int64# -> t
 
 (** Compiles to movq,psra. *)
-val shift_right_arithmetic : t -> int -> t
+val shift_right_arithmetic : t -> int64# -> t
 
 (** [_mm_bslli_si128] First argument must be an unsigned integer literal in [0,16].
     Exposed as an external so user code can compile without cross-library inlining. *)
 external shifti_left_bytes
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shift_left_bytes"
 [@@noalloc] [@@builtin]
 
 (** [_mm_bsrli_si128] First argument must be an unsigned integer literal in [0,16].
     Exposed as an external so user code can compile without cross-library inlining. *)
 external shifti_right_bytes
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shift_right_bytes"
 [@@noalloc] [@@builtin]
 
 (** [_mm_slli_epi16] First argument must be an unsigned integer literal in [0,31]. Exposed
     as an external so user code can compile without cross-library inlining. *)
 external shifti_left_logical
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   = "ocaml_simd_unreachable" "caml_sse2_int16x8_slli"
 [@@noalloc] [@@builtin]
 
 (** [_mm_srli_epi16] First argument must be an unsigned integer literal in [0,31]. Exposed
     as an external so user code can compile without cross-library inlining. *)
 external shifti_right_logical
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   = "ocaml_simd_unreachable" "caml_sse2_int16x8_srli"
 [@@noalloc] [@@builtin]
 
 (** [_mm_srai_epi16] First argument must be an unsigned integer literal in [0,31]. Exposed
     as an external so user code can compile without cross-library inlining. *)
 external shifti_right_arithmetic
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   = "ocaml_simd_unreachable" "caml_sse2_int16x8_srai"
 [@@noalloc] [@@builtin]
 

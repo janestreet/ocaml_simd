@@ -2,12 +2,20 @@
 
 type ('a : vec128) t = 'a array
 
-val init : ('a : vec128). n:int -> f:(int -> 'a) -> 'a t
-external length : local_ 'a t -> int = "%array_length"
-external get : local_ 'a t -> int -> 'a = "%array_safe_get"
-external set : local_ 'a t -> int -> 'a -> unit = "%array_safe_set"
-external unsafe_get : local_ 'a t -> int -> 'a = "%array_unsafe_get"
-external unsafe_set : local_ 'a t -> int -> 'a -> unit = "%array_unsafe_set"
+val init : ('a : vec128). n:int -> f:(int -> 'a) @ local -> 'a t
+external length : 'a t @ local -> int = "%array_length"
+
+(** To index by unboxed integers, use [{Int32,Int64,Nativeint}_u.Array_index.get]. *)
+external get : 'a t @ local -> int -> 'a = "%array_safe_get"
+
+(** To index by unboxed integers, use [{Int32,Int64,Nativeint}_u.Array_index.set]. *)
+external set : 'a t @ local -> int -> 'a -> unit = "%array_safe_set"
+
+(** To index by unboxed integers, use [{Int32,Int64,Nativeint}_u.Array_index.unsafe_get]. *)
+external unsafe_get : 'a t @ local -> int -> 'a = "%array_unsafe_get"
+
+(** To index by unboxed integers, use [{Int32,Int64,Nativeint}_u.Array_index.unsafe_set]. *)
+external unsafe_set : 'a t @ local -> int -> 'a -> unit = "%array_unsafe_set"
 
 (** The contents of the created array are unspecified. *)
 external create_uninitialized
@@ -17,5 +25,5 @@ external create_uninitialized
 
 external unsafe_blit
   : ('a : vec128).
-  src:local_ 'a t -> src_pos:int -> dst:local_ 'a t -> dst_pos:int -> len:int -> unit
+  src:'a t @ local -> src_pos:int -> dst:'a t @ local -> dst_pos:int -> len:int -> unit
   = "ocaml_simd_unreachable" "caml_unboxed_vec128_vect_blit"

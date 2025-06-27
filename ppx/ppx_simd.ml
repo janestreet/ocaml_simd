@@ -197,7 +197,7 @@ module Blend = struct
   let extension =
     let open Ast_builder.Default in
     Extension.declare
-      "blend"
+      "simd.blend"
       Extension.Context.expression
       Ast_pattern.(etwo ~max:2 ||| efour ~max:2 ||| eeight ~max:2)
       (fun ~loc ~path:_ blend ->
@@ -232,7 +232,7 @@ module Shuffle = struct
   let extension =
     let open Ast_builder.Default in
     Extension.declare
-      "shuffle"
+      "simd.shuffle"
       Extension.Context.expression
       Ast_pattern.(etwo ~max:2 ||| efour ~max:4)
       (fun ~loc ~path:_ shuffle ->
@@ -341,18 +341,18 @@ module String = struct
       let kind, imm = Pack.String.pack ~size str in
       let imm = eint ~loc imm in
       (match size, kind with
-       | `Byte, `Plain -> [%expr (Obj.magic [%e imm] : Ocaml_simd.String.Bstr.t)]
-       | `Byte, `Indexed -> [%expr (Obj.magic [%e imm] : Ocaml_simd.String.Bstri.t)]
-       | `Byte, `Masked -> [%expr (Obj.magic [%e imm] : Ocaml_simd.String.Bstrm.t)]
-       | `Word, `Plain -> [%expr (Obj.magic [%e imm] : Ocaml_simd.String.Wstr.t)]
-       | `Word, `Indexed -> [%expr (Obj.magic [%e imm] : Ocaml_simd.String.Wstri.t)]
-       | `Word, `Masked -> [%expr (Obj.magic [%e imm] : Ocaml_simd.String.Wstrm.t)])
+       | `Byte, `Plain -> [%expr (Obj.magic [%e imm] : Ocaml_simd.String.Bytes.t)]
+       | `Byte, `Indexed -> [%expr (Obj.magic [%e imm] : Ocaml_simd.String.Bytesi.t)]
+       | `Byte, `Masked -> [%expr (Obj.magic [%e imm] : Ocaml_simd.String.Bytesm.t)]
+       | `Word, `Plain -> [%expr (Obj.magic [%e imm] : Ocaml_simd.String.Words.t)]
+       | `Word, `Indexed -> [%expr (Obj.magic [%e imm] : Ocaml_simd.String.Wordsi.t)]
+       | `Word, `Masked -> [%expr (Obj.magic [%e imm] : Ocaml_simd.String.Wordsm.t)])
       |> Merlin_helpers.hide_expression
   ;;
 
   let byte_extension =
     Extension.declare
-      "bstr"
+      "simd.bytes"
       Extension.Context.expression
       Ast_pattern.(esigned_comparison_polarity ||| esigned_comparison_polarity_indexmask)
       (extension ~size:`Byte)
@@ -360,10 +360,170 @@ module String = struct
 
   let word_extension =
     Extension.declare
-      "wstr"
+      "simd.words"
       Extension.Context.expression
       Ast_pattern.(esigned_comparison_polarity ||| esigned_comparison_polarity_indexmask)
       (extension ~size:`Word)
+  ;;
+end
+
+module Comparison = struct
+  open Ast_pattern
+
+  module Const = struct
+    (** See the Intel SDM, Volume 2, Table 3-1: "Comparison Predicate for CMPPD and CMPPS
+        Instructions" *)
+
+    let equal = 0x0
+    let less = 0x1
+    let less_or_equal = 0x2
+    let unordered = 0x3
+    let not_equal = 0x4
+    let not_less = 0x5
+    let not_less_or_equal = 0x6
+    let ordered = 0x7
+
+    let of_comparison : Ocaml_simd.Float.Comparison.t -> int = function
+      | Equal -> equal
+      | Less -> less
+      | Less_or_equal -> less_or_equal
+      | Unordered -> unordered
+      | Not_equal -> not_equal
+      | Not_less -> not_less
+      | Not_less_or_equal -> not_less_or_equal
+      | Ordered -> ordered
+    ;;
+  end
+
+  let bad_name ~loc s expected =
+    failure
+      ~loc
+      "Argument '%s' must be one of [%s]."
+      s
+      (Base.String.concat ~sep:"," expected)
+  ;;
+
+  let ecomparison =
+    let open Ocaml_simd.Float.Comparison in
+    pstr
+      (pstr_eval
+         (pexp_construct (lident __) none
+          |> map' ~f:(fun loc f s ->
+            match s with
+            | "Equal" -> f (Ok Equal)
+            | "Less" -> f (Ok Less)
+            | "Less_or_equal" -> f (Ok Less_or_equal)
+            | "Unordered" -> f (Ok Unordered)
+            | "Not_equal" -> f (Ok Not_equal)
+            | "Not_less" -> f (Ok Not_less)
+            | "Not_less_or_equal" -> f (Ok Not_less_or_equal)
+            | "Ordered" -> f (Ok Ordered)
+            | _ ->
+              f
+                (bad_name
+                   ~loc
+                   s
+                   [ "Equal"
+                   ; "Less"
+                   ; "Less_or_equal"
+                   ; "Unordered"
+                   ; "Not_equal"
+                   ; "Not_less"
+                   ; "Not_less_or_equal"
+                   ; "Ordered"
+                   ])))
+         nil
+       ^:: nil)
+  ;;
+
+  let extension =
+    let open Ast_builder.Default in
+    Extension.declare
+      "simd.float_compare"
+      Extension.Context.expression
+      ecomparison
+      (fun ~loc ~path:_ comparison ->
+         Merlin_helpers.hide_expression
+           (match comparison with
+            | Error err -> pexp_extension ~loc (Location.Error.to_extension err)
+            | Ok comparison ->
+              let imm = Const.of_comparison comparison in
+              let imm = eint ~loc imm in
+              [%expr (Obj.magic [%e imm] : Ocaml_simd.Float.Comparison.t)]))
+  ;;
+end
+
+module Rounding = struct
+  open Ast_pattern
+
+  module Const = struct
+    (** See the Intel SDM, Volume 2, Figure 4-24 / Table 4-18: "Rounding Modes and
+        Encoding of Rounding Control (RC) Field" *)
+
+    let nearest = 0x8
+    let negative_infinity = 0x9
+    let positive_infinity = 0xA
+    let zero = 0xB
+    let current = 0xC
+
+    let of_rounding : Ocaml_simd.Float.Rounding.t -> int = function
+      | Nearest -> nearest
+      | Negative_infinity -> negative_infinity
+      | Positive_infinity -> positive_infinity
+      | Zero -> zero
+      | Current -> current
+    ;;
+  end
+
+  let bad_name ~loc s expected =
+    failure
+      ~loc
+      "Argument '%s' must be one of [%s]."
+      s
+      (Base.String.concat ~sep:"," expected)
+  ;;
+
+  let erounding =
+    let open Ocaml_simd.Float.Rounding in
+    pstr
+      (pstr_eval
+         (pexp_construct (lident __) none
+          |> map' ~f:(fun loc f s ->
+            match s with
+            | "Nearest" -> f (Ok Nearest)
+            | "Negative_infinity" -> f (Ok Negative_infinity)
+            | "Positive_infinity" -> f (Ok Positive_infinity)
+            | "Zero" -> f (Ok Zero)
+            | "Current" -> f (Ok Current)
+            | _ ->
+              f
+                (bad_name
+                   ~loc
+                   s
+                   [ "Nearest"
+                   ; "Negative_infinity"
+                   ; "Positive_infinity"
+                   ; "Zero"
+                   ; "Current"
+                   ])))
+         nil
+       ^:: nil)
+  ;;
+
+  let extension =
+    let open Ast_builder.Default in
+    Extension.declare
+      "simd.float_round"
+      Extension.Context.expression
+      erounding
+      (fun ~loc ~path:_ rounding ->
+         Merlin_helpers.hide_expression
+           (match rounding with
+            | Error err -> pexp_extension ~loc (Location.Error.to_extension err)
+            | Ok rounding ->
+              let imm = Const.of_rounding rounding in
+              let imm = eint ~loc imm in
+              [%expr (Obj.magic [%e imm] : Ocaml_simd.Float.Rounding.t)]))
   ;;
 end
 
@@ -371,5 +531,11 @@ let () =
   Driver.register_transformation
     "simd"
     ~extensions:
-      [ Blend.extension; Shuffle.extension; String.byte_extension; String.word_extension ]
+      [ Comparison.extension
+      ; Rounding.extension
+      ; Blend.extension
+      ; Shuffle.extension
+      ; String.byte_extension
+      ; String.word_extension
+      ]
 ;;

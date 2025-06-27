@@ -10,56 +10,52 @@ module String = Load_store.String_Int8x16
 module Bytes = Load_store.Bytes_Int8x16
 module Bigstring = Load_store.Bigstring_Int8x16
 
-external const1
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  @@ portable
-  = "ocaml_simd_unreachable" "caml_int8x16_const1"
+external const1 : int64# -> t @@ portable = "ocaml_simd_unreachable" "caml_int8x16_const1"
 [@@noalloc] [@@builtin]
 
 external const
-  :  (int[@untagged])
-  -> (int[@untagged])
-  -> (int[@untagged])
-  -> (int[@untagged])
-  -> (int[@untagged])
-  -> (int[@untagged])
-  -> (int[@untagged])
-  -> (int[@untagged])
-  -> (int[@untagged])
-  -> (int[@untagged])
-  -> (int[@untagged])
-  -> (int[@untagged])
-  -> (int[@untagged])
-  -> (int[@untagged])
-  -> (int[@untagged])
-  -> (int[@untagged])
-  -> (t[@unboxed])
+  :  int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> int64#
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_int8x16_const16"
 [@@noalloc] [@@builtin]
 
 external extract
-  :  idx:(int[@untagged])
-  -> (t[@unboxed])
-  -> (int[@untagged])
+  :  idx:int64#
+  -> t
+  -> int64#
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse41_int8x16_extract"
 [@@noalloc] [@@builtin]
 
 external insert
-  :  idx:(int[@untagged])
-  -> (t[@unboxed])
-  -> (int[@untagged])
-  -> (t[@unboxed])
+  :  idx:int64#
+  -> t
+  -> int64#
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse41_int8x16_insert"
 [@@noalloc] [@@builtin]
 
-let[@inline always] zero () = const1 0
-let[@inline always] one () = const1 1
-let[@inline always] all_ones () = const1 0xff
-let[@inline always] zero_mask () = Int16x8_internal.const1 0
+let[@inline always] zero () = const1 #0L
+let[@inline always] one () = const1 #1L
+let[@inline always] all_ones () = const1 #0xffL
+let[@inline always] zero_mask () = Int16x8_internal.const1 #0L
 let[@inline always] shuffle ~pattern x = I.shuffle_8 x pattern
 let[@inline always] set1 a = shuffle ~pattern:(zero ()) (I.low_of a)
 
@@ -74,14 +70,14 @@ let[@inline always] set a b c d e f g h i j k l m n o p =
   let k = I.low_of k in
   let m = I.low_of m in
   let o = I.low_of o in
-  let ba = insert ~idx:1 a b in
-  let dc = insert ~idx:1 c d in
-  let fe = insert ~idx:1 e f in
-  let hg = insert ~idx:1 g h in
-  let ji = insert ~idx:1 i j in
-  let lk = insert ~idx:1 k l in
-  let nm = insert ~idx:1 m n in
-  let po = insert ~idx:1 o p in
+  let ba = insert ~idx:#1L a b in
+  let dc = insert ~idx:#1L c d in
+  let fe = insert ~idx:#1L e f in
+  let hg = insert ~idx:#1L g h in
+  let ji = insert ~idx:#1L i j in
+  let lk = insert ~idx:#1L k l in
+  let nm = insert ~idx:#1L m n in
+  let po = insert ~idx:#1L o p in
   let dcba = I.interleave_low_16 ba dc in
   let hgfe = I.interleave_low_16 fe hg in
   let lkji = I.interleave_low_16 ji lk in
@@ -98,22 +94,22 @@ let[@inline always] movemask m = I.movemask_8 m
 let[@inline always] splat x =
   (* 16x movd, 16x movzx, 15x shuffle -> 6 cycle latency
      this                             -> 5 cycle latency, fewer registers *)
-  ( extract0 x
-  , extract ~idx:1 x
-  , extract ~idx:2 x
-  , extract ~idx:3 x
-  , extract ~idx:4 x
-  , extract ~idx:5 x
-  , extract ~idx:6 x
-  , extract ~idx:7 x
-  , extract ~idx:8 x
-  , extract ~idx:9 x
-  , extract ~idx:10 x
-  , extract ~idx:11 x
-  , extract ~idx:12 x
-  , extract ~idx:13 x
-  , extract ~idx:14 x
-  , extract ~idx:15 x )
+  #( extract0 x
+   , extract ~idx:#1L x
+   , extract ~idx:#2L x
+   , extract ~idx:#3L x
+   , extract ~idx:#4L x
+   , extract ~idx:#5L x
+   , extract ~idx:#6L x
+   , extract ~idx:#7L x
+   , extract ~idx:#8L x
+   , extract ~idx:#9L x
+   , extract ~idx:#10L x
+   , extract ~idx:#11L x
+   , extract ~idx:#12L x
+   , extract ~idx:#13L x
+   , extract ~idx:#14L x
+   , extract ~idx:#15L x )
 ;;
 
 (* Comparisons do not use [C.not_...], as they have different NaN behavior. *)
@@ -140,26 +136,26 @@ let[@inline always] neg x = I.(mulsign x (all_ones ()))
 let[@inline always] abs x = I.abs x
 
 external shifti_left_bytes
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shift_left_bytes"
 [@@noalloc] [@@builtin]
 
 external shifti_right_bytes
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shift_right_bytes"
 [@@noalloc] [@@builtin]
 
 external concat_shift_right_bytes
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_ssse3_vec128_align_right_bytes"
 [@@noalloc] [@@builtin]
@@ -180,10 +176,10 @@ let[@inline always] mul_unsigned_by_signed_horizontal_add_saturating x y =
 ;;
 
 external multi_sum_absolute_differences_unsigned
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
-  -> (int16x8#[@unboxed])
+  :  int64#
+  -> t
+  -> t
+  -> int16x8#
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse41_int8x16_multi_sad_unsigned"
 [@@noalloc] [@@builtin]
@@ -200,31 +196,49 @@ let[@inline always] of_int16x8_saturating_unsigned x =
 ;;
 
 let[@inline always] to_string x =
-  let a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p = splat x in
+  let #(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) = splat x in
   Stdlib.Printf.sprintf
-    "(%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d)"
-    a
-    b
-    c
-    d
-    e
-    f
-    g
-    h
-    i
-    j
-    k
-    l
-    m
-    n
-    o
-    p
+    "(%Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld)"
+    (Int64_u.to_int64 a)
+    (Int64_u.to_int64 b)
+    (Int64_u.to_int64 c)
+    (Int64_u.to_int64 d)
+    (Int64_u.to_int64 e)
+    (Int64_u.to_int64 f)
+    (Int64_u.to_int64 g)
+    (Int64_u.to_int64 h)
+    (Int64_u.to_int64 i)
+    (Int64_u.to_int64 j)
+    (Int64_u.to_int64 k)
+    (Int64_u.to_int64 l)
+    (Int64_u.to_int64 m)
+    (Int64_u.to_int64 n)
+    (Int64_u.to_int64 o)
+    (Int64_u.to_int64 p)
 ;;
 
 let[@inline always] of_string s =
   Stdlib.Scanf.sscanf
     s
-    "(%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d)"
-    (fun a b c d e f g h i j k l m n o p -> set a b c d e f g h i j k l m n o p |> box)
+    "(%Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld)"
+    (fun a b c d e f g h i j k l m n o p ->
+       set
+         (Int64_u.of_int64 a)
+         (Int64_u.of_int64 b)
+         (Int64_u.of_int64 c)
+         (Int64_u.of_int64 d)
+         (Int64_u.of_int64 e)
+         (Int64_u.of_int64 f)
+         (Int64_u.of_int64 g)
+         (Int64_u.of_int64 h)
+         (Int64_u.of_int64 i)
+         (Int64_u.of_int64 j)
+         (Int64_u.of_int64 k)
+         (Int64_u.of_int64 l)
+         (Int64_u.of_int64 m)
+         (Int64_u.of_int64 n)
+         (Int64_u.of_int64 o)
+         (Int64_u.of_int64 p)
+       |> box)
   |> unbox
 ;;

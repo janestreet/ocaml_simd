@@ -2,13 +2,13 @@ type t = int64x2#
 
 external low_of
   :  int64#
-  -> (t[@unboxed])
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_int64x2_low_of_int64"
 [@@noalloc] [@@builtin]
 
 external low_to
-  :  (t[@unboxed])
+  :  t
   -> int64#
   @@ portable
   = "ocaml_simd_unreachable" "caml_int64x2_low_to_int64"
@@ -49,11 +49,7 @@ external of_float64x2
   = "ocaml_simd_unreachable" "caml_vec128_cast"
 [@@noalloc] [@@unboxed] [@@builtin]
 
-external const1
-  :  int64#
-  -> (t[@unboxed])
-  @@ portable
-  = "ocaml_simd_unreachable" "caml_int64x2_const1"
+external const1 : int64# -> t @@ portable = "ocaml_simd_unreachable" "caml_int64x2_const1"
 [@@noalloc] [@@builtin]
 
 external add : t -> t -> t @@ portable = "ocaml_simd_unreachable" "caml_sse2_int64x2_add"
@@ -112,17 +108,17 @@ external xor : t -> t -> t @@ portable = "ocaml_simd_unreachable" "caml_sse2_vec
 [@@noalloc] [@@unboxed] [@@builtin]
 
 external slli
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_int64x2_slli"
 [@@noalloc] [@@builtin]
 
 external srli
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_int64x2_srli"
 [@@noalloc] [@@builtin]
@@ -176,8 +172,8 @@ external dup_low_64
 [@@noalloc] [@@unboxed] [@@builtin]
 
 external movemask_64
-  :  (t[@unboxed])
-  -> (int[@untagged])
+  :  t
+  -> int64#
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_vec128_movemask_64"
 [@@noalloc] [@@builtin]

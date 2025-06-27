@@ -2,13 +2,13 @@ type t = int32x4#
 
 external low_of
   :  int32#
-  -> (t[@unboxed])
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_int32x4_low_of_int32"
 [@@noalloc] [@@builtin]
 
 external low_to
-  :  (t[@unboxed])
+  :  t
   -> int32#
   @@ portable
   = "ocaml_simd_unreachable" "caml_int32x4_low_to_int32"
@@ -49,16 +49,12 @@ external of_float64x2
   = "ocaml_simd_unreachable" "caml_vec128_cast"
 [@@noalloc] [@@unboxed] [@@builtin]
 
-external const1
-  :  int32#
-  -> (t[@unboxed])
-  @@ portable
-  = "ocaml_simd_unreachable" "caml_int32x4_const1"
+external const1 : int32# -> t @@ portable = "ocaml_simd_unreachable" "caml_int32x4_const1"
 [@@noalloc] [@@builtin]
 
 external movemask_32
-  :  (t[@unboxed])
-  -> (int[@untagged])
+  :  t
+  -> int64#
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse_vec128_movemask_32"
 [@@noalloc] [@@builtin]

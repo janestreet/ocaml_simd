@@ -1,15 +1,15 @@
 type t = int16x8#
 
 external low_of
-  :  (int[@untagged])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_int16x8_low_of_int"
 [@@noalloc] [@@builtin]
 
 external low_to
-  :  (t[@unboxed])
-  -> (int[@untagged])
+  :  t
+  -> int64#
   @@ portable
   = "ocaml_simd_unreachable" "caml_int16x8_low_to_int"
 [@@noalloc] [@@builtin]
@@ -52,11 +52,7 @@ external of_float64x2
 external add : t -> t -> t @@ portable = "ocaml_simd_unreachable" "caml_sse2_int16x8_add"
 [@@noalloc] [@@unboxed] [@@builtin]
 
-external const1
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  @@ portable
-  = "ocaml_simd_unreachable" "caml_int16x8_const1"
+external const1 : int64# -> t @@ portable = "ocaml_simd_unreachable" "caml_int16x8_const1"
 [@@noalloc] [@@builtin]
 
 external add_saturating

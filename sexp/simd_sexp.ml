@@ -30,7 +30,7 @@ module I64x2 = Ocaml_simd_sse.Int64x2
 module String_intrin = struct
   include Ocaml_simd_sse.String
 
-  let[@inline] spaces () = I8x16.const1 (Char.to_int ' ')
+  let[@inline] spaces () = I8x16.const1 (Int64_u.of_int (Char.to_int ' '))
 
   (** Behaves like [I8x16.shifti_{left,right}_bytes] without the restriction that the
       shift amount has to be a literal constant.
@@ -137,7 +137,7 @@ module I64_intrin = struct
       v} *)
   let[@inline] clmul n =
     I64x2.mul_without_carry
-      0
+      #0L
       (I64x2.set (Int64_u.of_int64 n) (Int64_u.of_int64 0L))
       (all_bits ())
     |> I64x2.extract0
@@ -146,12 +146,11 @@ module I64_intrin = struct
 
   (* Four 128-bit byte masks -> int64 bit mask *)
   let[@inline] bitmask v0 v1 v2 v3 ~f =
-    let open Int64 in
-    let v0 = f v0 |> I8x16.movemask |> Int64.of_int in
-    let v1 = f v1 |> I8x16.movemask |> Int64.of_int in
-    let v2 = f v2 |> I8x16.movemask |> Int64.of_int in
-    let v3 = f v3 |> I8x16.movemask |> Int64.of_int in
-    v0 lor (v1 lsl 16) lor (v2 lsl 32) lor (v3 lsl 48)
+    let v0 = f v0 |> I8x16.movemask in
+    let v1 = f v1 |> I8x16.movemask in
+    let v2 = f v2 |> I8x16.movemask in
+    let v3 = f v3 |> I8x16.movemask in
+    Int64_u.(v0 lor (v1 lsl 16) lor (v2 lsl 32) lor (v3 lsl 48)) |> Int64_u.to_int64
   ;;
 
   let[@inline] sign_extend n = Int64.((n lsl 63) asr 63)
@@ -219,52 +218,52 @@ module Lex = struct
   (* Chars that are not exclusively seen in atoms, i.e. may require a state transition. *)
   let[@inline] structural_chars () =
     I8x16.const
-      (Char.to_int ' ')
-      (Char.to_int '\t')
-      (Char.to_int '\n')
-      (Char.to_int '(')
-      (Char.to_int ')')
-      (Char.to_int '"')
-      (Char.to_int ';')
-      (Char.to_int '#')
-      (Char.to_int '|')
-      (Char.to_int '\r')
-      (Char.to_int '\012')
-      0
-      0
-      0
-      0
-      0
+      (Int64_u.of_int (Char.to_int ' '))
+      (Int64_u.of_int (Char.to_int '\t'))
+      (Int64_u.of_int (Char.to_int '\n'))
+      (Int64_u.of_int (Char.to_int '('))
+      (Int64_u.of_int (Char.to_int ')'))
+      (Int64_u.of_int (Char.to_int '"'))
+      (Int64_u.of_int (Char.to_int ';'))
+      (Int64_u.of_int (Char.to_int '#'))
+      (Int64_u.of_int (Char.to_int '|'))
+      (Int64_u.of_int (Char.to_int '\r'))
+      (Int64_u.of_int (Char.to_int '\012'))
+      #0L
+      #0L
+      #0L
+      #0L
+      #0L
   ;;
 
   (* Chars that may follow whitespace or a structural char and may require a
      state transition. *)
   let[@inline] pseudostructural_chars () =
     I8x16.const
-      (Char.to_int '(')
-      (Char.to_int ')')
-      (Char.to_int ';')
-      (Char.to_int '#')
-      (Char.to_int '|')
-      (Char.to_int '\r')
-      0
-      0
-      0
-      0
-      0
-      0
-      0
-      0
-      0
-      0
+      (Int64_u.of_int (Char.to_int '('))
+      (Int64_u.of_int (Char.to_int ')'))
+      (Int64_u.of_int (Char.to_int ';'))
+      (Int64_u.of_int (Char.to_int '#'))
+      (Int64_u.of_int (Char.to_int '|'))
+      (Int64_u.of_int (Char.to_int '\r'))
+      #0L
+      #0L
+      #0L
+      #0L
+      #0L
+      #0L
+      #0L
+      #0L
+      #0L
+      #0L
   ;;
 
-  let[@inline] backslashes () = I8x16.const1 (Char.to_int '\\')
-  let[@inline] quotes () = I8x16.const1 (Char.to_int '"')
-  let[@inline] newlines () = I8x16.const1 (Char.to_int '\n')
-  let[@inline] returns () = I8x16.const1 (Char.to_int '\r')
-  let[@inline] spaces () = I8x16.const1 (Char.to_int ' ')
-  let[@inline] tabs () = I8x16.const1 (Char.to_int '\t')
+  let[@inline] backslashes () = I8x16.const1 (Int64_u.of_int (Char.to_int '\\'))
+  let[@inline] quotes () = I8x16.const1 (Int64_u.of_int (Char.to_int '"'))
+  let[@inline] newlines () = I8x16.const1 (Int64_u.of_int (Char.to_int '\n'))
+  let[@inline] returns () = I8x16.const1 (Int64_u.of_int (Char.to_int '\r'))
+  let[@inline] spaces () = I8x16.const1 (Int64_u.of_int (Char.to_int ' '))
+  let[@inline] tabs () = I8x16.const1 (Int64_u.of_int (Char.to_int '\t'))
 
   (* Mask indicating the starts of runs.  Note that here (and elsewhere in this module)
      "starts" and "ends" are a bit confusing: the least significant bit of the mask
@@ -279,36 +278,41 @@ module Lex = struct
 
   let[@inline] is_pseudostructural v =
     String_intrin.Byte.cmpestrm
-      [%bstr Signed, Eq_any, Pos, Vec_mask]
+      [%bytes Signed, Eq_any, Pos, Vec_mask]
       ~a:(pseudostructural_chars ())
-      ~a_len:6
+      ~a_len:#6L
       ~b:v
-      ~b_len:16
+      ~b_len:#16L
   ;;
 
   (* Atom-like if not structural. *)
   let[@inline] is_atom_like v =
     String_intrin.Byte.cmpestrm
-      [%bstr Signed, Eq_any, Neg, Vec_mask]
+      [%bytes Signed, Eq_any, Neg, Vec_mask]
       ~a:(structural_chars ())
-      ~a_len:11
+      ~a_len:#11L
       ~b:v
-      ~b_len:16
+      ~b_len:#16L
   ;;
 
   (* Index of first char that may require a state transition. *)
   let[@inline] n_unquoted_string_chars v =
     String_intrin.Byte.cmpestri
-      [%bstr Signed, Eq_any, Pos, Least_sig]
+      [%bytes Signed, Eq_any, Pos, Least_sig]
       ~a:(structural_chars ())
-      ~a_len:11
+      ~a_len:#11L
       ~b:v
-      ~b_len:16
+      ~b_len:#16L
+    |> Int64_u.to_int_trunc
   ;;
 
   (* Index of first char that may require a state transition. *)
   let[@inline] n_quoted_string_chars v =
-    let movemask = I8x16.((v = quotes ()) lor (v = backslashes ())) |> I8x16.movemask in
+    let movemask =
+      I8x16.((v = quotes ()) lor (v = backslashes ()))
+      |> I8x16.movemask
+      |> Int64_u.to_int_trunc
+    in
     if movemask = 0
     then None
     else Some (Ocaml_intrinsics.Int.count_trailing_zeros movemask)
@@ -316,13 +320,21 @@ module Lex = struct
 
   (* Index of first newline character. *)
   let[@inline] chars_until_newline_or_return v =
-    let movemask = I8x16.((v = newlines ()) lor (v = returns ())) |> I8x16.movemask in
+    let movemask =
+      I8x16.((v = newlines ()) lor (v = returns ()))
+      |> I8x16.movemask
+      |> Int64_u.to_int_trunc
+    in
     if movemask = 0 then 16 else Ocaml_intrinsics.Int.count_trailing_zeros movemask
   ;;
 
   (* Index of first non-space non-tab character. *)
   let[@inline] chars_until_non_space_or_tab v =
-    let movemask = I8x16.((v <> spaces ()) land (v <> tabs ())) |> I8x16.movemask in
+    let movemask =
+      I8x16.((v <> spaces ()) land (v <> tabs ()))
+      |> I8x16.movemask
+      |> Int64_u.to_int_trunc
+    in
     if movemask = 0 then 16 else Ocaml_intrinsics.Int.count_trailing_zeros movemask
   ;;
 
@@ -714,9 +726,7 @@ module Parse = struct
     match structural_mask with
     | 0L -> ()
     | _ ->
-      let offset =
-        I64_intrin.count_trailing_zeros structural_mask |> Int64.to_int_trunc
-      in
+      let offset = I64_intrin.(count_trailing_zeros structural_mask |> of_64) in
       maybe_transition t ~input ~idx:(idx + offset);
       let next = Int64.(structural_mask land (structural_mask - 1L)) in
       feed_masked t ~input ~idx ~structural_mask:next

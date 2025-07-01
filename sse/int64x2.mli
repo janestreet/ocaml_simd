@@ -23,17 +23,13 @@ val set : int64# -> int64# -> t
 (** Argument must be a literal or an unboxing function applied to a literal. Compiles to a
     static vector literal. Exposed as an external so user code can compile without
     cross-library inlining. *)
-external const1 : int64# -> (t[@unboxed]) = "ocaml_simd_unreachable" "caml_int64x2_const1"
+external const1 : int64# -> t = "ocaml_simd_unreachable" "caml_int64x2_const1"
 [@@noalloc] [@@builtin]
 
 (** Arguments must be literals or unboxing functions applied to literals. Compiles to a
     static vector literal. Exposed as an external so user code can compile without
     cross-library inlining. *)
-external const
-  :  int64#
-  -> int64#
-  -> (t[@unboxed])
-  = "ocaml_simd_unreachable" "caml_int64x2_const2"
+external const : int64# -> int64# -> t = "ocaml_simd_unreachable" "caml_int64x2_const2"
 [@@noalloc] [@@builtin]
 
 (* Load/Store *)
@@ -70,7 +66,7 @@ val ( <> ) : t -> t -> mask
 val equal : t -> t -> mask
 
 (** [_mm_movemask_pd] *)
-val movemask : mask -> int
+val movemask : mask -> int64#
 
 (** [_mm_blendv_pd] *)
 val select : mask -> fail:t -> pass:t -> t
@@ -80,18 +76,18 @@ val select : mask -> fail:t -> pass:t -> t
 (** [_mm_insert_epi64]: [idx] must be in [0,1]. Exposed as an external so user code can
     compile without cross-library inlining. *)
 external insert
-  :  idx:(int[@untagged])
-  -> (t[@unboxed])
+  :  idx:int64#
+  -> t
   -> int64#
-  -> (t[@unboxed])
+  -> t
   = "ocaml_simd_unreachable" "caml_sse41_int64x2_insert"
 [@@noalloc] [@@builtin]
 
 (** [_mm_extract_epi64]: [idx] must be in [0,1]. Exposed as an external so user code can
     compile without cross-library inlining. *)
 external extract
-  :  idx:(int[@untagged])
-  -> (t[@unboxed])
+  :  idx:int64#
+  -> t
   -> int64#
   = "ocaml_simd_unreachable" "caml_sse41_int64x2_extract"
 [@@noalloc] [@@builtin]
@@ -99,13 +95,8 @@ external extract
 (** Compiles to movq. *)
 val extract0 : t -> int64#
 
-type splat =
-  { a : int64#
-  ; b : int64#
-  }
-
 (** Compiles to movq,pextr. Only use this for debugging / printing / etc. *)
-val splat : t -> splat
+val splat : t -> #(int64# * int64#)
 
 (** [_mm_unpackhi_epi64] *)
 val interleave_upper : lower:t -> upper:t -> t
@@ -126,9 +117,9 @@ val duplicate_lower : t -> t
     Exposed as an external so user code can compile without cross-library inlining. *)
 external blend
   :  (Ocaml_simd.Blend2.t[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  -> t
+  -> t
+  -> t
   = "ocaml_simd_unreachable" "caml_sse41_vec128_blend_64"
 [@@noalloc] [@@builtin]
 
@@ -136,9 +127,9 @@ external blend
     [0,1]. Exposed as an external so user code can compile without cross-library inlining. *)
 external shuffle
   :  (Ocaml_simd.Shuffle2.t[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  -> t
+  -> t
+  -> t
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shuffle_64"
 [@@noalloc] [@@builtin]
 
@@ -157,54 +148,54 @@ val neg : t -> t
 val abs : t -> t
 
 (** Compiles to movq,psll. *)
-val shift_left_logical : t -> int -> t
+val shift_left_logical : t -> int64# -> t
 
 (** Compiles to movq,psrl. *)
-val shift_right_logical : t -> int -> t
+val shift_right_logical : t -> int64# -> t
 
 (** [_mm_bslli_si128] First argument must be an unsigned integer literal in [0,16].
     Exposed as an external so user code can compile without cross-library inlining. *)
 external shifti_left_bytes
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shift_left_bytes"
 [@@noalloc] [@@builtin]
 
 (** [_mm_bsrli_si128] First argument must be an unsigned integer literal in [0,16].
     Exposed as an external so user code can compile without cross-library inlining. *)
 external shifti_right_bytes
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shift_right_bytes"
 [@@noalloc] [@@builtin]
 
 (** [_mm_slli_epi64] First argument must be an unsigned integer literal in [0,31]. Exposed
     as an external so user code can compile without cross-library inlining. *)
 external shifti_left_logical
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   = "ocaml_simd_unreachable" "caml_sse2_int64x2_slli"
 [@@noalloc] [@@builtin]
 
 (** [_mm_srli_epi64] First argument must be an unsigned integer literal in [0,31]. Exposed
     as an external so user code can compile without cross-library inlining. *)
 external shifti_right_logical
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   = "ocaml_simd_unreachable" "caml_sse2_int64x2_srli"
 [@@noalloc] [@@builtin]
 
 (* [_mm_clmulepi64_si128] First argument must be an unsigned integer literal in [0,31].
    Exposed as an external so user code can compile without cross-library inlining. *)
 external mul_without_carry
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
+  -> t
   = "ocaml_simd_unreachable" "caml_clmul_int64x2"
 [@@noalloc] [@@builtin]
 

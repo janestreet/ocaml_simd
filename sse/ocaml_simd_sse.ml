@@ -11,3 +11,4 @@ module Int64x2 = Int64x2
 module String = String
 module Array = Array
 module Ref = Ref
+module Load_store = Load_store

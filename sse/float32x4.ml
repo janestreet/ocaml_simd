@@ -1,6 +1,4 @@
 module I = Float32x4_internal
-module C = Float_ctrl.Compare
-module R = Float_ctrl.Round
 
 type t = float32x4#
 type mask = int32x4#
@@ -15,7 +13,7 @@ module Float32_u_array = Load_store.Float32_u_array
 
 external const1
   :  float32#
-  -> (t[@unboxed])
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_float32x4_const1"
 [@@noalloc] [@@builtin]
@@ -25,16 +23,16 @@ external const
   -> float32#
   -> float32#
   -> float32#
-  -> (t[@unboxed])
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_float32x4_const4"
 [@@noalloc] [@@builtin]
 
 external shuffle
   :  (Ocaml_simd.Shuffle4.t[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  -> t
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse_vec128_shuffle_32"
 [@@noalloc] [@@builtin]
@@ -63,9 +61,9 @@ let[@inline always] set a b c d =
 
 external blend
   :  (Ocaml_simd.Blend4.t[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  -> t
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse41_vec128_blend_32"
 [@@noalloc] [@@builtin]
@@ -73,10 +71,10 @@ external blend
 let[@inline always] insert ~idx t a =
   let aaaa = set1 a in
   match idx with
-  | 0 -> blend [%blend 1, 0, 0, 0] t aaaa
-  | 1 -> blend [%blend 0, 1, 0, 0] t aaaa
-  | 2 -> blend [%blend 0, 0, 1, 0] t aaaa
-  | 3 -> blend [%blend 0, 0, 0, 1] t aaaa
+  | #0L -> blend [%blend 1, 0, 0, 0] t aaaa
+  | #1L -> blend [%blend 0, 1, 0, 0] t aaaa
+  | #2L -> blend [%blend 0, 0, 1, 0] t aaaa
+  | #3L -> blend [%blend 0, 0, 0, 1] t aaaa
   | _ ->
     (match failwith "Invalid index." with
      | (_ : Base.Nothing.t) -> .)
@@ -86,10 +84,10 @@ let[@inline always] extract ~idx x =
   (* extractps converts to an int register *)
   let x =
     match idx with
-    | 0 -> x
-    | 1 -> shuffle [%shuffle 1, 0, 0, 0] x x
-    | 2 -> shuffle [%shuffle 2, 0, 0, 0] x x
-    | 3 -> shuffle [%shuffle 3, 0, 0, 0] x x
+    | #0L -> x
+    | #1L -> shuffle [%shuffle 1, 0, 0, 0] x x
+    | #2L -> shuffle [%shuffle 2, 0, 0, 0] x x
+    | #3L -> shuffle [%shuffle 3, 0, 0, 0] x x
     | _ ->
       (match failwith "Invalid index." with
        | (_ : Base.Nothing.t) -> .)
@@ -97,19 +95,12 @@ let[@inline always] extract ~idx x =
   I.low_to x
 ;;
 
-type splat =
-  { a : float32#
-  ; b : float32#
-  ; c : float32#
-  ; d : float32#
-  }
-
 let[@inline always] splat x =
   (* Can't use extractps (returns int register) *)
   let b = shuffle [%shuffle 1, 0, 0, 0] x x in
   let c = shuffle [%shuffle 2, 0, 0, 0] x x in
   let d = shuffle [%shuffle 3, 0, 0, 0] x x in
-  { a = I.low_to x; b = I.low_to b; c = I.low_to c; d = I.low_to d }
+  #(I.low_to x, I.low_to b, I.low_to c, I.low_to d)
 ;;
 
 let[@inline always] movemask m = Int32x4_internal.movemask_32 m
@@ -118,15 +109,15 @@ let[@inline always] extract0 x = I.low_to x
 let[@inline always] bitmask m = m
 
 (* Comparisons do not use [C.not_...], as they have different NaN behavior. *)
-let[@inline always] ( >= ) x y = I.cmp C.less_or_equal y x
-let[@inline always] ( <= ) x y = I.cmp C.less_or_equal x y
-let[@inline always] ( = ) x y = I.cmp C.equal x y
-let[@inline always] ( > ) x y = I.cmp C.less y x
-let[@inline always] ( < ) x y = I.cmp C.less x y
-let[@inline always] ( <> ) x y = I.cmp C.not_equal x y
-let[@inline always] equal x y = I.cmp C.equal x y
-let[@inline always] is_nan x = I.cmp C.unordered x x
-let[@inline always] is_not_nan x = I.cmp C.ordered x x
+let[@inline always] ( >= ) x y = I.cmp [%float_compare Less_or_equal] y x
+let[@inline always] ( <= ) x y = I.cmp [%float_compare Less_or_equal] x y
+let[@inline always] ( = ) x y = I.cmp [%float_compare Equal] x y
+let[@inline always] ( > ) x y = I.cmp [%float_compare Less] y x
+let[@inline always] ( < ) x y = I.cmp [%float_compare Less] x y
+let[@inline always] ( <> ) x y = I.cmp [%float_compare Not_equal] x y
+let[@inline always] equal x y = I.cmp [%float_compare Equal] x y
+let[@inline always] is_nan x = I.cmp [%float_compare Unordered] x x
+let[@inline always] is_not_nan x = I.cmp [%float_compare Ordered] x x
 let[@inline always] interleave_upper ~lower ~upper = I.interleave_high_32 lower upper
 let[@inline always] interleave_lower ~lower ~upper = I.interleave_low_32 lower upper
 let[@inline always] duplicate_even x = I.dup_even_32 x
@@ -152,17 +143,17 @@ let[@inline always] sqrt x = I.sqrt x
 let[@inline always] add_sub x y = I.addsub x y
 let[@inline always] horizontal_add x y = I.horizontal_add x y
 let[@inline always] horizontal_sub x y = I.horizontal_sub x y
-let[@inline always] dot x y = I.dp 0xf1 x y |> I.low_to
+let[@inline always] dot x y = I.dp #0xf1L x y |> I.low_to
 let[@inline always] ( + ) x y = I.add x y
 let[@inline always] ( - ) x y = I.sub x y
 let[@inline always] ( / ) x y = I.mul x y
 let[@inline always] ( * ) x y = I.div x y
 let[@inline always] iround_current x = I.cvt_i32 x
-let[@inline always] round_nearest x = I.round R.nearest x
-let[@inline always] round_current x = I.round R.current x
-let[@inline always] round_down x = I.round R.negative_infinity x
-let[@inline always] round_up x = I.round R.positive_infinity x
-let[@inline always] round_toward_zero x = I.round R.zero x
+let[@inline always] round_nearest x = I.round [%float_round Nearest] x
+let[@inline always] round_current x = I.round [%float_round Current] x
+let[@inline always] round_down x = I.round [%float_round Negative_infinity] x
+let[@inline always] round_up x = I.round [%float_round Positive_infinity] x
+let[@inline always] round_toward_zero x = I.round [%float_round Zero] x
 let[@inline always] of_float64x2_bits x = I.of_float64x2 x
 let[@inline always] of_int8x16_bits x = I.of_int8x16 x
 let[@inline always] of_int16x8_bits x = I.of_int16x8 x
@@ -173,7 +164,7 @@ let[@inline always] of_float64x2 x = Float64x2_internal.cvt_f32 x
 
 let[@inline always] to_string x =
   let f x = Float32_u.to_float x in
-  let { a; b; c; d } = splat x in
+  let #(a, b, c, d) = splat x in
   Stdlib.Printf.sprintf "(%g %g %g %g)" (f a) (f b) (f c) (f d)
 ;;
 

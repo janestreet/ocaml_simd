@@ -18,29 +18,54 @@ module Shuffle2 : Abstract
 (** [%shuffle N, N, N, N] where each N is in [0,3]. *)
 module Shuffle4 : Abstract
 
+module Float : sig
+  (** Constants for float comparisons. *)
+  module Comparison : sig
+    type t =
+      | Equal
+      | Less
+      | Less_or_equal
+      | Unordered
+      | Not_equal
+      | Not_less
+      | Not_less_or_equal
+      | Ordered
+  end
+
+  (** Constants for float rounding. *)
+  module Rounding : sig
+    type t =
+      | Nearest
+      | Negative_infinity
+      | Positive_infinity
+      | Zero
+      | Current
+  end
+end
+
 (** Constants for SSE4.2 string comparison operations. *)
 module String : sig
-  (** [%bstr S, C, P] where: (S : Signed.t), (C : Comparison.t), (P : Polarity.t) *)
-  module Bstr : Abstract
+  (** [%bytes S, C, P] where: (S : Signed.t), (C : Comparison.t), (P : Polarity.t) *)
+  module Bytes : Abstract
 
-  (** [%bstr S, C, P, M] where: (S : Signed.t), (C : Comparison.t), (P : Polarity.t), (M :
-      Mask.t) *)
-  module Bstrm : Abstract
+  (** [%bytes S, C, P, M] where: (S : Signed.t), (C : Comparison.t), (P : Polarity.t), (M
+      : Mask.t) *)
+  module Bytesm : Abstract
 
-  (** [%bstr S, C, P, I] where: (S : Signed.t), (C : Comparison.t), (P : Polarity.t), (I :
-      Index.t) *)
-  module Bstri : Abstract
+  (** [%bytes S, C, P, I] where: (S : Signed.t), (C : Comparison.t), (P : Polarity.t), (I
+      : Index.t) *)
+  module Bytesi : Abstract
 
-  (** [%wstr S, C, P] where: (S : Signed.t), (C : Comparison.t), (P : Polarity.t) *)
-  module Wstr : Abstract
+  (** [%words S, C, P] where: (S : Signed.t), (C : Comparison.t), (P : Polarity.t) *)
+  module Words : Abstract
 
-  (** [%wstr S, C, P, M] where: (S : Signed.t), (C : Comparison.t), (P : Polarity.t), (M :
-      Mask.t) *)
-  module Wstrm : Abstract
+  (** [%words S, C, P, M] where: (S : Signed.t), (C : Comparison.t), (P : Polarity.t), (M
+      : Mask.t) *)
+  module Wordsm : Abstract
 
-  (** [%wstr S, C, P, I] where: (S : Signed.t), (C : Comparison.t), (P : Polarity.t), (I :
-      Index.t) *)
-  module Wstri : Abstract
+  (** [%words S, C, P, I] where: (S : Signed.t), (C : Comparison.t), (P : Polarity.t), (I
+      : Index.t) *)
+  module Wordsi : Abstract
 
   module Signed : sig
     type t =

@@ -11,11 +11,7 @@ module Bytes = Load_store.Bytes_Int32x4
 module Bigstring = Load_store.Bigstring_Int32x4
 module Int32_u_array = Load_store.Int32_u_array
 
-external const1
-  :  int32#
-  -> (t[@unboxed])
-  @@ portable
-  = "ocaml_simd_unreachable" "caml_int32x4_const1"
+external const1 : int32# -> t @@ portable = "ocaml_simd_unreachable" "caml_int32x4_const1"
 [@@noalloc] [@@builtin]
 
 external const
@@ -23,16 +19,16 @@ external const
   -> int32#
   -> int32#
   -> int32#
-  -> (t[@unboxed])
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_int32x4_const4"
 [@@noalloc] [@@builtin]
 
 external shuffle
   :  (Ocaml_simd.Shuffle4.t[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  -> t
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse_vec128_shuffle_32"
 [@@noalloc] [@@builtin]
@@ -59,18 +55,18 @@ let[@inline always] set a b c d =
 ;;
 
 external extract
-  :  idx:(int[@untagged])
-  -> (t[@unboxed])
+  :  idx:int64#
+  -> t
   -> int32#
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse41_int32x4_extract"
 [@@noalloc] [@@builtin]
 
 external insert
-  :  idx:(int[@untagged])
-  -> (t[@unboxed])
+  :  idx:int64#
+  -> t
   -> int32#
-  -> (t[@unboxed])
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse41_int32x4_insert"
 [@@noalloc] [@@builtin]
@@ -79,17 +75,10 @@ let[@inline always] movemask m = I.movemask_32 m
 let[@inline always] select m ~fail ~pass = I.blendv_32 fail pass m
 let[@inline always] extract0 x = I.low_to x
 
-type splat =
-  { a : int32#
-  ; b : int32#
-  ; c : int32#
-  ; d : int32#
-  }
-
 let[@inline always] splat x =
   (* 3x shuffle, 4x movd -> 4 cycle latency
      this                -> 4 cycle latency but fewer registers *)
-  { a = extract0 x; b = extract ~idx:1 x; c = extract ~idx:2 x; d = extract ~idx:3 x }
+  #(extract0 x, extract ~idx:#1L x, extract ~idx:#2L x, extract ~idx:#3L x)
 ;;
 
 (* Comparisons do not use [C.not_...], as they have different NaN behavior. *)
@@ -107,9 +96,9 @@ let[@inline always] duplicate_odd x = I.dup_odd_32 x
 
 external blend
   :  (Ocaml_simd.Blend4.t[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  -> t
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse41_vec128_blend_32"
 [@@noalloc] [@@builtin]
@@ -124,41 +113,41 @@ let[@inline always] neg x = I.(mulsign x (all_ones ()))
 let[@inline always] abs x = I.abs x
 
 external shifti_left_bytes
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shift_left_bytes"
 [@@noalloc] [@@builtin]
 
 external shifti_right_bytes
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shift_right_bytes"
 [@@noalloc] [@@builtin]
 
 external shifti_left_logical
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_int32x4_slli"
 [@@noalloc] [@@builtin]
 
 external shifti_right_logical
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_int32x4_srli"
 [@@noalloc] [@@builtin]
 
 external shifti_right_arithmetic
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_int32x4_srai"
 [@@noalloc] [@@builtin]
@@ -187,23 +176,23 @@ let[@inline always] of_int16x8_unsigned x = Int16x8_internal.cvtzx_i32 x
 let[@inline always] of_float64x2 x = Float64x2_internal.cvt_i32 x
 
 let[@inline always] shift_left_logical x i =
-  let c = Int64x2_internal.low_of (Int64_u.of_int i) in
+  let c = Int64x2_internal.low_of i in
   I.(sll x c)
 ;;
 
 let[@inline always] shift_right_logical x i =
-  let c = Int64x2_internal.low_of (Int64_u.of_int i) in
+  let c = Int64x2_internal.low_of i in
   I.(srl x c)
 ;;
 
 let[@inline always] shift_right_arithmetic x i =
-  let c = Int64x2_internal.low_of (Int64_u.of_int i) in
+  let c = Int64x2_internal.low_of i in
   I.(sra x c)
 ;;
 
 let[@inline always] to_string x =
   let f = Int32_u.to_int32 in
-  let { a; b; c; d } = splat x in
+  let #(a, b, c, d) = splat x in
   Stdlib.Printf.sprintf "(%ld %ld %ld %ld)" (f a) (f b) (f c) (f d)
 ;;
 

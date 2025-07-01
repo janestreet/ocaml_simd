@@ -14,43 +14,39 @@ module Immediate_iarray = Load_store.Immediate_iarray
 module Int64_u_array = Load_store.Int64_u_array
 module Nativeint_u_array = Load_store.Nativeint_u_array
 
-external const1
-  :  int64#
-  -> (t[@unboxed])
-  @@ portable
-  = "ocaml_simd_unreachable" "caml_int64x2_const1"
+external const1 : int64# -> t @@ portable = "ocaml_simd_unreachable" "caml_int64x2_const1"
 [@@noalloc] [@@builtin]
 
 external const
   :  int64#
   -> int64#
-  -> (t[@unboxed])
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_int64x2_const2"
 [@@noalloc] [@@builtin]
 
 external shuffle
   :  (Ocaml_simd.Shuffle2.t[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  -> t
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shuffle_64"
 [@@noalloc] [@@builtin]
 
 external extract
-  :  idx:(int[@untagged])
-  -> (t[@unboxed])
+  :  idx:int64#
+  -> t
   -> int64#
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse41_int64x2_extract"
 [@@noalloc] [@@builtin]
 
 external insert
-  :  idx:(int[@untagged])
-  -> (t[@unboxed])
+  :  idx:int64#
+  -> t
   -> int64#
-  -> (t[@unboxed])
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse41_int64x2_insert"
 [@@noalloc] [@@builtin]
@@ -77,15 +73,10 @@ let[@inline always] movemask m = I.movemask_64 m
 let[@inline always] select m ~fail ~pass = I.blendv_64 fail pass m
 let[@inline always] extract0 x = I.low_to x
 
-type splat =
-  { a : int64#
-  ; b : int64#
-  }
-
 let[@inline always] splat x =
   (* shuffle, movq -> 4 cycle latency
      this          -> 4 cycle latency but fewer registers *)
-  { a = extract0 x; b = extract ~idx:1 x }
+  #(extract0 x, extract ~idx:#1L x)
 ;;
 
 (* Comparisons do not use [C.not_...], as they have different NaN behavior. *)
@@ -104,9 +95,9 @@ let[@inline always] duplicate_lower x = I.dup_low_64 x
 
 external blend
   :  (Ocaml_simd.Blend2.t[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  -> t
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse41_vec128_blend_64"
 [@@noalloc] [@@builtin]
@@ -117,42 +108,42 @@ let[@inline always] neg x = I.add I.(xor x (all_ones ())) (one ())
 let[@inline always] abs x = select I.(and_ x (sign64_mask ())) ~pass:(neg x) ~fail:x
 
 external shifti_left_bytes
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shift_left_bytes"
 [@@noalloc] [@@builtin]
 
 external shifti_right_bytes
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_vec128_shift_right_bytes"
 [@@noalloc] [@@builtin]
 
 external shifti_left_logical
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_int64x2_slli"
 [@@noalloc] [@@builtin]
 
 external shifti_right_logical
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_sse2_int64x2_srli"
 [@@noalloc] [@@builtin]
 
 external mul_without_carry
-  :  (int[@untagged])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
-  -> (t[@unboxed])
+  :  int64#
+  -> t
+  -> t
+  -> t
   @@ portable
   = "ocaml_simd_unreachable" "caml_clmul_int64x2"
 [@@noalloc] [@@builtin]
@@ -177,18 +168,18 @@ let[@inline always] of_int32x4 x = Int32x4_internal.cvtsx_i64 x
 let[@inline always] of_int32x4_unsigned x = Int32x4_internal.cvtzx_i64 x
 
 let[@inline always] shift_left_logical x i =
-  let c = Int64x2_internal.low_of (Int64_u.of_int i) in
+  let c = Int64x2_internal.low_of i in
   I.(sll x c)
 ;;
 
 let[@inline always] shift_right_logical x i =
-  let c = Int64x2_internal.low_of (Int64_u.of_int i) in
+  let c = Int64x2_internal.low_of i in
   I.(srl x c)
 ;;
 
 let[@inline always] to_string x =
   let f = Int64_u.to_int64 in
-  let { a; b } = splat x in
+  let #(a, b) = splat x in
   Stdlib.Printf.sprintf "(%Ld %Ld)" (f a) (f b)
 ;;
 

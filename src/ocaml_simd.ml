@@ -10,7 +10,11 @@ module Blend2 = Abstract (struct end)
 module Blend4 = Abstract (struct end)
 module Blend8 = Abstract (struct end)
 module Shuffle2 = Abstract (struct end)
+module Shuffle2x2 = Abstract (struct end)
 module Shuffle4 = Abstract (struct end)
+module Permute2 = Abstract (struct end)
+module Permute2x2 = Abstract (struct end)
+module Permute4 = Abstract (struct end)
 
 module Float = struct
   module Comparison = struct

@@ -1,7 +1,7 @@
 
 #include <assert.h>
 
-void ocaml_simd_unreachable() { assert(!"SIMD is not supported in bytecode mode."); }
+void ocaml_simd_sse_unreachable() { assert(!"SIMD is not supported in bytecode mode."); }
 
 #define BUILTIN(name)                                                                    \
   void name() { assert(!"Didn't use [@@builtin] intrinsic."); }
@@ -82,10 +82,10 @@ BUILTIN(caml_sse2_float64x2_min)
 BUILTIN(caml_sse2_float64x2_mul)
 BUILTIN(caml_sse2_float64x2_div)
 BUILTIN(caml_sse2_float64x2_sqrt)
-BUILTIN(caml_sse2_vec128_and)
-BUILTIN(caml_sse2_vec128_andnot)
-BUILTIN(caml_sse2_vec128_or)
-BUILTIN(caml_sse2_vec128_xor)
+BUILTIN(caml_sse_vec128_and)
+BUILTIN(caml_sse_vec128_andnot)
+BUILTIN(caml_sse_vec128_or)
+BUILTIN(caml_sse_vec128_xor)
 BUILTIN(caml_sse2_vec128_movemask_8)
 BUILTIN(caml_sse2_vec128_movemask_64)
 BUILTIN(caml_sse2_vec128_shift_left_bytes)
@@ -99,8 +99,8 @@ BUILTIN(caml_sse2_int32x4_cmpgt)
 BUILTIN(caml_sse2_float64x2_cmp)
 BUILTIN(caml_sse2_cvt_int32x4_float64x2)
 BUILTIN(caml_sse2_cvt_int32x4_float32x4)
-BUILTIN(caml_sse2_cvt_float64x2_int32x4)
-BUILTIN(caml_sse2_cvt_float64x2_float32x4)
+BUILTIN(caml_sse2_cvt_float64x2_int32x2)
+BUILTIN(caml_sse2_cvt_float64x2_float32x2)
 BUILTIN(caml_sse2_cvt_float32x4_int32x4)
 BUILTIN(caml_sse2_cvt_float32x4_float64x2)
 BUILTIN(caml_sse2_int16x8_sll)
@@ -139,6 +139,9 @@ BUILTIN(caml_sse2_int16x8_mul_high)
 BUILTIN(caml_sse2_int16x8_mul_low)
 BUILTIN(caml_sse2_int16x8_mul_high_unsigned)
 BUILTIN(caml_sse2_int16x8_mul_hadd_int32x4)
+BUILTIN(caml_sse2_int32x4_mul_even_unsigned)
+BUILTIN(caml_sse2_cvtt_float32x4_int32x4)
+BUILTIN(caml_sse2_cvtt_float64x2_int32x2)
 
 BUILTIN(caml_sse3_float32x4_addsub)
 BUILTIN(caml_sse3_float64x2_addsub)
@@ -165,6 +168,7 @@ BUILTIN(caml_ssse3_int32x4_mulsign)
 BUILTIN(caml_ssse3_vec128_shuffle_8)
 BUILTIN(caml_ssse3_vec128_align_right_bytes)
 BUILTIN(caml_ssse3_int8x16_mul_unsigned_hadd_saturating_int16x8)
+BUILTIN(caml_ssse3_int16x8_mul_round)
 
 BUILTIN(caml_sse41_vec128_blend_16)
 BUILTIN(caml_sse41_vec128_blend_32)
@@ -208,6 +212,10 @@ BUILTIN(caml_sse41_int32x4_min_unsigned)
 BUILTIN(caml_sse41_int8x16_multi_sad_unsigned)
 BUILTIN(caml_sse41_int16x8_minpos_unsigned)
 BUILTIN(caml_sse41_int32x4_mul_low)
+BUILTIN(caml_sse41_int32x4_mul_even)
+BUILTIN(caml_sse41_vec128_testz)
+BUILTIN(caml_sse41_vec128_testc)
+BUILTIN(caml_sse41_vec128_testnzc)
 
 BUILTIN(caml_sse42_int64x2_cmpgt)
 BUILTIN(caml_sse42_vec128_cmpestrm)

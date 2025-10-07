@@ -60,24 +60,22 @@ module String_intrin = struct
     I8x16.(lo lor hi)
   ;;
 
-  let buffer = Bigstring.create 16
-
   (* Load 16 bytes, padding with spaces *)
-  let[@inline] extract_16 string ~len ~idx =
+  let[@inline] extract_16 string ~len ~idx ~extract_16_buffer =
     if idx + 16 <= len
     then I8x16.String.unsafe_get string ~byte:idx
     else if idx >= len
     then spaces ()
     else if len < 16
     then (
-      Bigstring.memset ~pos:0 ~len:16 buffer ' ';
+      Bigstring.memset ~pos:0 ~len:16 extract_16_buffer ' ';
       Bigstring.From_string.unsafe_blit
         ~src:string
         ~src_pos:idx
-        ~dst:buffer
+        ~dst:extract_16_buffer
         ~dst_pos:0
         ~len:(len - idx);
-      I8x16.Bigstring.unsafe_aligned_get buffer ~byte:0)
+      I8x16.Bigstring.unsafe_aligned_get extract_16_buffer ~byte:0)
     else
       concat_shift_right_bytes
         (spaces ())
@@ -93,11 +91,11 @@ module String_intrin = struct
     }
 
   (* Load 64 bytes, padding with spaces *)
-  let[@inline] extract_64 string ~len ~idx =
-    { v0 = extract_16 string ~len ~idx
-    ; v1 = extract_16 string ~len ~idx:(idx + 16)
-    ; v2 = extract_16 string ~len ~idx:(idx + 32)
-    ; v3 = extract_16 string ~len ~idx:(idx + 48)
+  let[@inline] extract_64 string ~len ~idx ~extract_16_buffer =
+    { v0 = extract_16 string ~len ~idx ~extract_16_buffer
+    ; v1 = extract_16 string ~len ~idx:(idx + 16) ~extract_16_buffer
+    ; v2 = extract_16 string ~len ~idx:(idx + 32) ~extract_16_buffer
+    ; v3 = extract_16 string ~len ~idx:(idx + 48) ~extract_16_buffer
     }
   ;;
 end
@@ -428,6 +426,7 @@ module Parse = struct
     ; sexp_comment_depth : int Vec.t
         (* Stack of depths at which we need to ignore a sexp due to a sexp comment. *)
     ; quoted_string_buffer : Buffer.t
+    ; extract_16_buffer : Bigstring.t
     }
 
   let[@inline] create () =
@@ -437,6 +436,7 @@ module Parse = struct
     ; sexp_comment_depth = Vec.create ()
     ; block_comment_depth = 0
     ; quoted_string_buffer = Buffer.create ()
+    ; extract_16_buffer = Bigstring.create 16
     }
   ;;
 
@@ -477,9 +477,9 @@ module Parse = struct
   ;;
 
   (* Return index of the next non-space and non-tab character. *)
-  let[@inline] skip_tabs_and_spaces ~input ~len ~idx =
+  let[@inline] skip_tabs_and_spaces ~input ~len ~idx ~extract_16_buffer =
     let[@inline] rec advance_from idx =
-      let v = String_intrin.extract_16 input ~len ~idx in
+      let v = String_intrin.extract_16 input ~len ~idx ~extract_16_buffer in
       let n = Lex.chars_until_non_space_or_tab v in
       if idx + n >= len then len else if n = 16 then advance_from (idx + 16) else idx + n
     in
@@ -493,16 +493,16 @@ module Parse = struct
 
   (* Parse "\$" for any escape code.
      Updates consumed to indicate we've seen the whole escape. *)
-  let[@inline] parse_escaped input ~len ~idx =
+  let[@inline] parse_escaped input ~len ~idx ~extract_16_buffer =
     bounds_check ~len ~idx ~msg:"escape code";
     match String.unsafe_get input idx with
     | '\\' -> Some '\\', idx + 1
     | 'n' -> Some '\n', idx + 1
-    | '\n' -> None, skip_tabs_and_spaces ~input ~len ~idx:(idx + 1)
+    | '\n' -> None, skip_tabs_and_spaces ~input ~len ~idx:(idx + 1) ~extract_16_buffer
     | 'r' -> Some '\r', idx + 1
     | '\r' ->
       if check_escaped_return ~input ~idx:(idx + 1)
-      then None, skip_tabs_and_spaces ~input ~len ~idx:(idx + 2)
+      then None, skip_tabs_and_spaces ~input ~len ~idx:(idx + 2) ~extract_16_buffer
       else Some '\r', idx + 1
     | 't' -> Some '\t', idx + 1
     | 'b' -> Some '\b', idx + 1
@@ -522,11 +522,11 @@ module Parse = struct
 
   (* Starting at [idx], parse an entire quoted string, updating
      [consumed] to indicate that we have processed up until its end. *)
-  let[@inline] parse_quoted_string input ~buffer ~idx =
+  let[@inline] parse_quoted_string input ~buffer ~idx ~extract_16_buffer =
     let len = String.length input in
     let[@inline] rec advance_from idx =
       bounds_check ~len ~idx ~msg:"quoted string";
-      let v = String_intrin.extract_16 input ~len ~idx in
+      let v = String_intrin.extract_16 input ~len ~idx ~extract_16_buffer in
       let n = Lex.n_quoted_string_chars v in
       Buffer.store buffer ~bytes:(Option.value ~default:16 n) ~v;
       (* If possible, jump forward 16 bytes. *)
@@ -541,7 +541,7 @@ module Parse = struct
           match String.unsafe_get input idx with
           | '"' -> ()
           | '\\' ->
-            let c, idx = parse_escaped input ~len ~idx:(idx + 1) in
+            let c, idx = parse_escaped input ~len ~idx:(idx + 1) ~extract_16_buffer in
             Option.iter c ~f:(fun c -> Buffer.push buffer ~c);
             advance_from idx
           | c ->
@@ -569,11 +569,11 @@ module Parse = struct
 
   (* Starting at [idx], parse an entire unquoted string, updating
      [consumed] to indicate that we have processed up until its end. *)
-  let[@inline] parse_unquoted_string input ~idx =
+  let[@inline] parse_unquoted_string input ~idx ~extract_16_buffer =
     (* Don't need a buffer as we can copy directly from the input. *)
     let len = String.length input in
     let[@inline] rec advance_from idx =
-      let v = String_intrin.extract_16 input ~len ~idx in
+      let v = String_intrin.extract_16 input ~len ~idx ~extract_16_buffer in
       let n = Lex.n_unquoted_string_chars v in
       (* Try to jump forward 16 bytes. *)
       if n < 16
@@ -654,10 +654,10 @@ module Parse = struct
   ;;
 
   (* Advance until the next newline. *)
-  let[@inline] skip_line_comment t ~input ~idx =
+  let[@inline] skip_line_comment t ~input ~idx ~extract_16_buffer =
     let len = String.length input in
     let[@inline] rec advance_from idx =
-      let v = String_intrin.extract_16 input ~len ~idx in
+      let v = String_intrin.extract_16 input ~len ~idx ~extract_16_buffer in
       let n = Lex.chars_until_newline_or_return v in
       if idx + n >= len then len else if n = 16 then advance_from (idx + 16) else idx + n
     in
@@ -677,7 +677,7 @@ module Parse = struct
     | ' ' | '\t' | '\n' | '\012' | '\r' -> ()
     (* Line comment *)
     | ';' when no_comment ->
-      skip_line_comment t ~input ~idx:(idx + 1);
+      skip_line_comment t ~input ~idx:(idx + 1) ~extract_16_buffer:t.extract_16_buffer;
       raise (Restart t.consumed)
     (* Possible block or sexp comment *)
     | ('#' | '|') when try_transition_complex_comment t ~input ~idx ~ctrl -> ()
@@ -699,13 +699,19 @@ module Parse = struct
     (* Quoted string *)
     | '"' ->
       let atom, len =
-        parse_quoted_string input ~buffer:t.quoted_string_buffer ~idx:(idx + 1)
+        parse_quoted_string
+          input
+          ~buffer:t.quoted_string_buffer
+          ~idx:(idx + 1)
+          ~extract_16_buffer:t.extract_16_buffer
       in
       t.consumed <- idx + len - 1;
       if no_comment then complete_one t ~sexp:(Sexp.Atom atom)
     (* All other characters indicate an unquoted string *)
     | _ when no_comment ->
-      let atom = parse_unquoted_string input ~idx in
+      let atom =
+        parse_unquoted_string input ~idx ~extract_16_buffer:t.extract_16_buffer
+      in
       t.consumed <- idx + String.length atom - 1;
       complete_one t ~sexp:(Sexp.Atom atom)
     | _ -> ()
@@ -735,7 +741,7 @@ end
 
 exception Error = Parse.Error
 
-let[@inline] parse_from input ~parse ~pos =
+let[@inline] parse_from input ~(parse : Parse.t) ~pos =
   let lex = Lex.create () in
   let len = String.length input in
   let remaining = len - pos in
@@ -743,7 +749,9 @@ let[@inline] parse_from input ~parse ~pos =
   (* Process 64 bytes at a time. *)
   for chunk = 0 to chunks - 1 do
     let idx = pos + (chunk * 64) in
-    let String_intrin.{ v0; v1; v2; v3 } = String_intrin.extract_64 input ~len ~idx in
+    let String_intrin.{ v0; v1; v2; v3 } =
+      String_intrin.extract_64 input ~len ~idx ~extract_16_buffer:parse.extract_16_buffer
+    in
     let structural_mask = Lex.structural_mask lex ~v0 ~v1 ~v2 ~v3 in
     Parse.feed_masked parse ~input ~idx ~structural_mask
   done

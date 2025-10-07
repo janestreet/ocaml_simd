@@ -16,7 +16,7 @@ module Byte = struct
     -> b_len:int64#
     -> mask
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestrm"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestrm"
   [@@noalloc] [@@builtin]
 
   external cmpestra
@@ -27,7 +27,7 @@ module Byte = struct
     -> b_len:int64#
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestra"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestra"
   [@@noalloc] [@@builtin]
 
   external cmpestrc
@@ -38,7 +38,7 @@ module Byte = struct
     -> b_len:int64#
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestrc"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestrc"
   [@@noalloc] [@@builtin]
 
   external cmpestri
@@ -49,7 +49,7 @@ module Byte = struct
     -> b_len:int64#
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestri"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestri"
   [@@noalloc] [@@builtin]
 
   external cmpestro
@@ -60,7 +60,7 @@ module Byte = struct
     -> b_len:int64#
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestro"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestro"
   [@@noalloc] [@@builtin]
 
   external cmpistrm
@@ -69,7 +69,7 @@ module Byte = struct
     -> b:t
     -> mask
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistrm"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistrm"
   [@@noalloc] [@@builtin]
 
   external cmpistra
@@ -78,7 +78,7 @@ module Byte = struct
     -> b:t
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistra"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistra"
   [@@noalloc] [@@builtin]
 
   external cmpistrc
@@ -87,7 +87,7 @@ module Byte = struct
     -> b:t
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistrc"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistrc"
   [@@noalloc] [@@builtin]
 
   external cmpistri
@@ -96,7 +96,7 @@ module Byte = struct
     -> b:t
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistri"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistri"
   [@@noalloc] [@@builtin]
 
   external cmpistro
@@ -105,7 +105,7 @@ module Byte = struct
     -> b:t
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistro"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistro"
   [@@noalloc] [@@builtin]
 
   external cmpestrs
@@ -116,7 +116,7 @@ module Byte = struct
     -> b_len:int64#
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestrs"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestrs"
   [@@noalloc] [@@builtin]
 
   external cmpestrz
@@ -127,7 +127,7 @@ module Byte = struct
     -> b_len:int64#
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestrz"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestrz"
   [@@noalloc] [@@builtin]
 
   external cmpistrs
@@ -136,7 +136,7 @@ module Byte = struct
     -> b:t
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistrs"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistrs"
   [@@noalloc] [@@builtin]
 
   external cmpistrz
@@ -145,7 +145,7 @@ module Byte = struct
     -> b:t
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistrz"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistrz"
   [@@noalloc] [@@builtin]
 
   let cmpestrs ~a ~b ~a_len ~b_len = cmpestrs #0L ~a ~b ~a_len ~b_len
@@ -166,7 +166,7 @@ module Word = struct
     -> b_len:int64#
     -> mask
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestrm"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestrm"
   [@@noalloc] [@@builtin]
 
   external cmpestra
@@ -177,7 +177,7 @@ module Word = struct
     -> b_len:int64#
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestra"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestra"
   [@@noalloc] [@@builtin]
 
   external cmpestrc
@@ -188,7 +188,7 @@ module Word = struct
     -> b_len:int64#
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestrc"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestrc"
   [@@noalloc] [@@builtin]
 
   external cmpestri
@@ -199,7 +199,7 @@ module Word = struct
     -> b_len:int64#
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestri"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestri"
   [@@noalloc] [@@builtin]
 
   external cmpestro
@@ -210,7 +210,7 @@ module Word = struct
     -> b_len:int64#
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestro"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestro"
   [@@noalloc] [@@builtin]
 
   external cmpistrm
@@ -219,7 +219,7 @@ module Word = struct
     -> b:t
     -> mask
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistrm"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistrm"
   [@@noalloc] [@@builtin]
 
   external cmpistra
@@ -228,7 +228,7 @@ module Word = struct
     -> b:t
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistra"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistra"
   [@@noalloc] [@@builtin]
 
   external cmpistrc
@@ -237,7 +237,7 @@ module Word = struct
     -> b:t
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistrc"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistrc"
   [@@noalloc] [@@builtin]
 
   external cmpistri
@@ -246,7 +246,7 @@ module Word = struct
     -> b:t
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistri"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistri"
   [@@noalloc] [@@builtin]
 
   external cmpistro
@@ -255,7 +255,7 @@ module Word = struct
     -> b:t
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistro"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistro"
   [@@noalloc] [@@builtin]
 
   external cmpestrs
@@ -266,7 +266,7 @@ module Word = struct
     -> b_len:int64#
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestrs"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestrs"
   [@@noalloc] [@@builtin]
 
   external cmpestrz
@@ -277,7 +277,7 @@ module Word = struct
     -> b_len:int64#
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestrz"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestrz"
   [@@noalloc] [@@builtin]
 
   external cmpistrs
@@ -286,7 +286,7 @@ module Word = struct
     -> b:t
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistrs"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistrs"
   [@@noalloc] [@@builtin]
 
   external cmpistrz
@@ -295,7 +295,7 @@ module Word = struct
     -> b:t
     -> int64#
     @@ portable
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistrz"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistrz"
   [@@noalloc] [@@builtin]
 
   let cmpestrs ~a ~b ~a_len ~b_len = cmpestrs #1L ~a ~b ~a_len ~b_len

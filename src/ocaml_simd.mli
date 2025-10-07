@@ -18,6 +18,18 @@ module Shuffle2 : Abstract
 (** [%shuffle N, N, N, N] where each N is in [0,3]. *)
 module Shuffle4 : Abstract
 
+(** [%shuffle (N, N), (N, N)] where each N is in [0,1]. *)
+module Shuffle2x2 : Abstract
+
+(** [%permute N, N] where each N is in [0,1]. *)
+module Permute2 : Abstract
+
+(** [%permute N, N, N, N] where each N is in [0,3]. *)
+module Permute4 : Abstract
+
+(** [%permute (N, N), (N, N)] where each N is in [0,1]. *)
+module Permute2x2 : Abstract
+
 module Float : sig
   (** Constants for float comparisons. *)
   module Comparison : sig

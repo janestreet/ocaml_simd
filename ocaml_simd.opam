@@ -15,6 +15,7 @@ depends: [
   "core"
   "ocaml_intrinsics"
   "ppx_jane"
+  "ppx_template"
   "sexplib"
   "unboxed"
   "vec"

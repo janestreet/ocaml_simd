@@ -101,7 +101,7 @@ module Byte : sig
     -> a_len:int64#
     -> b_len:int64#
     -> mask
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestrm"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestrm"
   [@@noalloc] [@@builtin]
 
   (** Specify comparison with pxp_simd: [%bytes S, C, P] where (S : Signed.t), (C :
@@ -113,7 +113,7 @@ module Byte : sig
     -> a_len:int64#
     -> b_len:int64#
     -> int64#
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestra"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestra"
   [@@noalloc] [@@builtin]
 
   (** Specify comparison with pxp_simd: [%bytes S, C, P] where (S : Signed.t), (C :
@@ -125,7 +125,7 @@ module Byte : sig
     -> a_len:int64#
     -> b_len:int64#
     -> int64#
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestrc"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestrc"
   [@@noalloc] [@@builtin]
 
   (** Specify comparison with pxp_simd: [%bytes S, C, P, I] where (S : Signed.t), (C :
@@ -137,7 +137,7 @@ module Byte : sig
     -> a_len:int64#
     -> b_len:int64#
     -> int64#
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestri"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestri"
   [@@noalloc] [@@builtin]
 
   (** Specify comparison with pxp_simd: [%bytes S, C, P] where (S : Signed.t), (C :
@@ -149,7 +149,7 @@ module Byte : sig
     -> a_len:int64#
     -> b_len:int64#
     -> int64#
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestro"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestro"
   [@@noalloc] [@@builtin]
 
   val cmpestrs : a:t -> b:t -> a_len:int64# -> b_len:int64# -> int64#
@@ -162,7 +162,7 @@ module Byte : sig
     -> a:t
     -> b:t
     -> mask
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistrm"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistrm"
   [@@noalloc] [@@builtin]
 
   (** Specify comparison with pxp_simd: [%bytes S, C, P] where (S : Signed.t), (C :
@@ -172,7 +172,7 @@ module Byte : sig
     -> a:t
     -> b:t
     -> int64#
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistra"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistra"
   [@@noalloc] [@@builtin]
 
   (** Specify comparison with pxp_simd: [%bytes S, C, P] where (S : Signed.t), (C :
@@ -182,7 +182,7 @@ module Byte : sig
     -> a:t
     -> b:t
     -> int64#
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistrc"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistrc"
   [@@noalloc] [@@builtin]
 
   (** Specify comparison with pxp_simd: [%bytes S, C, P, I] where (S : Signed.t), (C :
@@ -192,7 +192,7 @@ module Byte : sig
     -> a:t
     -> b:t
     -> int64#
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistri"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistri"
   [@@noalloc] [@@builtin]
 
   (** Specify comparison with pxp_simd: [%bytes S, C, P] where (S : Signed.t), (C :
@@ -202,7 +202,7 @@ module Byte : sig
     -> a:t
     -> b:t
     -> int64#
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistro"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistro"
   [@@noalloc] [@@builtin]
 
   val cmpistrs : a:t -> b:t -> int64#
@@ -222,7 +222,7 @@ module Word : sig
     -> a_len:int64#
     -> b_len:int64#
     -> mask
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestrm"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestrm"
   [@@noalloc] [@@builtin]
 
   (** Specify comparison with pxp_simd: [%words S, C, P] where (S : Signed.t), (C :
@@ -234,7 +234,7 @@ module Word : sig
     -> a_len:int64#
     -> b_len:int64#
     -> int64#
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestra"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestra"
   [@@noalloc] [@@builtin]
 
   (** Specify comparison with pxp_simd: [%words S, C, P] where (S : Signed.t), (C :
@@ -246,7 +246,7 @@ module Word : sig
     -> a_len:int64#
     -> b_len:int64#
     -> int64#
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestrc"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestrc"
   [@@noalloc] [@@builtin]
 
   (** Specify comparison with pxp_simd: [%words S, C, P, I] where (S : Signed.t), (C :
@@ -258,7 +258,7 @@ module Word : sig
     -> a_len:int64#
     -> b_len:int64#
     -> int64#
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestri"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestri"
   [@@noalloc] [@@builtin]
 
   (** Specify comparison with pxp_simd: [%words S, C, P] where (S : Signed.t), (C :
@@ -270,7 +270,7 @@ module Word : sig
     -> a_len:int64#
     -> b_len:int64#
     -> int64#
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpestro"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestro"
   [@@noalloc] [@@builtin]
 
   val cmpestrs : a:t -> b:t -> a_len:int64# -> b_len:int64# -> int64#
@@ -283,7 +283,7 @@ module Word : sig
     -> a:t
     -> b:t
     -> mask
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistrm"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistrm"
   [@@noalloc] [@@builtin]
 
   (** Specify comparison with pxp_simd: [%words S, C, P] where (S : Signed.t), (C :
@@ -293,7 +293,7 @@ module Word : sig
     -> a:t
     -> b:t
     -> int64#
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistra"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistra"
   [@@noalloc] [@@builtin]
 
   (** Specify comparison with pxp_simd: [%words S, C, P] where (S : Signed.t), (C :
@@ -303,7 +303,7 @@ module Word : sig
     -> a:t
     -> b:t
     -> int64#
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistrc"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistrc"
   [@@noalloc] [@@builtin]
 
   (** Specify comparison with pxp_simd: [%words S, C, P, I] where (S : Signed.t), (C :
@@ -313,7 +313,7 @@ module Word : sig
     -> a:t
     -> b:t
     -> int64#
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistri"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistri"
   [@@noalloc] [@@builtin]
 
   (** Specify comparison with pxp_simd: [%words S, C, P] where (S : Signed.t), (C :
@@ -323,7 +323,7 @@ module Word : sig
     -> a:t
     -> b:t
     -> int64#
-    = "ocaml_simd_unreachable" "caml_sse42_vec128_cmpistro"
+    = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistro"
   [@@noalloc] [@@builtin]
 
   val cmpistrs : a:t -> b:t -> int64#

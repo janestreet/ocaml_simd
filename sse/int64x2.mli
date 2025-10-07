@@ -23,13 +23,17 @@ val set : int64# -> int64# -> t
 (** Argument must be a literal or an unboxing function applied to a literal. Compiles to a
     static vector literal. Exposed as an external so user code can compile without
     cross-library inlining. *)
-external const1 : int64# -> t = "ocaml_simd_unreachable" "caml_int64x2_const1"
+external const1 : int64# -> t = "ocaml_simd_sse_unreachable" "caml_int64x2_const1"
 [@@noalloc] [@@builtin]
 
 (** Arguments must be literals or unboxing functions applied to literals. Compiles to a
     static vector literal. Exposed as an external so user code can compile without
     cross-library inlining. *)
-external const : int64# -> int64# -> t = "ocaml_simd_unreachable" "caml_int64x2_const2"
+external const
+  :  int64#
+  -> int64#
+  -> t
+  = "ocaml_simd_sse_unreachable" "caml_int64x2_const2"
 [@@noalloc] [@@builtin]
 
 (* Load/Store *)
@@ -37,12 +41,14 @@ external const : int64# -> int64# -> t = "ocaml_simd_unreachable" "caml_int64x2_
 module String : Load_store.String with type t := t
 module Bytes : Load_store.Bytes with type t := t
 module Bigstring : Load_store.Bigstring with type t := t
-module Immediate_array = Load_store.Immediate_array
-module Immediate_iarray = Load_store.Immediate_iarray
+module Unsafe_immediate_array = Load_store.Unsafe_immediate_array
+module Unsafe_immediate_iarray = Load_store.Unsafe_immediate_iarray
 module Int64_u_array = Load_store.Int64_u_array
 module Nativeint_u_array = Load_store.Nativeint_u_array
 
 (* Control Flow *)
+
+module Test : Test.S with type t := t
 
 (** Compiles to cmpgt,cmpeq,orpd. *)
 val ( >= ) : t -> t -> mask
@@ -68,7 +74,8 @@ val equal : t -> t -> mask
 (** [_mm_movemask_pd] *)
 val movemask : mask -> int64#
 
-(** [_mm_blendv_pd] *)
+(** [_mm_blendv_pd] Only reads the sign bit of each mask lane. Selects the element from
+    [pass] if the sign bit is 1, otherwise [fail]. *)
 val select : mask -> fail:t -> pass:t -> t
 
 (* Utility *)
@@ -80,7 +87,7 @@ external insert
   -> t
   -> int64#
   -> t
-  = "ocaml_simd_unreachable" "caml_sse41_int64x2_insert"
+  = "ocaml_simd_sse_unreachable" "caml_sse41_int64x2_insert"
 [@@noalloc] [@@builtin]
 
 (** [_mm_extract_epi64]: [idx] must be in [0,1]. Exposed as an external so user code can
@@ -89,20 +96,20 @@ external extract
   :  idx:int64#
   -> t
   -> int64#
-  = "ocaml_simd_unreachable" "caml_sse41_int64x2_extract"
+  = "ocaml_simd_sse_unreachable" "caml_sse41_int64x2_extract"
 [@@noalloc] [@@builtin]
 
-(** Compiles to movq. *)
+(** Projection. More efficient than [extract ~idx:#0L]. *)
 val extract0 : t -> int64#
 
-(** Compiles to movq,pextr. Only use this for debugging / printing / etc. *)
+(** Slow, intended for debugging / printing / etc. *)
 val splat : t -> #(int64# * int64#)
 
 (** [_mm_unpackhi_epi64] *)
-val interleave_upper : lower:t -> upper:t -> t
+val interleave_upper : even:t -> odd:t -> t
 
 (** [_mm_unpacklo_epi64] *)
-val interleave_lower : lower:t -> upper:t -> t
+val interleave_lower : even:t -> odd:t -> t
 
 (** [_mm_movehl_pd] *)
 val upper_to_lower : from:t -> onto:t -> t
@@ -120,7 +127,7 @@ external blend
   -> t
   -> t
   -> t
-  = "ocaml_simd_unreachable" "caml_sse41_vec128_blend_64"
+  = "ocaml_simd_sse_unreachable" "caml_sse41_vec128_blend_64"
 [@@noalloc] [@@builtin]
 
 (** [_mm_shuffle_pd] Specify shuffle with ppx_simd: [%shuffle N, N], where each N is in
@@ -130,7 +137,7 @@ external shuffle
   -> t
   -> t
   -> t
-  = "ocaml_simd_unreachable" "caml_sse2_vec128_shuffle_64"
+  = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shuffle_64"
 [@@noalloc] [@@builtin]
 
 (* Math *)
@@ -147,46 +154,46 @@ val neg : t -> t
 (** Compiles to andpd,xorpd,padd,blend. Equivalent to (x < 0 ? -x : x). *)
 val abs : t -> t
 
-(** Compiles to movq,psll. *)
+(** [_mm_sll_epi64] *)
 val shift_left_logical : t -> int64# -> t
 
-(** Compiles to movq,psrl. *)
+(** [_mm_srl_epi64] *)
 val shift_right_logical : t -> int64# -> t
 
-(** [_mm_bslli_si128] First argument must be an unsigned integer literal in [0,16].
+(** [_mm_bslli_si128] First argument must be an unsigned integer literal in [0,15].
     Exposed as an external so user code can compile without cross-library inlining. *)
 external shifti_left_bytes
   :  int64#
   -> t
   -> t
-  = "ocaml_simd_unreachable" "caml_sse2_vec128_shift_left_bytes"
+  = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shift_left_bytes"
 [@@noalloc] [@@builtin]
 
-(** [_mm_bsrli_si128] First argument must be an unsigned integer literal in [0,16].
+(** [_mm_bsrli_si128] First argument must be an unsigned integer literal in [0,15].
     Exposed as an external so user code can compile without cross-library inlining. *)
 external shifti_right_bytes
   :  int64#
   -> t
   -> t
-  = "ocaml_simd_unreachable" "caml_sse2_vec128_shift_right_bytes"
+  = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shift_right_bytes"
 [@@noalloc] [@@builtin]
 
-(** [_mm_slli_epi64] First argument must be an unsigned integer literal in [0,31]. Exposed
+(** [_mm_slli_epi64] First argument must be an unsigned integer literal in [0,63]. Exposed
     as an external so user code can compile without cross-library inlining. *)
 external shifti_left_logical
   :  int64#
   -> t
   -> t
-  = "ocaml_simd_unreachable" "caml_sse2_int64x2_slli"
+  = "ocaml_simd_sse_unreachable" "caml_sse2_int64x2_slli"
 [@@noalloc] [@@builtin]
 
-(** [_mm_srli_epi64] First argument must be an unsigned integer literal in [0,31]. Exposed
+(** [_mm_srli_epi64] First argument must be an unsigned integer literal in [0,63]. Exposed
     as an external so user code can compile without cross-library inlining. *)
 external shifti_right_logical
   :  int64#
   -> t
   -> t
-  = "ocaml_simd_unreachable" "caml_sse2_int64x2_srli"
+  = "ocaml_simd_sse_unreachable" "caml_sse2_int64x2_srli"
 [@@noalloc] [@@builtin]
 
 (* [_mm_clmulepi64_si128] First argument must be an unsigned integer literal in [0,31].
@@ -196,7 +203,7 @@ external mul_without_carry
   -> t
   -> t
   -> t
-  = "ocaml_simd_unreachable" "caml_clmul_int64x2"
+  = "ocaml_simd_sse_unreachable" "caml_clmul_int64x2"
 [@@noalloc] [@@builtin]
 
 (* Operators *)
@@ -204,7 +211,7 @@ external mul_without_carry
 val ( + ) : t -> t -> t
 val ( - ) : t -> t -> t
 
-(** Compiles to xorpd with a static constant. *)
+(** Compiles to xor with a static constant. *)
 val lnot : t -> t
 
 (** [_mm_or_si128] *)
@@ -221,19 +228,19 @@ val ( lxor ) : t -> t -> t
 
 (* Casts *)
 
-(** Identity *)
+(** Identity in the bit representation. Different numeric interpretation. *)
 val of_float32x4_bits : float32x4# -> t
 
-(** Identity *)
+(** Identity in the bit representation. Different numeric interpretation. *)
 val of_float64x2_bits : float64x2# -> t
 
-(** Identity *)
+(** Identity in the bit representation. Different numeric interpretation. *)
 val of_int8x16_bits : int8x16# -> t
 
-(** Identity *)
+(** Identity in the bit representation. Different numeric interpretation. *)
 val of_int16x8_bits : int16x8# -> t
 
-(** Identity *)
+(** Identity in the bit representation. Different numeric interpretation. *)
 val of_int32x4_bits : int32x4# -> t
 
 (** [_mm_cvtepi8_epi64] *)
@@ -259,5 +266,5 @@ val of_int32x4_unsigned : int32x4# -> t
 (** Compiles to splat, sprintf. *)
 val to_string : t -> string
 
-(** Compiles to sscanf, set. *)
+(** Compiles to sscanf, set. Expects a string in the output format of [to_string]. *)
 val of_string : string -> t

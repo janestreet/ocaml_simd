@@ -5,7 +5,8 @@
   (flags :standard -msse4.2))
  (name ocaml_simd_sse)
  (public_name ocaml_simd.sse)
+ (modes native)
  (libraries unboxed.float_u unboxed.float32_u unboxed.int32_u unboxed.int64_u
    base)
  (preprocess
-  (pps ppx_simd)))
+  (pps ppx_simd ppx_template)))

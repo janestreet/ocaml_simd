@@ -22,7 +22,7 @@ val set : float32# -> float32# -> float32# -> float32# -> t
 
 (** Argument must be a float literal. Compiles to a static vector literal. Exposed as an
     external so user code can compile without cross-library inlining. *)
-external const1 : float32# -> t = "ocaml_simd_unreachable" "caml_float32x4_const1"
+external const1 : float32# -> t = "ocaml_simd_sse_unreachable" "caml_float32x4_const1"
 [@@noalloc] [@@builtin]
 
 (** Arguments must be float literals. Compiles to a static vector literal. Exposed as an
@@ -33,7 +33,7 @@ external const
   -> float32#
   -> float32#
   -> t
-  = "ocaml_simd_unreachable" "caml_float32x4_const4"
+  = "ocaml_simd_sse_unreachable" "caml_float32x4_const4"
 [@@noalloc] [@@builtin]
 
 (* Load/Store *)
@@ -78,31 +78,29 @@ val movemask : mask -> int64#
 (** Identity. *)
 val bitmask : mask -> int32x4#
 
-(** [_mm_blendv_ps] *)
+(** [_mm_blendv_ps] Only reads the sign bit of each mask lane. Selects the element from
+    [pass] if the sign bit is 1, otherwise [fail]. *)
 val select : mask -> fail:t -> pass:t -> t
 
 (* Utility *)
 
-(** [idx] must be in [0,3]. Compiles to shufps,branch,blendps. Only use this if you need a
-    dynamic index. *)
+(** [idx] must be in [0,3]. Compiles to shufps,branch,blendps. *)
 val insert : idx:int64# -> t -> float32# -> t
 
-(** [idx] must be in [0,3]. Compiles to branch,shufps. Only use this if you need a dynamic
-    index. *)
+(** [idx] must be in [0,3]. Compiles to branch,shufps. *)
 val extract : idx:int64# -> t -> float32#
 
-(** Identity *)
+(** Projection. Has no runtime cost. *)
 val extract0 : t -> float32#
 
-(** Compiles to 3x shufps, 4x cvt, builds record. Only use this for debugging / printing /
-    etc. *)
+(** Slow, intended for debugging / printing / etc. *)
 val splat : t -> #(float32# * float32# * float32# * float32#)
 
 (** [_mm_unpackhi_ps] *)
-val interleave_upper : lower:t -> upper:t -> t
+val interleave_upper : even:t -> odd:t -> t
 
 (** [_mm_unpacklo_ps] *)
-val interleave_lower : lower:t -> upper:t -> t
+val interleave_lower : even:t -> odd:t -> t
 
 (** [_mm_moveldup_ps] *)
 val duplicate_even : t -> t
@@ -117,7 +115,7 @@ external blend
   -> t
   -> t
   -> t
-  = "ocaml_simd_unreachable" "caml_sse41_vec128_blend_32"
+  = "ocaml_simd_sse_unreachable" "caml_sse41_vec128_blend_32"
 [@@noalloc] [@@builtin]
 
 (** [_mm_shuffle_ps] Specify shuffle with ppx_simd: [%shuffle N, N, N, N], where each N is
@@ -128,17 +126,17 @@ external shuffle
   -> t
   -> t
   -> t
-  = "ocaml_simd_unreachable" "caml_sse_vec128_shuffle_32"
+  = "ocaml_simd_sse_unreachable" "caml_sse_vec128_shuffle_32"
 [@@noalloc] [@@builtin]
 
 (* Math *)
 
-(** [_mm_min_ps] Equivalent to (x < y ? x : y). If either lane is NaN, the second lane is
-    returned. *)
+(** [_mm_min_ps] Equivalent to pointwise (x < y ? x : y). If either lane is NaN, the
+    second lane is returned. *)
 val min : t -> t -> t
 
-(** [_mm_max_ps] Equivalent to (x > y ? x : y). If either lane is NaN, the second lane is
-    returned. *)
+(** [_mm_max_ps] Equivalent to pointwise (x > y ? x : y). If either lane is NaN, the
+    second lane is returned. *)
 val max : t -> t -> t
 
 (** [_mm_add_ps] *)
@@ -153,10 +151,10 @@ val mul : t -> t -> t
 (** [_mm_div_ps] *)
 val div : t -> t -> t
 
-(** Compiles to xorpd with a static constant. *)
+(** Compiles to xor with a static constant. *)
 val neg : t -> t
 
-(** Compiles to andpd with a static constant. *)
+(** Compiles to and with a static constant. *)
 val abs : t -> t
 
 (** [_mm_rcp_ps] WARNING: result has relative error up to 1.5*2^-12, and may differ
@@ -211,19 +209,22 @@ val round_toward_zero : t -> t
 
 (* Casts *)
 
-(** Identity *)
+(** Identity; leaves upper 96 bits unspecified. *)
+val unsafe_of_float32 : float32# -> t
+
+(** Identity. *)
 val of_float64x2_bits : float64x2# -> t
 
-(** Identity *)
+(** Identity. *)
 val of_int8x16_bits : int8x16# -> t
 
-(** Identity *)
+(** Identity. *)
 val of_int16x8_bits : int16x8# -> t
 
-(** Identity *)
+(** Identity. *)
 val of_int32x4_bits : int32x4# -> t
 
-(** Identity *)
+(** Identity. *)
 val of_int64x2_bits : int64x2# -> t
 
 (** [_mm_cvtepi32_ps] *)
@@ -237,5 +238,5 @@ val of_float64x2 : float64x2# -> t
 (** Compiles to splat, sprintf. *)
 val to_string : t -> string
 
-(** Compiles to sscanf, set. *)
+(** Compiles to sscanf, set. Expects a string in the output format of [to_string]. *)
 val of_string : string -> t

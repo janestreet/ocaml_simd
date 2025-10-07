@@ -6,11 +6,16 @@ type mask = int8x16#
 external box : t -> int8x16 @@ portable = "%box_vec128"
 external unbox : int8x16 -> t @@ portable = "%unbox_vec128"
 
+module Test = Test.Int8x16
 module String = Load_store.String_Int8x16
 module Bytes = Load_store.Bytes_Int8x16
 module Bigstring = Load_store.Bigstring_Int8x16
 
-external const1 : int64# -> t @@ portable = "ocaml_simd_unreachable" "caml_int8x16_const1"
+external const1
+  :  int64#
+  -> t
+  @@ portable
+  = "ocaml_simd_sse_unreachable" "caml_int8x16_const1"
 [@@noalloc] [@@builtin]
 
 external const
@@ -32,7 +37,7 @@ external const
   -> int64#
   -> t
   @@ portable
-  = "ocaml_simd_unreachable" "caml_int8x16_const16"
+  = "ocaml_simd_sse_unreachable" "caml_int8x16_const16"
 [@@noalloc] [@@builtin]
 
 external extract
@@ -40,7 +45,7 @@ external extract
   -> t
   -> int64#
   @@ portable
-  = "ocaml_simd_unreachable" "caml_sse41_int8x16_extract"
+  = "ocaml_simd_sse_unreachable" "caml_sse41_int8x16_extract"
 [@@noalloc] [@@builtin]
 
 external insert
@@ -49,17 +54,16 @@ external insert
   -> int64#
   -> t
   @@ portable
-  = "ocaml_simd_unreachable" "caml_sse41_int8x16_insert"
+  = "ocaml_simd_sse_unreachable" "caml_sse41_int8x16_insert"
 [@@noalloc] [@@builtin]
 
-let[@inline always] zero () = const1 #0L
-let[@inline always] one () = const1 #1L
-let[@inline always] all_ones () = const1 #0xffL
-let[@inline always] zero_mask () = Int16x8_internal.const1 #0L
-let[@inline always] shuffle ~pattern x = I.shuffle_8 x pattern
-let[@inline always] set1 a = shuffle ~pattern:(zero ()) (I.low_of a)
+let[@inline] zero () = const1 #0L
+let[@inline] one () = const1 #1L
+let[@inline] all_ones () = const1 #0xffL
+let[@inline] shuffle ~pattern x = I.shuffle_8 x pattern
+let[@inline] set1 a = shuffle ~pattern:(zero ()) (I.low_of a)
 
-let[@inline always] set a b c d e f g h i j k l m n o p =
+let[@inline] set a b c d e f g h i j k l m n o p =
   (* movd, + 15x insert -> 31 cycle latency
      this               -> 6 cycle latency (but a lot of registers) *)
   let a = I.low_of a in
@@ -87,11 +91,11 @@ let[@inline always] set a b c d e f g h i j k l m n o p =
   I.interleave_low_64 hgfedcba ponmlkji
 ;;
 
-let[@inline always] select m ~fail ~pass = I.blendv_8 fail pass m
-let[@inline always] extract0 x = I.low_to x
-let[@inline always] movemask m = I.movemask_8 m
+let[@inline] select m ~fail ~pass = I.blendv_8 fail pass m
+let[@inline] extract0 x = I.low_to x
+let[@inline] movemask m = I.movemask_8 m
 
-let[@inline always] splat x =
+let[@inline] splat x =
   (* 16x movd, 16x movzx, 15x shuffle -> 6 cycle latency
      this                             -> 5 cycle latency, fewer registers *)
   #( extract0 x
@@ -112,35 +116,34 @@ let[@inline always] splat x =
    , extract ~idx:#15L x )
 ;;
 
-(* Comparisons do not use [C.not_...], as they have different NaN behavior. *)
-let[@inline always] ( >= ) x y = I.(or_ (cmpgt x y) (cmpeq x y))
-let[@inline always] ( <= ) x y = I.(or_ (cmpgt y x) (cmpeq x y))
-let[@inline always] ( = ) x y = I.cmpeq x y
-let[@inline always] ( > ) x y = I.cmpgt x y
-let[@inline always] ( < ) x y = I.cmpgt y x
-let[@inline always] ( <> ) x y = I.(xor (all_ones ()) (cmpeq x y))
-let[@inline always] equal x y = I.cmpeq x y
-let[@inline always] interleave_upper ~lower ~upper = I.interleave_high_8 lower upper
-let[@inline always] interleave_lower ~lower ~upper = I.interleave_low_8 lower upper
-let[@inline always] min x y = I.min x y
-let[@inline always] max x y = I.max x y
-let[@inline always] min_unsigned x y = I.min_unsigned x y
-let[@inline always] max_unsigned x y = I.max_unsigned x y
-let[@inline always] add x y = I.add x y
-let[@inline always] add_saturating x y = I.add_saturating x y
-let[@inline always] add_saturating_unsigned x y = I.add_saturating_unsigned x y
-let[@inline always] sub x y = I.sub x y
-let[@inline always] sub_saturating x y = I.sub_saturating x y
-let[@inline always] sub_saturating_unsigned x y = I.sub_saturating_unsigned x y
-let[@inline always] neg x = I.(mulsign x (all_ones ()))
-let[@inline always] abs x = I.abs x
+let[@inline] ( >= ) x y = I.(or_ (cmpgt x y) (cmpeq x y))
+let[@inline] ( <= ) x y = I.(or_ (cmpgt y x) (cmpeq x y))
+let[@inline] ( = ) x y = I.cmpeq x y
+let[@inline] ( > ) x y = I.cmpgt x y
+let[@inline] ( < ) x y = I.cmpgt y x
+let[@inline] ( <> ) x y = I.(xor (all_ones ()) (cmpeq x y))
+let[@inline] equal x y = I.cmpeq x y
+let[@inline] interleave_upper ~even ~odd = I.interleave_high_8 even odd
+let[@inline] interleave_lower ~even ~odd = I.interleave_low_8 even odd
+let[@inline] min x y = I.min x y
+let[@inline] max x y = I.max x y
+let[@inline] min_unsigned x y = I.min_unsigned x y
+let[@inline] max_unsigned x y = I.max_unsigned x y
+let[@inline] add x y = I.add x y
+let[@inline] add_saturating x y = I.add_saturating x y
+let[@inline] add_saturating_unsigned x y = I.add_saturating_unsigned x y
+let[@inline] sub x y = I.sub x y
+let[@inline] sub_saturating x y = I.sub_saturating x y
+let[@inline] sub_saturating_unsigned x y = I.sub_saturating_unsigned x y
+let[@inline] neg x = I.(mul_sign x (all_ones ()))
+let[@inline] abs x = I.abs x
 
 external shifti_left_bytes
   :  int64#
   -> t
   -> t
   @@ portable
-  = "ocaml_simd_unreachable" "caml_sse2_vec128_shift_left_bytes"
+  = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shift_left_bytes"
 [@@noalloc] [@@builtin]
 
 external shifti_right_bytes
@@ -148,7 +151,7 @@ external shifti_right_bytes
   -> t
   -> t
   @@ portable
-  = "ocaml_simd_unreachable" "caml_sse2_vec128_shift_right_bytes"
+  = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shift_right_bytes"
 [@@noalloc] [@@builtin]
 
 external concat_shift_right_bytes
@@ -157,21 +160,21 @@ external concat_shift_right_bytes
   -> t
   -> t
   @@ portable
-  = "ocaml_simd_unreachable" "caml_ssse3_vec128_align_right_bytes"
+  = "ocaml_simd_sse_unreachable" "caml_ssse3_vec128_align_right_bytes"
 [@@noalloc] [@@builtin]
 
-let[@inline always] mulsign x y = I.mulsign x y
-let[@inline always] average_unsigned x y = I.avg_unsigned x y
-let[@inline always] ( + ) x y = I.add x y
-let[@inline always] ( - ) x y = I.sub x y
-let[@inline always] ( lor ) x y = I.or_ x y
-let[@inline always] ( land ) x y = I.and_ x y
-let[@inline always] ( lxor ) x y = I.xor x y
-let[@inline always] lnot m = I.(xor (all_ones ()) m)
-let[@inline always] landnot ~not y = I.andnot ~not y
-let[@inline always] sum_absolute_differences_unsigned x y = I.sadu x y
+let[@inline] mul_sign x y = I.mul_sign x y
+let[@inline] average_unsigned x y = I.avg_unsigned x y
+let[@inline] ( + ) x y = I.add x y
+let[@inline] ( - ) x y = I.sub x y
+let[@inline] ( lor ) x y = I.or_ x y
+let[@inline] ( land ) x y = I.and_ x y
+let[@inline] ( lxor ) x y = I.xor x y
+let[@inline] lnot m = I.(xor (all_ones ()) m)
+let[@inline] landnot ~not y = I.andnot ~not y
+let[@inline] sum_absolute_differences_unsigned x y = I.sadu x y
 
-let[@inline always] mul_unsigned_by_signed_horizontal_add_saturating x y =
+let[@inline] mul_unsigned_by_signed_horizontal_add_saturating x y =
   I.mul_horizontal_add_saturating x y
 ;;
 
@@ -181,21 +184,18 @@ external multi_sum_absolute_differences_unsigned
   -> t
   -> int16x8#
   @@ portable
-  = "ocaml_simd_unreachable" "caml_sse41_int8x16_multi_sad_unsigned"
+  = "ocaml_simd_sse_unreachable" "caml_sse41_int8x16_multi_sad_unsigned"
 [@@noalloc] [@@builtin]
 
-let[@inline always] of_float32x4_bits x = I.of_float32x4 x
-let[@inline always] of_float64x2_bits x = I.of_float64x2 x
-let[@inline always] of_int16x8_bits x = I.of_int16x8 x
-let[@inline always] of_int32x4_bits x = I.of_int32x4 x
-let[@inline always] of_int64x2_bits x = I.of_int64x2 x
-let[@inline always] of_int16x8_saturating x = Int16x8_internal.(cvt_si8 x (zero_mask ()))
+let[@inline] of_float32x4_bits x = I.of_float32x4 x
+let[@inline] of_float64x2_bits x = I.of_float64x2 x
+let[@inline] of_int16x8_bits x = I.of_int16x8 x
+let[@inline] of_int32x4_bits x = I.of_int32x4 x
+let[@inline] of_int64x2_bits x = I.of_int64x2 x
+let[@inline] of_int16x8_saturating x y = Int16x8_internal.(cvt_si8 x y)
+let[@inline] of_int16x8_saturating_unsigned x y = Int16x8_internal.(cvt_su8 x y)
 
-let[@inline always] of_int16x8_saturating_unsigned x =
-  Int16x8_internal.(cvt_su8 x (zero_mask ()))
-;;
-
-let[@inline always] to_string x =
+let[@inline] to_string x =
   let #(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) = splat x in
   Stdlib.Printf.sprintf
     "(%Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld)"
@@ -217,7 +217,7 @@ let[@inline always] to_string x =
     (Int64_u.to_int64 p)
 ;;
 
-let[@inline always] of_string s =
+let[@inline] of_string s =
   Stdlib.Scanf.sscanf
     s
     "(%Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld)"

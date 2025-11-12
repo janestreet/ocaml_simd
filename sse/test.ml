@@ -42,23 +42,23 @@ end
 module Int8x16 = Test (struct
     type t = int8x16#
 
-    let[@inline] ones () = Int8x16_internal.const1 #0xffL
+    let[@inline] ones () = Int8x16_internal.const1 (-#1s)
   end)
 
 module Int16x8 = Test (struct
     type t = int16x8#
 
-    let[@inline] ones () = Int16x8_internal.const1 #0xffffL
+    let[@inline] ones () = Int16x8_internal.const1 (-#1S)
   end)
 
 module Int32x4 = Test (struct
     type t = int32x4#
 
-    let[@inline] ones () = Int32x4_internal.const1 #0xffffffffl
+    let[@inline] ones () = Int32x4_internal.const1 (-#1l)
   end)
 
 module Int64x2 = Test (struct
     type t = int64x2#
 
-    let[@inline] ones () = Int64x2_internal.const1 #0xffffffffffffffffL
+    let[@inline] ones () = Int64x2_internal.const1 (-#1L)
   end)

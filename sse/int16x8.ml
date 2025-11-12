@@ -1,32 +1,34 @@
+open Stdlib_stable
 module I = Int16x8_internal
 
 type t = int16x8#
 type mask = int16x8#
 
 external box : t -> int16x8 @@ portable = "%box_vec128"
-external unbox : int16x8 -> t @@ portable = "%unbox_vec128"
+external unbox : int16x8 @ local -> t @@ portable = "%unbox_vec128"
 
 module Test = Test.Int16x8
+module Raw = Load_store.Raw_Int16x8
 module String = Load_store.String_Int16x8
 module Bytes = Load_store.Bytes_Int16x8
 module Bigstring = Load_store.Bigstring_Int16x8
 
 external const1
-  :  int64#
+  :  int16#
   -> t
   @@ portable
   = "ocaml_simd_sse_unreachable" "caml_int16x8_const1"
 [@@noalloc] [@@builtin]
 
 external const
-  :  int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
+  :  int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
   -> t
   @@ portable
   = "ocaml_simd_sse_unreachable" "caml_int16x8_const8"
@@ -48,30 +50,50 @@ external shuffle_lower
   = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shuffle_low_16"
 [@@noalloc] [@@builtin]
 
-external extract
-  :  idx:int64#
-  -> t
-  -> int64#
-  @@ portable
-  = "ocaml_simd_sse_unreachable" "caml_sse41_int16x8_extract"
-[@@noalloc] [@@builtin]
+let[@inline] insert ~idx t x =
+  match idx with
+  | #0L -> I.insert ~idx:#0L t x
+  | #1L -> I.insert ~idx:#1L t x
+  | #2L -> I.insert ~idx:#2L t x
+  | #3L -> I.insert ~idx:#3L t x
+  | #4L -> I.insert ~idx:#4L t x
+  | #5L -> I.insert ~idx:#5L t x
+  | #6L -> I.insert ~idx:#6L t x
+  | #7L -> I.insert ~idx:#7L t x
+  | _ ->
+    (match failwith "Invalid index." with
+     | (_ : Base.Nothing.t) -> .)
+;;
 
-external insert
-  :  idx:int64#
-  -> t
-  -> int64#
-  -> t
-  @@ portable
-  = "ocaml_simd_sse_unreachable" "caml_sse41_int16x8_insert"
-[@@noalloc] [@@builtin]
+let[@inline] extract ~idx t =
+  let open struct
+    external int16_of_int64 : int64# -> int16# @@ portable = "%int16#_of_int64#"
+  end in
+  let x =
+    match idx with
+    | #0L -> I.extract ~idx:#0L t
+    | #1L -> I.extract ~idx:#1L t
+    | #2L -> I.extract ~idx:#2L t
+    | #3L -> I.extract ~idx:#3L t
+    | #4L -> I.extract ~idx:#4L t
+    | #5L -> I.extract ~idx:#5L t
+    | #6L -> I.extract ~idx:#6L t
+    | #7L -> I.extract ~idx:#7L t
+    | _ ->
+      (match failwith "Invalid index." with
+       | (_ : Base.Nothing.t) -> .)
+  in
+  (* Sign extend. *)
+  int16_of_int64 x
+;;
 
-let[@inline] zero () = const1 #0L
-let[@inline] one () = const1 #1L
-let[@inline] all_ones () = const1 #0xffffL
+let[@inline] zero () = const1 #0S
+let[@inline] one () = const1 #1S
+let[@inline] all_ones () = const1 #0xffffS
 
 let[@inline] set1 a =
   let a = I.low_of a in
-  let pattern = const1 #0x01_00L in
+  let pattern = const1 #0x01_00S in
   I.shuffle_8 a pattern
 ;;
 
@@ -223,30 +245,23 @@ let[@inline] shift_right_arithmetic x i =
 ;;
 
 let[@inline] to_string x =
+  let bx = Int16_u.to_int in
   let #(a, b, c, d, e, f, g, h) = splat x in
   Stdlib.Printf.sprintf
-    "(%Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld)"
-    (Int64_u.to_int64 a)
-    (Int64_u.to_int64 b)
-    (Int64_u.to_int64 c)
-    (Int64_u.to_int64 d)
-    (Int64_u.to_int64 e)
-    (Int64_u.to_int64 f)
-    (Int64_u.to_int64 g)
-    (Int64_u.to_int64 h)
+    "(%d %d %d %d %d %d %d %d)"
+    (bx a)
+    (bx b)
+    (bx c)
+    (bx d)
+    (bx e)
+    (bx f)
+    (bx g)
+    (bx h)
 ;;
 
 let[@inline] of_string s =
-  Stdlib.Scanf.sscanf s "(%Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld)" (fun a b c d e f g h ->
-    set
-      (Int64_u.of_int64 a)
-      (Int64_u.of_int64 b)
-      (Int64_u.of_int64 c)
-      (Int64_u.of_int64 d)
-      (Int64_u.of_int64 e)
-      (Int64_u.of_int64 f)
-      (Int64_u.of_int64 g)
-      (Int64_u.of_int64 h)
-    |> box)
+  let ub = Int16_u.of_int in
+  Stdlib.Scanf.sscanf s "(%d %d %d %d %d %d %d %d)" (fun a b c d e f g h ->
+    set (ub a) (ub b) (ub c) (ub d) (ub e) (ub f) (ub g) (ub h) |> box)
   |> unbox
 ;;

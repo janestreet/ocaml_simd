@@ -4,7 +4,7 @@ module I16x8 = struct
   type t = int16x8#
 
   external low_of
-    :  int64#
+    :  int16#
     -> t
     @@ portable
     = "ocaml_simd_avx_unreachable" "caml_int16x8_low_of_int"
@@ -12,7 +12,7 @@ module I16x8 = struct
 
   external low_to
     :  t
-    -> int64#
+    -> int16#
     @@ portable
     = "ocaml_simd_avx_unreachable" "caml_int16x8_low_to_int"
   [@@noalloc] [@@builtin]
@@ -47,7 +47,7 @@ module I16x8 = struct
 end
 
 external low_of
-  :  int64#
+  :  int16#
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_int16x16_low_of_int"
@@ -55,7 +55,7 @@ external low_of
 
 external low_to
   :  t
-  -> int64#
+  -> int16#
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_int16x16_low_to_int"
 [@@noalloc] [@@builtin]
@@ -75,7 +75,7 @@ external low_to_i16x8
 [@@noalloc] [@@builtin]
 
 external const1
-  :  int64#
+  :  int16#
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_int16x16_const1"

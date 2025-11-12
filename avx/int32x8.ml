@@ -4,13 +4,14 @@ type t = int32x8#
 type mask = int32x8#
 
 module Test = Test.Int32x8
+module Raw = Load_store.Raw_Int32x8
 module String = Load_store.String_Int32x8
 module Bytes = Load_store.Bytes_Int32x8
 module Bigstring = Load_store.Bigstring_Int32x8
 module Int32_u_array = Load_store.Int32_u_array
 
 external box : t -> int32x8 @@ portable = "%box_vec256"
-external unbox : int32x8 -> t @@ portable = "%unbox_vec256"
+external unbox : int32x8 @ local -> t @@ portable = "%unbox_vec256"
 
 external const1
   :  int32#

@@ -4,9 +4,10 @@ type t = int32x4#
 type mask = int32x4#
 
 external box : t -> int32x4 @@ portable = "%box_vec128"
-external unbox : int32x4 -> t @@ portable = "%unbox_vec128"
+external unbox : int32x4 @ local -> t @@ portable = "%unbox_vec128"
 
 module Test = Test.Int32x4
+module Raw = Load_store.Raw_Int32x4
 module String = Load_store.String_Int32x4
 module Bytes = Load_store.Bytes_Int32x4
 module Bigstring = Load_store.Bigstring_Int32x4
@@ -59,22 +60,34 @@ let[@inline] set a b c d =
   I.interleave_low_64 ba dc
 ;;
 
-external extract
-  :  idx:int64#
-  -> t
-  -> int32#
-  @@ portable
-  = "ocaml_simd_sse_unreachable" "caml_sse41_int32x4_extract"
-[@@noalloc] [@@builtin]
+let[@inline] insert ~idx t x =
+  match idx with
+  | #0L -> I.insert ~idx:#0L t x
+  | #1L -> I.insert ~idx:#1L t x
+  | #2L -> I.insert ~idx:#2L t x
+  | #3L -> I.insert ~idx:#3L t x
+  | _ ->
+    (match failwith "Invalid index." with
+     | (_ : Base.Nothing.t) -> .)
+;;
 
-external insert
-  :  idx:int64#
-  -> t
-  -> int32#
-  -> t
-  @@ portable
-  = "ocaml_simd_sse_unreachable" "caml_sse41_int32x4_insert"
-[@@noalloc] [@@builtin]
+let[@inline] extract ~idx t =
+  let open struct
+    external int32_of_int64 : int64# -> int32# @@ portable = "%int32#_of_int64#"
+  end in
+  let x =
+    match idx with
+    | #0L -> I.extract ~idx:#0L t
+    | #1L -> I.extract ~idx:#1L t
+    | #2L -> I.extract ~idx:#2L t
+    | #3L -> I.extract ~idx:#3L t
+    | _ ->
+      (match failwith "Invalid index." with
+       | (_ : Base.Nothing.t) -> .)
+  in
+  (* Sign extend. *)
+  int32_of_int64 x
+;;
 
 let[@inline] movemask m = I.movemask_32 m
 let[@inline] select m ~fail ~pass = I.blendv_32 fail pass m

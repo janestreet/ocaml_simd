@@ -4,7 +4,7 @@ type t = int32x4#
 type mask = int32x4#
 
 val box : t -> int32x4
-val unbox : int32x4 -> t
+val unbox : int32x4 @ local -> t
 
 (* Creation *)
 
@@ -40,6 +40,7 @@ external const
 
 (* Load/Store *)
 
+module Raw : Load_store.Raw with type t := t
 module String : Load_store.String with type t := t
 module Bytes : Load_store.Bytes with type t := t
 module Bigstring : Load_store.Bigstring with type t := t
@@ -79,24 +80,11 @@ val select : mask -> fail:t -> pass:t -> t
 
 (* Utility *)
 
-(** [_mm_insert_epi32]: [idx] must be in [0,3]. Exposed as an external so user code can
-    compile without cross-library inlining. *)
-external insert
-  :  idx:int64#
-  -> t
-  -> int32#
-  -> t
-  = "ocaml_simd_sse_unreachable" "caml_sse41_int32x4_insert"
-[@@noalloc] [@@builtin]
+(** [idx] must be in [0,3]. *)
+val insert : idx:int64# -> t -> int32# -> t
 
-(** [_mm_extract_epi32]: [idx] must be in [0,3]. Exposed as an external so user code can
-    compile without cross-library inlining. *)
-external extract
-  :  idx:int64#
-  -> t
-  -> int32#
-  = "ocaml_simd_sse_unreachable" "caml_sse41_int32x4_extract"
-[@@noalloc] [@@builtin]
+(** [idx] must be in [0,3]. *)
+val extract : idx:int64# -> t -> int32#
 
 (** Projection. More efficient than [extract ~idx:#0L]. *)
 val extract0 : t -> int32#

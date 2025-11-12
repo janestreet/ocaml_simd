@@ -4,7 +4,7 @@ type t = int8x32#
 type mask = int8x32#
 
 val box : t -> int8x32
-val unbox : int8x32 -> t
+val unbox : int8x32 @ local -> t
 
 (* Creation *)
 
@@ -15,42 +15,42 @@ val zero : unit -> t
 val one : unit -> t
 
 (** [_mm256_set1_epi8] *)
-val set1 : int64# -> t
+val set1 : int8# -> t
 
 (** [_mm256_set_epi8] *)
 val set
-  :  int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
+  :  int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
   -> t
 
 (** [_mm256_set_m128] Operates on two int8x16 lanes. *)
@@ -58,50 +58,51 @@ val set_lanes : int8x16# -> int8x16# -> t
 
 (** Argument must be an unsigned 8-bit int literal. Compiles to a static vector literal.
     Exposed as an external so user code can compile without cross-library inlining. *)
-external const1 : int64# -> t = "ocaml_simd_avx_unreachable" "caml_int8x32_const1"
+external const1 : int8# -> t = "ocaml_simd_avx_unreachable" "caml_int8x32_const1"
 [@@noalloc] [@@builtin]
 
 (** Arguments must be unsigned 8-bit int literals. Compiles to a static vector literal.
     Exposed as an external so user code can compile without cross-library inlining. *)
 external const
-  :  int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
+  :  int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
   -> t
   = "ocaml_simd_avx_unreachable" "caml_int8x32_const32"
 [@@noalloc] [@@builtin]
 
 (* Load/Store *)
 
+module Raw : Load_store.Raw with type t := t
 module String : Load_store.String with type t := t
 module Bytes : Load_store.Bytes with type t := t
 module Bigstring : Load_store.Bigstring with type t := t
@@ -143,13 +144,13 @@ val select : mask -> fail:t -> pass:t -> t
 (* Utility *)
 
 (** [idx] must be in [0,31]. *)
-val insert : idx:int64# -> t -> int64# -> t
+val insert : idx:int64# -> t -> int8# -> t
 
 (** [idx] must be in [0,31]. *)
-val extract : idx:int64# -> t -> int64#
+val extract : idx:int64# -> t -> int8#
 
 (** Projection. More efficient than [extract ~idx:#0L]. *)
-val extract0 : t -> int64#
+val extract0 : t -> int8#
 
 (** [idx] must be a literal in [0,1]. Operates on two int8x16 lanes. Exposed as an
     external so user code can compile without cross-library inlining. *)
@@ -178,38 +179,38 @@ val extract_lane0 : t -> int8x16#
 (** Slow, intended for debugging / printing / etc. *)
 val splat
   :  t
-  -> #(int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#)
+  -> #(int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#)
 
 (** [_mm256_unpackhi_epi8] Operates on two int8x16 lanes.
     {[

@@ -8,6 +8,11 @@ void ocaml_simd_sse_unreachable() { assert(!"SIMD is not supported in bytecode m
 
 BUILTIN(caml_vec128_cast)
 
+BUILTIN(caml_sse_load_aligned)
+BUILTIN(caml_sse_load_unaligned)
+BUILTIN(caml_sse_store_aligned)
+BUILTIN(caml_sse_store_unaligned)
+
 BUILTIN(caml_float32x4_low_of_float32)
 BUILTIN(caml_float32x4_low_to_float32)
 BUILTIN(caml_float32x4_const1)

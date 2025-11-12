@@ -4,9 +4,10 @@ type t = int64x2#
 type mask = int64x2#
 
 external box : t -> int64x2 @@ portable = "%box_vec128"
-external unbox : int64x2 -> t @@ portable = "%unbox_vec128"
+external unbox : int64x2 @ local -> t @@ portable = "%unbox_vec128"
 
 module Test = Test.Int64x2
+module Raw = Load_store.Raw_Int64x2
 module String = Load_store.String_Int64x2
 module Bytes = Load_store.Bytes_Int64x2
 module Bigstring = Load_store.Bigstring_Int64x2
@@ -39,22 +40,23 @@ external shuffle
   = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shuffle_64"
 [@@noalloc] [@@builtin]
 
-external extract
-  :  idx:int64#
-  -> t
-  -> int64#
-  @@ portable
-  = "ocaml_simd_sse_unreachable" "caml_sse41_int64x2_extract"
-[@@noalloc] [@@builtin]
+let[@inline] insert ~idx t x =
+  match idx with
+  | #0L -> I.insert ~idx:#0L t x
+  | #1L -> I.insert ~idx:#1L t x
+  | _ ->
+    (match failwith "Invalid index." with
+     | (_ : Base.Nothing.t) -> .)
+;;
 
-external insert
-  :  idx:int64#
-  -> t
-  -> int64#
-  -> t
-  @@ portable
-  = "ocaml_simd_sse_unreachable" "caml_sse41_int64x2_insert"
-[@@noalloc] [@@builtin]
+let[@inline] extract ~idx t =
+  match idx with
+  | #0L -> I.extract ~idx:#0L t
+  | #1L -> I.extract ~idx:#1L t
+  | _ ->
+    (match failwith "Invalid index." with
+     | (_ : Base.Nothing.t) -> .)
+;;
 
 let[@inline] zero () = const1 #0L
 let[@inline] one () = const1 #1L

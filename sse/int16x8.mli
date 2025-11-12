@@ -4,7 +4,7 @@ type t = int16x8#
 type mask = int16x8#
 
 val box : t -> int16x8
-val unbox : int16x8 -> t
+val unbox : int16x8 @ local -> t
 
 (* Creation *)
 
@@ -15,42 +15,43 @@ val zero : unit -> t
 val one : unit -> t
 
 (** [_mm_set1_epi16] Compiles to movd,pshufb. *)
-val set1 : int64# -> t
+val set1 : int16# -> t
 
 (** [_mm_set_epi16] Compiles to 4x movd,4x pinsr,3x punpcklw. *)
 val set
-  :  int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
+  :  int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
   -> t
 
 (** Argument must be an unsigned 16-bit int literal. Compiles to a static vector literal.
     Exposed as an external so user code can compile without cross-library inlining. *)
-external const1 : int64# -> t = "ocaml_simd_sse_unreachable" "caml_int16x8_const1"
+external const1 : int16# -> t = "ocaml_simd_sse_unreachable" "caml_int16x8_const1"
 [@@noalloc] [@@builtin]
 
 (** Arguments must be unsigned 16-bit int literals. Compiles to a static vector literal.
     Exposed as an external so user code can compile without cross-library inlining. *)
 external const
-  :  int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
+  :  int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
   -> t
   = "ocaml_simd_sse_unreachable" "caml_int16x8_const8"
 [@@noalloc] [@@builtin]
 
 (* Load/Store *)
 
+module Raw : Load_store.Raw with type t := t
 module String : Load_store.String with type t := t
 module Bytes : Load_store.Bytes with type t := t
 module Bigstring : Load_store.Bigstring with type t := t
@@ -82,30 +83,17 @@ val equal : t -> t -> mask
 
 (* Utility *)
 
-(** [_mm_insert_epi16]: [idx] must be in [0,7]. Exposed as an external so user code can
-    compile without cross-library inlining. *)
-external insert
-  :  idx:int64#
-  -> t
-  -> int64#
-  -> t
-  = "ocaml_simd_sse_unreachable" "caml_sse41_int16x8_insert"
-[@@noalloc] [@@builtin]
+(** [idx] must be in [0,7]. *)
+val insert : idx:int64# -> t -> int16# -> t
 
-(** [_mm_extract_epi16]: [idx] must be in [0,7]. Exposed as an external so user code can
-    compile without cross-library inlining. *)
-external extract
-  :  idx:int64#
-  -> t
-  -> int64#
-  = "ocaml_simd_sse_unreachable" "caml_sse41_int16x8_extract"
-[@@noalloc] [@@builtin]
+(** [idx] must be in [0,7]. *)
+val extract : idx:int64# -> t -> int16#
 
 (** Projection. More efficient than [extract ~idx:#0L]. *)
-val extract0 : t -> int64#
+val extract0 : t -> int16#
 
 (** Slow, intended for debugging / printing / etc. *)
-val splat : t -> #(int64# * int64# * int64# * int64# * int64# * int64# * int64# * int64#)
+val splat : t -> #(int16# * int16# * int16# * int16# * int16# * int16# * int16# * int16#)
 
 (** [_mm_unpackhi_epi16] *)
 val interleave_upper : even:t -> odd:t -> t

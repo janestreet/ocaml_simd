@@ -1,5 +1,23 @@
 open Stdlib
 
+module type Raw = sig @@ portable
+  type t : vec128
+
+  (** Load 16 bytes from an arbitrary address encoded as a [nativeint#]. *)
+  val unaligned_load : nativeint# -> t
+
+  (** Store 16 bytes to an arbitrary address encoded as a [nativeint#]. *)
+  val unaligned_store : nativeint# -> t -> unit
+
+  (** Load 16 bytes from a 16-byte-aligned address encoded as a [nativeint#]. Does not
+      validate alignment. *)
+  val aligned_load : nativeint# -> t
+
+  (** Store 16 bytes to a 16-byte-aligned address encoded as a [nativeint#]. Does not
+      validate alignment. *)
+  val aligned_store : nativeint# -> t -> unit
+end
+
 module type String_accessors = sig @@ portable
   type t : vec128
   type index : any
@@ -20,10 +38,10 @@ module type Bytes_accessors = sig @@ portable
   (** Load 16 bytes from a [bytes] at an arbitrary byte offset.
 
       @raise Invalid_argument if [byte..byte+16] fails bounds checking. *)
-  val get : bytes @ local -> byte:index -> t
+  val get : bytes @ local read -> byte:index -> t
 
   (** Load 16 bytes from a [bytes] at an arbitrary byte offset. Does not check bounds. *)
-  val unsafe_get : bytes @ local -> byte:index -> t
+  val unsafe_get : bytes @ local read -> byte:index -> t
 
   (** Write 16 bytes to a [bytes] at an arbitrary byte offset.
 
@@ -48,20 +66,20 @@ module type Bigstring_accessors = sig @@ portable
   (** Load 16 bytes from a [bigstring] at an arbitrary byte offset.
 
       @raise Invalid_argument if [byte..byte+16] fails bounds checking. *)
-  val unaligned_get : bigstring @ local -> byte:index -> t
+  val unaligned_get : bigstring @ local read -> byte:index -> t
 
   (** Load 16 bytes from a [bigstring] at a 16-aligned byte offset.
 
       @raise Invalid_argument if the computed address is not 16-byte aligned.
       @raise Invalid_argument if [byte..byte+16] fails bounds checking. *)
-  val aligned_get : bigstring @ local -> byte:index -> t
+  val aligned_get : bigstring @ local read -> byte:index -> t
 
   (** Load 16 bytes from a [bigstring] at an arbitrary byte offset. Does not check bounds. *)
-  val unsafe_unaligned_get : bigstring @ local -> byte:index -> t
+  val unsafe_unaligned_get : bigstring @ local read -> byte:index -> t
 
   (** Load 16 bytes from a [bigstring] at a 16-aligned byte offset. Does not check bounds
       or alignment. *)
-  val unsafe_aligned_get : bigstring @ local -> byte:index -> t
+  val unsafe_aligned_get : bigstring @ local read -> byte:index -> t
 
   (** Write 16 bytes to a [bigstring] at an arbitrary byte offset.
 
@@ -88,11 +106,11 @@ module type Float_array_accessors = sig @@ portable
   (** Load two floats from a [float array] at an arbitrary (unaligned) index.
 
       @raise Invalid_argument if [idx..idx+1] fails bounds checking. *)
-  val get : float array @ local -> idx:index -> float64x2#
+  val get : float array @ local read -> idx:index -> float64x2#
 
   (** Load two floats from a [float array] at an arbitrary (unaligned) index. Does not
       check bounds. *)
-  val unsafe_get : float array @ local -> idx:index -> float64x2#
+  val unsafe_get : float array @ local read -> idx:index -> float64x2#
 
   (** Store two floats to a [float array] at an arbitrary (unaligned) index.
 
@@ -110,11 +128,11 @@ module type Floatarray_accessors = sig @@ portable
   (** Load two floats from a [floatarray] at an arbitrary (unaligned) index.
 
       @raise Invalid_argument if [idx..idx+1] fails bounds checking. *)
-  val get : floatarray @ local -> idx:index -> float64x2#
+  val get : floatarray @ local read -> idx:index -> float64x2#
 
   (** Load two floats from a [floatarray] at an arbitrary (unaligned) index. Does not
       check bounds. *)
-  val unsafe_get : floatarray @ local -> idx:index -> float64x2#
+  val unsafe_get : floatarray @ local read -> idx:index -> float64x2#
 
   (** Store two floats to a [floatarray] at an arbitrary (unaligned) index.
 
@@ -146,21 +164,25 @@ module type Unsafe_immediate_array_accessors = sig @@ portable
       vector contains two _tagged_ 64-bit values.
 
       @raise Invalid_argument if [idx..idx+1] fails bounds checking. *)
-  val get_tagged : ('a : immediate64). 'a array @ local -> idx:index -> int64x2#
+  val get_tagged : ('a : immediate64). 'a array @ local read -> idx:index -> int64x2#
 
   (** Load two immediates from an array at an arbitrary (unaligned) index. The returned
       vector contains two _tagged_ 64-bit values. Does not check bounds. *)
-  val unsafe_get_tagged : ('a : immediate64). 'a array @ local -> idx:index -> int64x2#
+  val unsafe_get_tagged
+    : ('a : immediate64).
+    'a array @ local read -> idx:index -> int64x2#
 
   (** Load two immediates from an array at an arbitrary (unaligned) index. The returned
       vector contains two _untagged_ 63-bit values.
 
       @raise Invalid_argument if [idx..idx+1] fails bounds checking. *)
-  val get_and_untag : ('a : immediate64). 'a array @ local -> idx:index -> int64x2#
+  val get_and_untag : ('a : immediate64). 'a array @ local read -> idx:index -> int64x2#
 
   (** Load two immediates from an array at an arbitrary (unaligned) index. The returned
       vector contains two _untagged_ 63-bit values. Does not check bounds. *)
-  val unsafe_get_and_untag : ('a : immediate64). 'a array @ local -> idx:index -> int64x2#
+  val unsafe_get_and_untag
+    : ('a : immediate64).
+    'a array @ local read -> idx:index -> int64x2#
 
   (** Store two immediates to an array at an arbitrary (unaligned) index. The given vector
       must contain two _untagged_ 63-bit values.
@@ -221,7 +243,7 @@ module type Float_u_array_accessors = sig @@ portable
   (** Load two floats from a [float# array] at an arbitrary (unaligned) index.
 
       @raise Invalid_argument if [idx..idx+1] fails bounds checking. *)
-  val get : float# array @ local -> idx:index -> float64x2#
+  val get : float# array @ local read -> idx:index -> float64x2#
 
   (** Load two floats from a [float# array] at an arbitrary (unaligned) index. Does not
       check bounds. *)
@@ -243,11 +265,11 @@ module type Float32_u_array_accessors = sig @@ portable
   (** Load four float32s from a [float32# array] at an arbitrary (unaligned) index.
 
       @raise Invalid_argument if [idx..idx+3] fails bounds checking. *)
-  val get : float32# array @ local -> idx:index -> float32x4#
+  val get : float32# array @ local read -> idx:index -> float32x4#
 
   (** Load four float32s from a [float32# array] at an arbitrary (unaligned) index. Does
       not check bounds. *)
-  val unsafe_get : float32# array @ local -> idx:index -> float32x4#
+  val unsafe_get : float32# array @ local read -> idx:index -> float32x4#
 
   (** Store four float32s to a [float32# array] at an arbitrary (unaligned) index.
 
@@ -265,11 +287,11 @@ module type Int64_u_array_accessors = sig @@ portable
   (** Load two int64s from a [int64# array] at an arbitrary (unaligned) index.
 
       @raise Invalid_argument if [idx..idx+1] fails bounds checking. *)
-  val get : int64# array @ local -> idx:index -> int64x2#
+  val get : int64# array @ local read -> idx:index -> int64x2#
 
   (** Load two int64s from a [int64# array] at an arbitrary (unaligned) index. Does not
       check bounds. *)
-  val unsafe_get : int64# array @ local -> idx:index -> int64x2#
+  val unsafe_get : int64# array @ local read -> idx:index -> int64x2#
 
   (** Store two int64s to a [int64# array] at an arbitrary (unaligned) index.
 
@@ -288,11 +310,11 @@ module type Nativeint_u_array_accessors = sig @@ portable
   (** Load two int64s from a [nativeint# array] at an arbitrary (unaligned) index.
 
       @raise Invalid_argument if [idx..idx+1] fails bounds checking. *)
-  val get : nativeint# array @ local -> idx:index -> int64x2#
+  val get : nativeint# array @ local read -> idx:index -> int64x2#
 
   (** Load two int64s from a [nativeint# array] at an arbitrary (unaligned) index. Does
       not check bounds. *)
-  val unsafe_get : nativeint# array @ local -> idx:index -> int64x2#
+  val unsafe_get : nativeint# array @ local read -> idx:index -> int64x2#
 
   (** Store two int64s to a [nativeint# array] at an arbitrary (unaligned) index.
 
@@ -310,11 +332,11 @@ module type Int32_u_array_accessors = sig @@ portable
   (** Load four int32s from a [int32# array] at an arbitrary (unaligned) index.
 
       @raise Invalid_argument if [idx..idx+3] fails bounds checking. *)
-  val get : int32# array @ local -> idx:index -> int32x4#
+  val get : int32# array @ local read -> idx:index -> int32x4#
 
   (** Load four int32s from a [int32# array] at an arbitrary (unaligned) index. Does not
       check bounds. *)
-  val unsafe_get : int32# array @ local -> idx:index -> int32x4#
+  val unsafe_get : int32# array @ local read -> idx:index -> int32x4#
 
   (** Store four int32s to a [int32# array] at an arbitrary (unaligned) index.
 
@@ -363,6 +385,7 @@ module type Bigstring = sig @@ portable
 end
 
 module type Load_store = sig @@ portable
+  module type Raw = Raw
   module type String = String
   module type Bytes = Bytes
   module type Bigstring = Bigstring
@@ -460,6 +483,12 @@ module type Load_store = sig @@ portable
     module Nativeint_u : Int32_u_array_accessors with type index := nativeint#
   end
 
+  module Raw_Int8x16 : Raw with type t := int8x16#
+  module Raw_Int16x8 : Raw with type t := int16x8#
+  module Raw_Int32x4 : Raw with type t := int32x4#
+  module Raw_Int64x2 : Raw with type t := int64x2#
+  module Raw_Float32x4 : Raw with type t := float32x4#
+  module Raw_Float64x2 : Raw with type t := float64x2#
   module String_Int8x16 : String with type t := int8x16#
   module String_Int16x8 : String with type t := int16x8#
   module String_Int32x4 : String with type t := int32x4#

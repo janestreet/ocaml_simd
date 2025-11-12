@@ -1,56 +1,58 @@
+open Stdlib_stable
 module I = Int8x32_internal
 
 type t = int8x32#
 type mask = int8x32#
 
 external box : t -> int8x32 @@ portable = "%box_vec256"
-external unbox : int8x32 -> t @@ portable = "%unbox_vec256"
+external unbox : int8x32 @ local -> t @@ portable = "%unbox_vec256"
 
 module Test = Test.Int8x32
+module Raw = Load_store.Raw_Int8x32
 module String = Load_store.String_Int8x32
 module Bytes = Load_store.Bytes_Int8x32
 module Bigstring = Load_store.Bigstring_Int8x32
 
 external const1
-  :  int64#
+  :  int8#
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_int8x32_const1"
 [@@noalloc] [@@builtin]
 
 external const
-  :  int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
+  :  int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_int8x32_const32"
@@ -73,9 +75,9 @@ external extract_lane
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_extract_128"
 [@@noalloc] [@@builtin]
 
-let[@inline] zero () = const1 #0L
-let[@inline] one () = const1 #1L
-let[@inline] all_ones () = const1 #0xffL
+let[@inline] zero () = const1 #0s
+let[@inline] one () = const1 #1s
+let[@inline] all_ones () = const1 #0xffs
 let[@inline] shuffle_lanes ~pattern x = I.shuffle_8 x pattern
 let[@inline] set1 x = I.broadcast_8 (I.I8x16.low_of x)
 
@@ -384,7 +386,7 @@ let[@inline] of_int16x16_saturating_lanes x y = Int16x16_internal.(cvt_si8 x y)
 let[@inline] of_int16x16_saturating_unsigned_lanes x y = Int16x16_internal.(cvt_su8 x y)
 
 let[@inline] to_string x =
-  let bx = Int64_u.to_int64 in
+  let bx = Int8_u.to_int in
   let #( x0
        , x1
        , x2
@@ -421,8 +423,8 @@ let[@inline] to_string x =
     splat x
   in
   Stdlib.Printf.sprintf
-    "(%Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld \
-     %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld)"
+    "(%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d \
+     %d %d %d %d %d)"
     (bx x0)
     (bx x1)
     (bx x2)
@@ -458,11 +460,11 @@ let[@inline] to_string x =
 ;;
 
 let[@inline] of_string s =
-  let ub = Int64_u.of_int64 in
+  let ub = Int8_u.of_int in
   Stdlib.Scanf.sscanf
     s
-    "(%Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld \
-     %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld)"
+    "(%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d \
+     %d %d %d %d %d)"
     (fun
         x0
         x1

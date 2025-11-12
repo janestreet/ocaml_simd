@@ -1,7 +1,7 @@
 include Ocaml_simd_sse.Int16x8
 
 external low_of
-  :  int64#
+  :  int16#
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_int16x8_low_of_int"

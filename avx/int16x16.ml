@@ -1,40 +1,42 @@
+open Stdlib_stable
 module I = Int16x16_internal
 
 type t = int16x16#
 type mask = int16x16#
 
 external box : t -> int16x16 @@ portable = "%box_vec256"
-external unbox : int16x16 -> t @@ portable = "%unbox_vec256"
+external unbox : int16x16 @ local -> t @@ portable = "%unbox_vec256"
 
 module Test = Test.Int16x16
+module Raw = Load_store.Raw_Int16x16
 module String = Load_store.String_Int16x16
 module Bytes = Load_store.Bytes_Int16x16
 module Bigstring = Load_store.Bigstring_Int16x16
 
 external const1
-  :  int64#
+  :  int16#
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_int16x16_const1"
 [@@noalloc] [@@builtin]
 
 external const
-  :  int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
+  :  int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_int16x16_const16"
@@ -73,9 +75,9 @@ external extract_lane
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_extract_128"
 [@@noalloc] [@@builtin]
 
-let[@inline] zero () = const1 #0L
-let[@inline] one () = const1 #1L
-let[@inline] all_ones () = const1 #0xffffL
+let[@inline] zero () = const1 #0S
+let[@inline] one () = const1 #1S
+let[@inline] all_ones () = const1 (-#1S)
 let[@inline] set1 x = I.broadcast_16 (I.I16x8.low_of x)
 
 let[@inline] set x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 =
@@ -302,10 +304,10 @@ let[@inline] shift_right_arithmetic x i =
 ;;
 
 let[@inline] to_string x =
-  let bx = Int64_u.to_int64 in
+  let bx = Int16_u.to_int in
   let #(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15) = splat x in
   Stdlib.Printf.sprintf
-    "(%Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld)"
+    "(%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d)"
     (bx x0)
     (bx x1)
     (bx x2)
@@ -325,10 +327,10 @@ let[@inline] to_string x =
 ;;
 
 let[@inline] of_string s =
-  let ub = Int64_u.of_int64 in
+  let ub = Int16_u.of_int in
   Stdlib.Scanf.sscanf
     s
-    "(%Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld)"
+    "(%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d)"
     (fun x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 ->
        set
          (ub x0)

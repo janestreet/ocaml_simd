@@ -4,7 +4,7 @@ type t = int16x16#
 type mask = int16x16#
 
 val box : t -> int16x16
-val unbox : int16x16 -> t
+val unbox : int16x16 @ local -> t
 
 (* Creation *)
 
@@ -15,26 +15,26 @@ val zero : unit -> t
 val one : unit -> t
 
 (** [_mm256_set1_epi16] *)
-val set1 : int64# -> t
+val set1 : int16# -> t
 
 (** [_mm256_set_epi16] *)
 val set
-  :  int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
+  :  int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
   -> t
 
 (** [_mm256_set_m128] Operates on two int16x8 lanes. *)
@@ -42,34 +42,35 @@ val set_lanes : int16x8# -> int16x8# -> t
 
 (** Argument must be an unsigned 16-bit int literal. Compiles to a static vector literal.
     Exposed as an external so user code can compile without cross-library inlining. *)
-external const1 : int64# -> t = "ocaml_simd_avx_unreachable" "caml_int16x16_const1"
+external const1 : int16# -> t = "ocaml_simd_avx_unreachable" "caml_int16x16_const1"
 [@@noalloc] [@@builtin]
 
 (** Arguments must be unsigned 16-bit int literals. Compiles to a static vector literal.
     Exposed as an external so user code can compile without cross-library inlining. *)
 external const
-  :  int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
+  :  int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
+  -> int16#
   -> t
   = "ocaml_simd_avx_unreachable" "caml_int16x16_const16"
 [@@noalloc] [@@builtin]
 
 (* Load/Store *)
 
+module Raw : Load_store.Raw with type t := t
 module String : Load_store.String with type t := t
 module Bytes : Load_store.Bytes with type t := t
 module Bigstring : Load_store.Bigstring with type t := t
@@ -102,13 +103,13 @@ val equal : t -> t -> mask
 (* Utility *)
 
 (** [idx] must be in [0,15]. *)
-val insert : idx:int64# -> t -> int64# -> t
+val insert : idx:int64# -> t -> int16# -> t
 
 (** [idx] must be in [0,15]. *)
-val extract : idx:int64# -> t -> int64#
+val extract : idx:int64# -> t -> int16#
 
 (** Projection. More efficient than [extract ~idx:#0L]. *)
-val extract0 : t -> int64#
+val extract0 : t -> int16#
 
 (** [idx] must be a literal in [0,1]. Operates on two int16x8 lanes. Exposed as an
     external so user code can compile without cross-library inlining. *)
@@ -137,22 +138,22 @@ val extract_lane0 : t -> int16x8#
 (** Slow, intended for debugging / printing / etc. *)
 val splat
   :  t
-  -> #(int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#)
+  -> #(int16#
+      * int16#
+      * int16#
+      * int16#
+      * int16#
+      * int16#
+      * int16#
+      * int16#
+      * int16#
+      * int16#
+      * int16#
+      * int16#
+      * int16#
+      * int16#
+      * int16#
+      * int16#)
 
 (** [_mm256_unpackhi_epi16] Operates on two int16x8 lanes.
     {[

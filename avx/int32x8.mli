@@ -4,7 +4,7 @@ type t = int32x8#
 type mask = int32x8#
 
 val box : t -> int32x8
-val unbox : int32x8 -> t
+val unbox : int32x8 @ local -> t
 
 (* Creation *)
 
@@ -56,6 +56,7 @@ external const
 
 (* Load/Store *)
 
+module Raw : Load_store.Raw with type t := t
 module String : Load_store.String with type t := t
 module Bytes : Load_store.Bytes with type t := t
 module Bigstring : Load_store.Bigstring with type t := t

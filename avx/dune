@@ -6,7 +6,7 @@
  (name ocaml_simd_avx)
  (public_name ocaml_simd.avx)
  (modes native)
- (libraries unboxed.float_u unboxed.float32_u unboxed.int32_u unboxed.int64_u
-   ocaml_simd_sse base)
+ (libraries base unboxed.float32_u unboxed.float_u unboxed.int32_u
+   unboxed.int64_u ocaml_simd_sse stdlib_stable)
  (preprocess
   (pps ppx_simd ppx_template)))

@@ -4,8 +4,9 @@ type t = float64x2#
 type mask = int64x2#
 
 external box : t -> float64x2 @@ portable = "%box_vec128"
-external unbox : float64x2 -> t @@ portable = "%unbox_vec128"
+external unbox : float64x2 @ local -> t @@ portable = "%unbox_vec128"
 
+module Raw = Load_store.Raw_Float64x2
 module String = Load_store.String_Float64x2
 module Bytes = Load_store.Bytes_Float64x2
 module Bigstring = Load_store.Bigstring_Float64x2

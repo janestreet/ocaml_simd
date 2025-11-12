@@ -14,6 +14,23 @@ external low_to
   = "ocaml_simd_sse_unreachable" "caml_int32x4_low_to_int32"
 [@@noalloc] [@@builtin]
 
+external insert
+  :  idx:int64#
+  -> t
+  -> int32#
+  -> t
+  @@ portable
+  = "ocaml_simd_sse_unreachable" "caml_sse41_int32x4_insert"
+[@@noalloc] [@@builtin]
+
+external extract
+  :  idx:int64#
+  -> t
+  -> int64#
+  @@ portable
+  = "ocaml_simd_sse_unreachable" "caml_sse41_int32x4_extract"
+[@@noalloc] [@@builtin]
+
 external of_int8x16
   :  int8x16#
   -> t

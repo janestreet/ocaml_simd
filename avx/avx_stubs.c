@@ -7,6 +7,12 @@ void ocaml_simd_avx_unreachable() { assert(!"SIMD is not supported in bytecode m
   void name() { assert(!"Didn't use [@@builtin] intrinsic."); }
 
 BUILTIN(caml_vec256_cast)
+
+BUILTIN(caml_avx_load_aligned)
+BUILTIN(caml_avx_load_unaligned)
+BUILTIN(caml_avx_store_aligned)
+BUILTIN(caml_avx_store_unaligned)
+
 BUILTIN(caml_vec256_low_of_vec128)
 BUILTIN(caml_vec256_low_to_vec128)
 BUILTIN(caml_float32x8_low_of_float32)

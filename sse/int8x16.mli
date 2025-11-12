@@ -4,7 +4,7 @@ type t = int8x16#
 type mask = int8x16#
 
 val box : t -> int8x16
-val unbox : int8x16 -> t
+val unbox : int8x16 @ local -> t
 
 (* Creation *)
 
@@ -15,58 +15,59 @@ val zero : unit -> t
 val one : unit -> t
 
 (** [_mm_set1_epi8] Compiles to mov,pshufb *)
-val set1 : int64# -> t
+val set1 : int8# -> t
 
 (** [_mm_set_epi8] Compiles to 8x mov,8x pinsr,7x unpckl *)
 val set
-  :  int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
+  :  int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
   -> t
 
 (** Argument must be an unsigned 8-bit int literal. Compiles to a static vector literal.
     Exposed as an external so user code can compile without cross-library inlining. *)
-external const1 : int64# -> t = "ocaml_simd_sse_unreachable" "caml_int8x16_const1"
+external const1 : int8# -> t = "ocaml_simd_sse_unreachable" "caml_int8x16_const1"
 [@@noalloc] [@@builtin]
 
 (** Arguments must be unsigned 8-bit int literals. Compiles to a static vector literal.
     Exposed as an external so user code can compile without cross-library inlining. *)
 external const
-  :  int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
+  :  int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
   -> t
   = "ocaml_simd_sse_unreachable" "caml_int8x16_const16"
 [@@noalloc] [@@builtin]
 
 (* Load/Store *)
 
+module Raw : Load_store.Raw with type t := t
 module String : Load_store.String with type t := t
 module Bytes : Load_store.Bytes with type t := t
 module Bigstring : Load_store.Bigstring with type t := t
@@ -107,47 +108,34 @@ val select : mask -> fail:t -> pass:t -> t
 
 (* Utility *)
 
-(** [_mm_insert_epi8]: [idx] must be in [0,15]. Exposed as an external so user code can
-    compile without cross-library inlining. *)
-external insert
-  :  idx:int64#
-  -> t
-  -> int64#
-  -> t
-  = "ocaml_simd_sse_unreachable" "caml_sse41_int8x16_insert"
-[@@noalloc] [@@builtin]
+(** [idx] must be in [0,16]. *)
+val insert : idx:int64# -> t -> int8# -> t
 
-(** [_mm_extract_epi8]: [idx] must be in [0,15]. Exposed as an external so user code can
-    compile without cross-library inlining. *)
-external extract
-  :  idx:int64#
-  -> t
-  -> int64#
-  = "ocaml_simd_sse_unreachable" "caml_sse41_int8x16_extract"
-[@@noalloc] [@@builtin]
+(** [idx] must be in [0,16]. *)
+val extract : idx:int64# -> t -> int8#
 
 (** Projection. More efficient than [extract ~idx:#0L]. *)
-val extract0 : t -> int64#
+val extract0 : t -> int8#
 
 (** Slow, intended for debugging / printing / etc. *)
 val splat
   :  t
-  -> #(int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#
-      * int64#)
+  -> #(int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#
+      * int8#)
 
 (** [_mm_unpackhi_epi8] *)
 val interleave_upper : even:t -> odd:t -> t

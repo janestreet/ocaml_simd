@@ -1,65 +1,103 @@
+open Stdlib_stable
 module I = Int8x16_internal
 
 type t = int8x16#
 type mask = int8x16#
 
 external box : t -> int8x16 @@ portable = "%box_vec128"
-external unbox : int8x16 -> t @@ portable = "%unbox_vec128"
+external unbox : int8x16 @ local -> t @@ portable = "%unbox_vec128"
 
 module Test = Test.Int8x16
+module Raw = Load_store.Raw_Int8x16
 module String = Load_store.String_Int8x16
 module Bytes = Load_store.Bytes_Int8x16
 module Bigstring = Load_store.Bigstring_Int8x16
 
 external const1
-  :  int64#
+  :  int8#
   -> t
   @@ portable
   = "ocaml_simd_sse_unreachable" "caml_int8x16_const1"
 [@@noalloc] [@@builtin]
 
 external const
-  :  int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
-  -> int64#
+  :  int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
+  -> int8#
   -> t
   @@ portable
   = "ocaml_simd_sse_unreachable" "caml_int8x16_const16"
 [@@noalloc] [@@builtin]
 
-external extract
-  :  idx:int64#
-  -> t
-  -> int64#
-  @@ portable
-  = "ocaml_simd_sse_unreachable" "caml_sse41_int8x16_extract"
-[@@noalloc] [@@builtin]
+let[@inline] insert ~idx t x =
+  match idx with
+  | #0L -> I.insert ~idx:#0L t x
+  | #1L -> I.insert ~idx:#1L t x
+  | #2L -> I.insert ~idx:#2L t x
+  | #3L -> I.insert ~idx:#3L t x
+  | #4L -> I.insert ~idx:#4L t x
+  | #5L -> I.insert ~idx:#5L t x
+  | #6L -> I.insert ~idx:#6L t x
+  | #7L -> I.insert ~idx:#7L t x
+  | #8L -> I.insert ~idx:#8L t x
+  | #9L -> I.insert ~idx:#9L t x
+  | #10L -> I.insert ~idx:#10L t x
+  | #11L -> I.insert ~idx:#11L t x
+  | #12L -> I.insert ~idx:#12L t x
+  | #13L -> I.insert ~idx:#13L t x
+  | #14L -> I.insert ~idx:#14L t x
+  | #15L -> I.insert ~idx:#15L t x
+  | _ ->
+    (match failwith "Invalid index." with
+     | (_ : Base.Nothing.t) -> .)
+;;
 
-external insert
-  :  idx:int64#
-  -> t
-  -> int64#
-  -> t
-  @@ portable
-  = "ocaml_simd_sse_unreachable" "caml_sse41_int8x16_insert"
-[@@noalloc] [@@builtin]
+let[@inline] extract ~idx t =
+  let open struct
+    external int8_of_int64 : int64# -> int8# @@ portable = "%int8#_of_int64#"
+  end in
+  let x =
+    match idx with
+    | #0L -> I.extract ~idx:#0L t
+    | #1L -> I.extract ~idx:#1L t
+    | #2L -> I.extract ~idx:#2L t
+    | #3L -> I.extract ~idx:#3L t
+    | #4L -> I.extract ~idx:#4L t
+    | #5L -> I.extract ~idx:#5L t
+    | #6L -> I.extract ~idx:#6L t
+    | #7L -> I.extract ~idx:#7L t
+    | #8L -> I.extract ~idx:#8L t
+    | #9L -> I.extract ~idx:#9L t
+    | #10L -> I.extract ~idx:#10L t
+    | #11L -> I.extract ~idx:#11L t
+    | #12L -> I.extract ~idx:#12L t
+    | #13L -> I.extract ~idx:#13L t
+    | #14L -> I.extract ~idx:#14L t
+    | #15L -> I.extract ~idx:#15L t
+    | _ ->
+      (match failwith "Invalid index." with
+       | (_ : Base.Nothing.t) -> .)
+  in
+  (* Sign extend. *)
+  int8_of_int64 x
+;;
 
-let[@inline] zero () = const1 #0L
-let[@inline] one () = const1 #1L
-let[@inline] all_ones () = const1 #0xffL
+let[@inline] zero () = const1 #0s
+let[@inline] one () = const1 #1s
+let[@inline] all_ones () = const1 #0xffs
 let[@inline] shuffle ~pattern x = I.shuffle_8 x pattern
 let[@inline] set1 a = shuffle ~pattern:(zero ()) (I.low_of a)
 
@@ -74,14 +112,14 @@ let[@inline] set a b c d e f g h i j k l m n o p =
   let k = I.low_of k in
   let m = I.low_of m in
   let o = I.low_of o in
-  let ba = insert ~idx:#1L a b in
-  let dc = insert ~idx:#1L c d in
-  let fe = insert ~idx:#1L e f in
-  let hg = insert ~idx:#1L g h in
-  let ji = insert ~idx:#1L i j in
-  let lk = insert ~idx:#1L k l in
-  let nm = insert ~idx:#1L m n in
-  let po = insert ~idx:#1L o p in
+  let ba = I.insert ~idx:#1L a b in
+  let dc = I.insert ~idx:#1L c d in
+  let fe = I.insert ~idx:#1L e f in
+  let hg = I.insert ~idx:#1L g h in
+  let ji = I.insert ~idx:#1L i j in
+  let lk = I.insert ~idx:#1L k l in
+  let nm = I.insert ~idx:#1L m n in
+  let po = I.insert ~idx:#1L o p in
   let dcba = I.interleave_low_16 ba dc in
   let hgfe = I.interleave_low_16 fe hg in
   let lkji = I.interleave_low_16 ji lk in
@@ -196,49 +234,51 @@ let[@inline] of_int16x8_saturating x y = Int16x8_internal.(cvt_si8 x y)
 let[@inline] of_int16x8_saturating_unsigned x y = Int16x8_internal.(cvt_su8 x y)
 
 let[@inline] to_string x =
+  let bx = Int8_u.to_int in
   let #(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) = splat x in
   Stdlib.Printf.sprintf
-    "(%Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld)"
-    (Int64_u.to_int64 a)
-    (Int64_u.to_int64 b)
-    (Int64_u.to_int64 c)
-    (Int64_u.to_int64 d)
-    (Int64_u.to_int64 e)
-    (Int64_u.to_int64 f)
-    (Int64_u.to_int64 g)
-    (Int64_u.to_int64 h)
-    (Int64_u.to_int64 i)
-    (Int64_u.to_int64 j)
-    (Int64_u.to_int64 k)
-    (Int64_u.to_int64 l)
-    (Int64_u.to_int64 m)
-    (Int64_u.to_int64 n)
-    (Int64_u.to_int64 o)
-    (Int64_u.to_int64 p)
+    "(%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d)"
+    (bx a)
+    (bx b)
+    (bx c)
+    (bx d)
+    (bx e)
+    (bx f)
+    (bx g)
+    (bx h)
+    (bx i)
+    (bx j)
+    (bx k)
+    (bx l)
+    (bx m)
+    (bx n)
+    (bx o)
+    (bx p)
 ;;
 
 let[@inline] of_string s =
+  let ub = Int8_u.of_int in
   Stdlib.Scanf.sscanf
     s
-    "(%Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld)"
+    "(%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d)"
     (fun a b c d e f g h i j k l m n o p ->
        set
-         (Int64_u.of_int64 a)
-         (Int64_u.of_int64 b)
-         (Int64_u.of_int64 c)
-         (Int64_u.of_int64 d)
-         (Int64_u.of_int64 e)
-         (Int64_u.of_int64 f)
-         (Int64_u.of_int64 g)
-         (Int64_u.of_int64 h)
-         (Int64_u.of_int64 i)
-         (Int64_u.of_int64 j)
-         (Int64_u.of_int64 k)
-         (Int64_u.of_int64 l)
-         (Int64_u.of_int64 m)
-         (Int64_u.of_int64 n)
-         (Int64_u.of_int64 o)
-         (Int64_u.of_int64 p)
+         (ub a)
+         (ub b)
+         (ub c)
+         (ub d)
+         (ub e)
+         (ub f)
+         (ub g)
+         (ub h)
+         (ub i)
+         (ub j)
+         (ub k)
+         (ub l)
+         (ub m)
+         (ub n)
+         (ub o)
+         (ub p)
        |> box)
   |> unbox
 ;;

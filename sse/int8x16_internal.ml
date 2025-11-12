@@ -1,7 +1,7 @@
 type t = int8x16#
 
 external low_of
-  :  int64#
+  :  int8#
   -> t
   @@ portable
   = "ocaml_simd_sse_unreachable" "caml_int8x16_low_of_int"
@@ -9,13 +9,30 @@ external low_of
 
 external low_to
   :  t
-  -> int64#
+  -> int8#
   @@ portable
   = "ocaml_simd_sse_unreachable" "caml_int8x16_low_to_int"
 [@@noalloc] [@@builtin]
 
+external insert
+  :  idx:int64#
+  -> t
+  -> int8#
+  -> t
+  @@ portable
+  = "ocaml_simd_sse_unreachable" "caml_sse41_int8x16_insert"
+[@@noalloc] [@@builtin]
+
+external extract
+  :  idx:int64#
+  -> t
+  -> int64#
+  @@ portable
+  = "ocaml_simd_sse_unreachable" "caml_sse41_int8x16_extract"
+[@@noalloc] [@@builtin]
+
 external const1
-  :  int64#
+  :  int8#
   -> t
   @@ portable
   = "ocaml_simd_sse_unreachable" "caml_int8x16_const1"

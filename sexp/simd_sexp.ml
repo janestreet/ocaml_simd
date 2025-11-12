@@ -24,13 +24,14 @@ open Core
       atom, it greedly parses the entire atom before continuing. SIMD instructions are
       also used to skip through atoms that contain non-structural characters. *)
 
+module Int8_u = Stdlib_stable.Int8_u
 module I8x16 = Ocaml_simd_sse.Int8x16
 module I64x2 = Ocaml_simd_sse.Int64x2
 
 module String_intrin = struct
   include Ocaml_simd_sse.String
 
-  let[@inline] spaces () = I8x16.const1 (Int64_u.of_int (Char.to_int ' '))
+  let[@inline] spaces () = I8x16.const1 (Int8_u.of_int (Char.to_int ' '))
 
   (** Behaves like [I8x16.shifti_{left,right}_bytes] without the restriction that the
       shift amount has to be a literal constant.
@@ -216,52 +217,52 @@ module Lex = struct
   (* Chars that are not exclusively seen in atoms, i.e. may require a state transition. *)
   let[@inline] structural_chars () =
     I8x16.const
-      (Int64_u.of_int (Char.to_int ' '))
-      (Int64_u.of_int (Char.to_int '\t'))
-      (Int64_u.of_int (Char.to_int '\n'))
-      (Int64_u.of_int (Char.to_int '('))
-      (Int64_u.of_int (Char.to_int ')'))
-      (Int64_u.of_int (Char.to_int '"'))
-      (Int64_u.of_int (Char.to_int ';'))
-      (Int64_u.of_int (Char.to_int '#'))
-      (Int64_u.of_int (Char.to_int '|'))
-      (Int64_u.of_int (Char.to_int '\r'))
-      (Int64_u.of_int (Char.to_int '\012'))
-      #0L
-      #0L
-      #0L
-      #0L
-      #0L
+      (Int8_u.of_int (Char.to_int ' '))
+      (Int8_u.of_int (Char.to_int '\t'))
+      (Int8_u.of_int (Char.to_int '\n'))
+      (Int8_u.of_int (Char.to_int '('))
+      (Int8_u.of_int (Char.to_int ')'))
+      (Int8_u.of_int (Char.to_int '"'))
+      (Int8_u.of_int (Char.to_int ';'))
+      (Int8_u.of_int (Char.to_int '#'))
+      (Int8_u.of_int (Char.to_int '|'))
+      (Int8_u.of_int (Char.to_int '\r'))
+      (Int8_u.of_int (Char.to_int '\012'))
+      #0s
+      #0s
+      #0s
+      #0s
+      #0s
   ;;
 
   (* Chars that may follow whitespace or a structural char and may require a
      state transition. *)
   let[@inline] pseudostructural_chars () =
     I8x16.const
-      (Int64_u.of_int (Char.to_int '('))
-      (Int64_u.of_int (Char.to_int ')'))
-      (Int64_u.of_int (Char.to_int ';'))
-      (Int64_u.of_int (Char.to_int '#'))
-      (Int64_u.of_int (Char.to_int '|'))
-      (Int64_u.of_int (Char.to_int '\r'))
-      #0L
-      #0L
-      #0L
-      #0L
-      #0L
-      #0L
-      #0L
-      #0L
-      #0L
-      #0L
+      (Int8_u.of_int (Char.to_int '('))
+      (Int8_u.of_int (Char.to_int ')'))
+      (Int8_u.of_int (Char.to_int ';'))
+      (Int8_u.of_int (Char.to_int '#'))
+      (Int8_u.of_int (Char.to_int '|'))
+      (Int8_u.of_int (Char.to_int '\r'))
+      #0s
+      #0s
+      #0s
+      #0s
+      #0s
+      #0s
+      #0s
+      #0s
+      #0s
+      #0s
   ;;
 
-  let[@inline] backslashes () = I8x16.const1 (Int64_u.of_int (Char.to_int '\\'))
-  let[@inline] quotes () = I8x16.const1 (Int64_u.of_int (Char.to_int '"'))
-  let[@inline] newlines () = I8x16.const1 (Int64_u.of_int (Char.to_int '\n'))
-  let[@inline] returns () = I8x16.const1 (Int64_u.of_int (Char.to_int '\r'))
-  let[@inline] spaces () = I8x16.const1 (Int64_u.of_int (Char.to_int ' '))
-  let[@inline] tabs () = I8x16.const1 (Int64_u.of_int (Char.to_int '\t'))
+  let[@inline] backslashes () = I8x16.const1 (Int8_u.of_int (Char.to_int '\\'))
+  let[@inline] quotes () = I8x16.const1 (Int8_u.of_int (Char.to_int '"'))
+  let[@inline] newlines () = I8x16.const1 (Int8_u.of_int (Char.to_int '\n'))
+  let[@inline] returns () = I8x16.const1 (Int8_u.of_int (Char.to_int '\r'))
+  let[@inline] spaces () = I8x16.const1 (Int8_u.of_int (Char.to_int ' '))
+  let[@inline] tabs () = I8x16.const1 (Int8_u.of_int (Char.to_int '\t'))
 
   (* Mask indicating the starts of runs.  Note that here (and elsewhere in this module)
      "starts" and "ends" are a bit confusing: the least significant bit of the mask

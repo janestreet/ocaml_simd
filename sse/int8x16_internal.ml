@@ -26,7 +26,7 @@ external insert
 external extract
   :  idx:int64#
   -> t
-  -> int64#
+  -> int8#
   @@ portable
   = "ocaml_simd_sse_unreachable" "caml_sse41_int8x16_extract"
 [@@noalloc] [@@builtin]

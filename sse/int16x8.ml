@@ -66,25 +66,18 @@ let[@inline] insert ~idx t x =
 ;;
 
 let[@inline] extract ~idx t =
-  let open struct
-    external int16_of_int64 : int64# -> int16# @@ portable = "%int16#_of_int64#"
-  end in
-  let x =
-    match idx with
-    | #0L -> I.extract ~idx:#0L t
-    | #1L -> I.extract ~idx:#1L t
-    | #2L -> I.extract ~idx:#2L t
-    | #3L -> I.extract ~idx:#3L t
-    | #4L -> I.extract ~idx:#4L t
-    | #5L -> I.extract ~idx:#5L t
-    | #6L -> I.extract ~idx:#6L t
-    | #7L -> I.extract ~idx:#7L t
-    | _ ->
-      (match failwith "Invalid index." with
-       | (_ : Base.Nothing.t) -> .)
-  in
-  (* Sign extend. *)
-  int16_of_int64 x
+  match idx with
+  | #0L -> I.extract ~idx:#0L t
+  | #1L -> I.extract ~idx:#1L t
+  | #2L -> I.extract ~idx:#2L t
+  | #3L -> I.extract ~idx:#3L t
+  | #4L -> I.extract ~idx:#4L t
+  | #5L -> I.extract ~idx:#5L t
+  | #6L -> I.extract ~idx:#6L t
+  | #7L -> I.extract ~idx:#7L t
+  | _ ->
+    (match failwith "Invalid index." with
+     | (_ : Base.Nothing.t) -> .)
 ;;
 
 let[@inline] zero () = const1 #0S
@@ -98,7 +91,7 @@ let[@inline] set1 a =
 ;;
 
 let[@inline] set a b c d e f g h =
-  (* movd, + 7x insert -> 15 cycle latency
+  (*=movd, + 7x insert -> 15 cycle latency
      this              -> 5 cycle latency *)
   let a = I.low_of a in
   let c = I.low_of c in
@@ -116,7 +109,7 @@ let[@inline] set a b c d e f g h =
 let[@inline] extract0 x = I.low_to x
 
 let[@inline] splat x =
-  (* 8x movd, 8x movzx, 6x shuffle_lower, shuffle_64 -> 6 cycle latency
+  (*=8x movd, 8x movzx, 6x shuffle_lower, shuffle_64 -> 6 cycle latency
      this                                            -> 5 cycle latency *)
   #( extract0 x
    , extract ~idx:#1L x

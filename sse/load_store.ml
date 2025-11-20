@@ -1,8 +1,8 @@
 open Stdlib
 include Load_store_intf
 
-(* We can functorize instead of duplicating all the intrinsics because
-   the externals are not [@@unboxed]. *)
+(* We can functorize instead of duplicating all the intrinsics because the externals are
+   not [@@unboxed]. *)
 
 type void : void
 

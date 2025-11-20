@@ -165,8 +165,8 @@ module I64_intrin = struct
 end
 
 module Buffer = struct
-  (* Does not use a [char Vec.t] because we don't (yet) support storing
-     SIMD vectors to a Vec. *)
+  (* Does not use a [char Vec.t] because we don't (yet) support storing SIMD vectors to a
+     Vec. *)
   type t =
     { mutable s : Bigstring.t
     ; mutable n : int
@@ -204,7 +204,7 @@ module Buffer = struct
 end
 
 module Lex = struct
-  (* The ints in this type represent booleans and must be 0 or 1.  We do this because they
+  (* The ints in this type represent booleans and must be 0 or 1. We do this because they
      are used as bits in the algorithm. *)
   type t =
     { mutable escaped : int (* Is there a preceeding backslash? *)
@@ -235,8 +235,8 @@ module Lex = struct
       #0s
   ;;
 
-  (* Chars that may follow whitespace or a structural char and may require a
-     state transition. *)
+  (* Chars that may follow whitespace or a structural char and may require a state
+     transition. *)
   let[@inline] pseudostructural_chars () =
     I8x16.const
       (Int8_u.of_int (Char.to_int '('))
@@ -264,13 +264,12 @@ module Lex = struct
   let[@inline] spaces () = I8x16.const1 (Int8_u.of_int (Char.to_int ' '))
   let[@inline] tabs () = I8x16.const1 (Int8_u.of_int (Char.to_int '\t'))
 
-  (* Mask indicating the starts of runs.  Note that here (and elsewhere in this module)
+  (* Mask indicating the starts of runs. Note that here (and elsewhere in this module)
      "starts" and "ends" are a bit confusing: the least significant bit of the mask
      corresponds to the first byte of the input chunk, so the order is reversed. *)
   let[@inline] range_starts mask = Int64.(mask land lnot (mask lsl 1))
 
-  (* Mask indicating the starts of runs (including the last bit of the
-     previous step) *)
+  (* Mask indicating the starts of runs (including the last bit of the previous step) *)
   let[@inline] range_starts_prev mask prev =
     Int64.(mask land lnot ((mask lsl 1) lor prev))
   ;;
@@ -337,9 +336,8 @@ module Lex = struct
     if movemask = 0 then 16 else Ocaml_intrinsics.Int.count_trailing_zeros movemask
   ;;
 
-  (* Mask indicating the final bit of odd-length runs.
-     Used for detecting odd-length runs of backslashes,
-     which are escaped chars. *)
+  (* Mask indicating the final bit of odd-length runs. Used for detecting odd-length runs
+     of backslashes, which are escaped chars. *)
   let[@inline] odd_range_ends mask prev_escaped =
     let open Int64 in
     (* If we started inside an escaped char... *)
@@ -358,9 +356,9 @@ module Lex = struct
     end_odd, next_escaped
   ;;
 
-  (* Mask indicating where we transition to/from being inside a quoted string.
-     This must ignore escaped quotes inside quoted strings, and must
-     respect the starting quoted state. *)
+  (* Mask indicating where we transition to/from being inside a quoted string. This must
+     ignore escaped quotes inside quoted strings, and must respect the starting quoted
+     state. *)
   let[@inline] quote_transitions unescaped escaped prev_in_string =
     let open Int64 in
     let c = I64_intrin.clmul unescaped in
@@ -370,18 +368,17 @@ module Lex = struct
     next, next_in_string
   ;;
 
-  (* Mask indicating when we start a new run.
-     Used to find the start of atoms that start with non-structural chars. *)
+  (* Mask indicating when we start a new run. Used to find the start of atoms that start
+     with non-structural chars. *)
   let[@inline] range_transitions atom prev_atom_like =
     let open Int64 in
     range_starts_prev atom prev_atom_like
     lor range_starts_prev (lnot atom) (I64_intrin.inot prev_atom_like)
   ;;
 
-  (* Convert 64 bytes of input to a mask indicating which characters may require
-     state transitions.
-     Updates state to indicate whether the next 64 bytes begins with an escaped
-     character, is inside a quoted string, and is inside an atom. *)
+  (* Convert 64 bytes of input to a mask indicating which characters may require state
+     transitions. Updates state to indicate whether the next 64 bytes begins with an
+     escaped character, is inside a quoted string, and is inside an atom. *)
   let[@inline] structural_mask t ~v0 ~v1 ~v2 ~v3 =
     let open Int64 in
     let pseudostructural = I64_intrin.bitmask v0 v1 v2 v3 ~f:is_pseudostructural in
@@ -421,9 +418,9 @@ module Parse = struct
     ; mutable consumed : int (* Largest index the parser has consumed *)
     ; mutable block_comment_depth : int (* Nesting depth of block comments. *)
     ; stack : Sexp.t list Vec.t
-        (* Parsing state at shallower depths.  The length of this stack is the current parsing
-       depth (how many parens we are under).  Each element is a list of parsed sexps at
-       that depth. *)
+        (* Parsing state at shallower depths. The length of this stack is the current
+           parsing depth (how many parens we are under). Each element is a list of parsed
+           sexps at that depth. *)
     ; sexp_comment_depth : int Vec.t
         (* Stack of depths at which we need to ignore a sexp due to a sexp comment. *)
     ; quoted_string_buffer : Buffer.t
@@ -492,8 +489,8 @@ module Parse = struct
     idx < String.length input && Char.(String.unsafe_get input idx = '\n')
   ;;
 
-  (* Parse "\$" for any escape code.
-     Updates consumed to indicate we've seen the whole escape. *)
+  (* Parse "\$" for any escape code. Updates consumed to indicate we've seen the whole
+     escape. *)
   let[@inline] parse_escaped input ~len ~idx ~extract_16_buffer =
     bounds_check ~len ~idx ~msg:"escape code";
     match String.unsafe_get input idx with
@@ -521,8 +518,8 @@ module Parse = struct
     | _ -> Some '\\', idx
   ;;
 
-  (* Starting at [idx], parse an entire quoted string, updating
-     [consumed] to indicate that we have processed up until its end. *)
+  (* Starting at [idx], parse an entire quoted string, updating [consumed] to indicate
+     that we have processed up until its end. *)
   let[@inline] parse_quoted_string input ~buffer ~idx ~extract_16_buffer =
     let len = String.length input in
     let[@inline] rec advance_from idx =
@@ -556,7 +553,7 @@ module Parse = struct
     String.init len ~f:(Buffer.get buffer), len + 2
   ;;
 
-  (* If we get a # or | inside an unquoted string, we must check that
+  (*=If we get a # or | inside an unquoted string, we must check that
      it's not an invalid block comment signifier. *)
   let[@inline] check_block_comment_in_unquoted_string input ~len ~idx ~c =
     if len > idx + 1
@@ -568,8 +565,8 @@ module Parse = struct
       | _ -> ())
   ;;
 
-  (* Starting at [idx], parse an entire unquoted string, updating
-     [consumed] to indicate that we have processed up until its end. *)
+  (* Starting at [idx], parse an entire unquoted string, updating [consumed] to indicate
+     that we have processed up until its end. *)
   let[@inline] parse_unquoted_string input ~idx ~extract_16_buffer =
     (* Don't need a buffer as we can copy directly from the input. *)
     let len = String.length input in
@@ -607,8 +604,8 @@ module Parse = struct
     List.rev t.top
   ;;
 
-  (* Complete one sexp: either push it to the current list or ignore it and
-     update the sexp comment state. *)
+  (* Complete one sexp: either push it to the current list or ignore it and update the
+     sexp comment state. *)
   let[@inline] complete_one t ~sexp =
     let len = Vec.length t.sexp_comment_depth in
     if len = 0
@@ -621,7 +618,7 @@ module Parse = struct
       | _ -> ())
   ;;
 
-  (* When we see a # or |, we need to check if it's actually a block
+  (*=When we see a # or |, we need to check if it's actually a block
      comment or sexp comment signifier. *)
   let[@inline] try_transition_complex_comment t ~input ~idx ~ctrl =
     if idx + 1 >= String.length input
@@ -727,8 +724,7 @@ module Parse = struct
     else ()
   ;;
 
-  (* Transition through all structural indices in the 64 bytes starting from
-     at [idx]. *)
+  (* Transition through all structural indices in the 64 bytes starting from at [idx]. *)
   let[@inline] rec feed_masked t ~input ~idx ~structural_mask =
     match structural_mask with
     | 0L -> ()

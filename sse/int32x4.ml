@@ -49,7 +49,7 @@ let[@inline] set1 a =
 ;;
 
 let[@inline] set a b c d =
-  (* movd, + 3x insert -> 7 cycle latency
+  (*=movd, + 3x insert -> 7 cycle latency
      this              -> 3 cycle latency *)
   let a = I.low_of a in
   let b = I.low_of b in
@@ -94,7 +94,7 @@ let[@inline] select m ~fail ~pass = I.blendv_32 fail pass m
 let[@inline] extract0 x = I.low_to x
 
 let[@inline] splat x =
-  (* 3x shuffle, 4x movd -> 4 cycle latency
+  (*=3x shuffle, 4x movd -> 4 cycle latency
      this                -> 4 cycle latency but fewer registers *)
   #(extract0 x, extract ~idx:#1L x, extract ~idx:#2L x, extract ~idx:#3L x)
 ;;

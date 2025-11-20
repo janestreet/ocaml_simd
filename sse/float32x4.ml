@@ -49,7 +49,7 @@ let[@inline] set1 a =
 ;;
 
 let[@inline] set a b c d =
-  (* 4x cvt,3x insertps -> 8 cycle latency
+  (*=4x cvt,3x insertps -> 8 cycle latency
      this               -> 7 cycle latency *)
   let a = I.low_of a in
   let b = I.low_of b in

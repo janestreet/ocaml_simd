@@ -1,5 +1,5 @@
-(* For detailed descriptions of all operations, refer to the corresponding
-   intrinsic in the Intel Intrinsics Guide:
+(* For detailed descriptions of all operations, refer to the corresponding intrinsic in
+   the Intel Intrinsics Guide:
    https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html *)
 
 module Ref256 = Ref

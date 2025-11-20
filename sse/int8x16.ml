@@ -66,33 +66,26 @@ let[@inline] insert ~idx t x =
 ;;
 
 let[@inline] extract ~idx t =
-  let open struct
-    external int8_of_int64 : int64# -> int8# @@ portable = "%int8#_of_int64#"
-  end in
-  let x =
-    match idx with
-    | #0L -> I.extract ~idx:#0L t
-    | #1L -> I.extract ~idx:#1L t
-    | #2L -> I.extract ~idx:#2L t
-    | #3L -> I.extract ~idx:#3L t
-    | #4L -> I.extract ~idx:#4L t
-    | #5L -> I.extract ~idx:#5L t
-    | #6L -> I.extract ~idx:#6L t
-    | #7L -> I.extract ~idx:#7L t
-    | #8L -> I.extract ~idx:#8L t
-    | #9L -> I.extract ~idx:#9L t
-    | #10L -> I.extract ~idx:#10L t
-    | #11L -> I.extract ~idx:#11L t
-    | #12L -> I.extract ~idx:#12L t
-    | #13L -> I.extract ~idx:#13L t
-    | #14L -> I.extract ~idx:#14L t
-    | #15L -> I.extract ~idx:#15L t
-    | _ ->
-      (match failwith "Invalid index." with
-       | (_ : Base.Nothing.t) -> .)
-  in
-  (* Sign extend. *)
-  int8_of_int64 x
+  match idx with
+  | #0L -> I.extract ~idx:#0L t
+  | #1L -> I.extract ~idx:#1L t
+  | #2L -> I.extract ~idx:#2L t
+  | #3L -> I.extract ~idx:#3L t
+  | #4L -> I.extract ~idx:#4L t
+  | #5L -> I.extract ~idx:#5L t
+  | #6L -> I.extract ~idx:#6L t
+  | #7L -> I.extract ~idx:#7L t
+  | #8L -> I.extract ~idx:#8L t
+  | #9L -> I.extract ~idx:#9L t
+  | #10L -> I.extract ~idx:#10L t
+  | #11L -> I.extract ~idx:#11L t
+  | #12L -> I.extract ~idx:#12L t
+  | #13L -> I.extract ~idx:#13L t
+  | #14L -> I.extract ~idx:#14L t
+  | #15L -> I.extract ~idx:#15L t
+  | _ ->
+    (match failwith "Invalid index." with
+     | (_ : Base.Nothing.t) -> .)
 ;;
 
 let[@inline] zero () = const1 #0s
@@ -102,7 +95,7 @@ let[@inline] shuffle ~pattern x = I.shuffle_8 x pattern
 let[@inline] set1 a = shuffle ~pattern:(zero ()) (I.low_of a)
 
 let[@inline] set a b c d e f g h i j k l m n o p =
-  (* movd, + 15x insert -> 31 cycle latency
+  (*=movd, + 15x insert -> 31 cycle latency
      this               -> 6 cycle latency (but a lot of registers) *)
   let a = I.low_of a in
   let c = I.low_of c in
@@ -134,7 +127,7 @@ let[@inline] extract0 x = I.low_to x
 let[@inline] movemask m = I.movemask_8 m
 
 let[@inline] splat x =
-  (* 16x movd, 16x movzx, 15x shuffle -> 6 cycle latency
+  (*=16x movd, 16x movzx, 15x shuffle -> 6 cycle latency
      this                             -> 5 cycle latency, fewer registers *)
   #( extract0 x
    , extract ~idx:#1L x

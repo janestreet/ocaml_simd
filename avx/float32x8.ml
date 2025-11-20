@@ -206,8 +206,8 @@ let[@inline] horizontal_sub_lanes x y = I.hsub x y
 
 let[@inline] dot x y =
   (* Mask 0xf1:
-    - High nibble 0xf = 1111: multiply and sum elements 0,1,2,3 in each 128-bit lane
-    - Low nibble 0x1 = 0001: store result in position 0 of each lane *)
+     - High nibble 0xf = 1111: multiply and sum elements 0,1,2,3 in each 128-bit lane
+     - Low nibble 0x1 = 0001: store result in position 0 of each lane *)
   let p = I.dp #0xf1L x y in
   (* [p] stores two partial dot products, one from each lane, at idx 0 *)
   let p0 = I.low_to p in

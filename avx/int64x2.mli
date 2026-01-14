@@ -1,9 +1,10 @@
 @@ portable
 
-(** @inline *)
 include module type of struct
   include Ocaml_simd_sse.Int64x2 (** @inline *)
 end
+
+module Raw = Load_store.Vec128.Raw_Int64x2
 
 (** [_mm_permute_pd] Specify permute with ppx_simd: [%permute N, N], where each N is in
     [0,1]. Exposed as an external so user code can compile without cross-library inlining.

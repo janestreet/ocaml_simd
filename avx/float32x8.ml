@@ -215,6 +215,12 @@ let[@inline] dot x y =
   Float32_u.(p0 + p1)
 ;;
 
+let[@inline] mul_add x y z = I.mul_add x y z
+let[@inline] mul_sub x y z = I.mul_sub x y z
+let[@inline] neg_mul_add x y z = I.neg_mul_add x y z
+let[@inline] neg_mul_sub x y z = I.neg_mul_sub x y z
+let[@inline] mul_add_sub x y z = I.mul_add_sub x y z
+let[@inline] mul_sub_add x y z = I.mul_sub_add x y z
 let[@inline] ( + ) x y = I.add x y
 let[@inline] ( - ) x y = I.sub x y
 let[@inline] ( / ) x y = I.div x y
@@ -227,12 +233,20 @@ let[@inline] round_up x = I.round [%float_round Positive_infinity] x
 let[@inline] round_toward_zero x = I.round [%float_round Zero] x
 let[@inline] unsafe_of_float32 x = I.low_of x
 let[@inline] unsafe_of_float32x4 x = I.low_of_f32x4 x
+let[@inline] of_float16x16_bits x = I.of_float16x16 x
 let[@inline] of_float64x4_bits x = I.of_float64x4 x
 let[@inline] of_int8x32_bits x = I.of_int8x32 x
 let[@inline] of_int16x16_bits x = I.of_int16x16 x
 let[@inline] of_int32x8_bits x = I.of_int32x8 x
 let[@inline] of_int64x4_bits x = I.of_int64x4 x
 let[@inline] of_int32x8 x = Int32x8_internal.cvt_f32 x
+
+external of_float16x8
+  :  float16x8#
+  -> t
+  @@ portable
+  = "ocaml_simd_avx_unreachable" "caml_f16c_cvt_float16x8_float32x8"
+[@@noalloc] [@@builtin]
 
 let[@inline] to_string x =
   let bx x = Float32_u.to_float x in

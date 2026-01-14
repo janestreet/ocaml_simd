@@ -156,6 +156,7 @@ let[@inline] round_down x = I.round [%float_round Negative_infinity] x
 let[@inline] round_up x = I.round [%float_round Positive_infinity] x
 let[@inline] round_toward_zero x = I.round [%float_round Zero] x
 let[@inline] unsafe_of_float32 x = I.low_of x
+let[@inline] of_float16x8_bits x = I.of_float16x8 x
 let[@inline] of_float64x2_bits x = I.of_float64x2 x
 let[@inline] of_int8x16_bits x = I.of_int8x16 x
 let[@inline] of_int16x8_bits x = I.of_int16x8 x

@@ -202,6 +202,67 @@ external sqrt
   = "ocaml_simd_avx_unreachable" "caml_avx_float64x4_sqrt"
 [@@noalloc] [@@builtin]
 
+external mul_add
+  :  t
+  -> t
+  -> t
+  -> t
+  @@ portable
+  = "ocaml_simd_avx_unreachable" "caml_fma_float64x4_mul_add"
+[@@noalloc] [@@builtin]
+
+external mul_sub
+  :  t
+  -> t
+  -> t
+  -> t
+  @@ portable
+  = "ocaml_simd_avx_unreachable" "caml_fma_float64x4_mul_sub"
+[@@noalloc] [@@builtin]
+
+external mul_add_sub
+  :  t
+  -> t
+  -> t
+  -> t
+  @@ portable
+  = "ocaml_simd_avx_unreachable" "caml_fma_float64x4_mul_addsub"
+[@@noalloc] [@@builtin]
+
+external mul_sub_add
+  :  t
+  -> t
+  -> t
+  -> t
+  @@ portable
+  = "ocaml_simd_avx_unreachable" "caml_fma_float64x4_mul_subadd"
+[@@noalloc] [@@builtin]
+
+external neg_mul_add
+  :  t
+  -> t
+  -> t
+  -> t
+  @@ portable
+  = "ocaml_simd_avx_unreachable" "caml_fma_float64x4_neg_mul_add"
+[@@noalloc] [@@builtin]
+
+external neg_mul_sub
+  :  t
+  -> t
+  -> t
+  -> t
+  @@ portable
+  = "ocaml_simd_avx_unreachable" "caml_fma_float64x4_neg_mul_sub"
+[@@noalloc] [@@builtin]
+
+external of_float16x16
+  :  float16x16#
+  -> t
+  @@ portable
+  = "ocaml_simd_avx_unreachable" "caml_vec256_cast"
+[@@noalloc] [@@builtin]
+
 external of_float32x8
   :  float32x8#
   -> t

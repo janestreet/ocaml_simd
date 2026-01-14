@@ -218,6 +218,7 @@ external multi_sum_absolute_differences_unsigned
   = "ocaml_simd_sse_unreachable" "caml_sse41_int8x16_multi_sad_unsigned"
 [@@noalloc] [@@builtin]
 
+let[@inline] of_float16x8_bits x = I.of_float16x8 x
 let[@inline] of_float32x4_bits x = I.of_float32x4 x
 let[@inline] of_float64x2_bits x = I.of_float64x2 x
 let[@inline] of_int16x8_bits x = I.of_int16x8 x

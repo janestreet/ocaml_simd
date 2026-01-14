@@ -38,10 +38,10 @@ external const
 
 (* Load/Store *)
 
-module Raw : Load_store.Raw with type t := t
-module String : Load_store.String with type t := t
-module Bytes : Load_store.Bytes with type t := t
-module Bigstring : Load_store.Bigstring with type t := t
+module Raw = Load_store.Raw_Int64x2
+module String = Load_store.String_Int64x2
+module Bytes = Load_store.Bytes_Int64x2
+module Bigstring = Load_store.Bigstring_Int64x2
 module Unsafe_immediate_array = Load_store.Unsafe_immediate_array
 module Unsafe_immediate_iarray = Load_store.Unsafe_immediate_iarray
 module Int64_u_array = Load_store.Int64_u_array
@@ -215,6 +215,9 @@ val landnot : not:t -> t -> t
 val ( lxor ) : t -> t -> t
 
 (* Casts *)
+
+(** Identity in the bit representation. Different numeric interpretation. *)
+val of_float16x8_bits : float16x8# -> t
 
 (** Identity in the bit representation. Different numeric interpretation. *)
 val of_float32x4_bits : float32x4# -> t

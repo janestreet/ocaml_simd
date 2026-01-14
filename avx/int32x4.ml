@@ -1,4 +1,5 @@
 include Ocaml_simd_sse.Int32x4
+module Raw = Load_store.Vec128.Raw_Int32x4
 
 external low_of
   :  int32#

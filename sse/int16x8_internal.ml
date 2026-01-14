@@ -4,14 +4,14 @@ external low_of
   :  int16#
   -> t
   @@ portable
-  = "ocaml_simd_sse_unreachable" "caml_int16x8_low_of_int"
+  = "ocaml_simd_sse_unreachable" "caml_int16x8_low_of_int16"
 [@@noalloc] [@@builtin]
 
 external low_to
   :  t
   -> int16#
   @@ portable
-  = "ocaml_simd_sse_unreachable" "caml_int16x8_low_to_int"
+  = "ocaml_simd_sse_unreachable" "caml_int16x8_low_to_int16"
 [@@noalloc] [@@builtin]
 
 external insert
@@ -47,6 +47,13 @@ external of_int32x4
 
 external of_int64x2
   :  int64x2#
+  -> t
+  @@ portable
+  = "ocaml_simd_sse_unreachable" "caml_vec128_cast"
+[@@noalloc] [@@builtin]
+
+external of_float16x8
+  :  float16x8#
   -> t
   @@ portable
   = "ocaml_simd_sse_unreachable" "caml_vec128_cast"

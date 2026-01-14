@@ -51,10 +51,10 @@ external const
 
 (* Load/Store *)
 
-module Raw : Load_store.Raw with type t := t
-module String : Load_store.String with type t := t
-module Bytes : Load_store.Bytes with type t := t
-module Bigstring : Load_store.Bigstring with type t := t
+module Raw = Load_store.Raw_Int16x8
+module String = Load_store.String_Int16x8
+module Bytes = Load_store.Bytes_Int16x8
+module Bigstring = Load_store.Bigstring_Int16x8
 
 (* Control Flow *)
 
@@ -281,6 +281,9 @@ val landnot : not:t -> t -> t
 val ( lxor ) : t -> t -> t
 
 (* Casts *)
+
+(** Identity in the bit representation. Different numeric interpretation. *)
+val of_float16x8_bits : float16x8# -> t
 
 (** Identity in the bit representation. Different numeric interpretation. *)
 val of_float32x4_bits : float32x4# -> t

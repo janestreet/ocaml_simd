@@ -38,10 +38,10 @@ external const
 
 (* Load/Store *)
 
-module Raw : Load_store.Raw with type t := t
-module String : Load_store.String with type t := t
-module Bytes : Load_store.Bytes with type t := t
-module Bigstring : Load_store.Bigstring with type t := t
+module Raw = Load_store.Raw_Float32x4
+module String = Load_store.String_Float32x4
+module Bytes = Load_store.Bytes_Float32x4
+module Bigstring = Load_store.Bigstring_Float32x4
 module Float32_u_array = Load_store.Float32_u_array
 
 (* Control Flow *)
@@ -213,19 +213,22 @@ val round_toward_zero : t -> t
 (** Identity; leaves upper 96 bits unspecified. *)
 val unsafe_of_float32 : float32# -> t
 
-(** Identity. *)
+(** Identity in the bit representation. Different numeric interpretation. *)
+val of_float16x8_bits : float16x8# -> t
+
+(** Identity in the bit representation. Different numeric interpretation. *)
 val of_float64x2_bits : float64x2# -> t
 
-(** Identity. *)
+(** Identity in the bit representation. Different numeric interpretation. *)
 val of_int8x16_bits : int8x16# -> t
 
-(** Identity. *)
+(** Identity in the bit representation. Different numeric interpretation. *)
 val of_int16x8_bits : int16x8# -> t
 
-(** Identity. *)
+(** Identity in the bit representation. Different numeric interpretation. *)
 val of_int32x4_bits : int32x4# -> t
 
-(** Identity. *)
+(** Identity in the bit representation. Different numeric interpretation. *)
 val of_int64x2_bits : int64x2# -> t
 
 (** [_mm_cvtepi32_ps] *)

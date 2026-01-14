@@ -6,8 +6,38 @@ include Load_store_intf
 
 type void : void
 
+module Int32 = struct
+  external store_uncached
+    :  nativeint#
+    -> int32#
+    -> void
+    @@ portable
+    = "ocaml_simd_sse_unreachable" "caml_sse2_int32_store_uncached"
+  [@@noalloc] [@@builtin]
+
+  let[@inline] store_uncached mem t =
+    let _ : void = store_uncached mem t in
+    ()
+  ;;
+end
+
+module Int64 = struct
+  external store_uncached
+    :  nativeint#
+    -> int64#
+    -> void
+    @@ portable
+    = "ocaml_simd_sse_unreachable" "caml_sse2_int64_store_uncached"
+  [@@noalloc] [@@builtin]
+
+  let[@inline] store_uncached mem t =
+    let _ : void = store_uncached mem t in
+    ()
+  ;;
+end
+
 module Raw (T : sig
-    (** Must be one of [int8x16,int16x8,int32x4,int64x2,float32x4,float64x2]. *)
+    (** Must be one of [int8x16,int16x8,int32x4,int64x2,float16x8,float32x4,float64x2]. *)
     type t : vec128
   end) =
 struct
@@ -15,14 +45,14 @@ struct
     :  nativeint#
     -> T.t
     @@ portable
-    = "ocaml_simd_sse_unreachable" "caml_sse_load_aligned"
+    = "ocaml_simd_sse_unreachable" "caml_sse_vec128_load_aligned"
   [@@noalloc] [@@builtin]
 
   external unaligned_load
     :  nativeint#
     -> T.t
     @@ portable
-    = "ocaml_simd_sse_unreachable" "caml_sse_load_unaligned"
+    = "ocaml_simd_sse_unreachable" "caml_sse_vec128_load_unaligned"
   [@@noalloc] [@@builtin]
 
   external aligned_store
@@ -30,7 +60,7 @@ struct
     -> T.t
     -> void
     @@ portable
-    = "ocaml_simd_sse_unreachable" "caml_sse_store_aligned"
+    = "ocaml_simd_sse_unreachable" "caml_sse_vec128_store_aligned"
   [@@noalloc] [@@builtin]
 
   external unaligned_store
@@ -38,7 +68,7 @@ struct
     -> T.t
     -> void
     @@ portable
-    = "ocaml_simd_sse_unreachable" "caml_sse_store_unaligned"
+    = "ocaml_simd_sse_unreachable" "caml_sse_vec128_store_unaligned"
   [@@noalloc] [@@builtin]
 
   let[@inline] aligned_store mem t =
@@ -50,10 +80,143 @@ struct
     let _ : void = unaligned_store mem t in
     ()
   ;;
+
+  external aligned_load_uncached
+    :  nativeint#
+    -> T.t
+    @@ portable
+    = "ocaml_simd_sse_unreachable" "caml_sse41_vec128_load_aligned_uncached"
+  [@@noalloc] [@@builtin]
+
+  external aligned_store_uncached
+    :  nativeint#
+    -> T.t
+    -> void
+    @@ portable
+    = "ocaml_simd_sse_unreachable" "caml_sse_vec128_store_aligned_uncached"
+  [@@noalloc] [@@builtin]
+
+  let[@inline] aligned_store_uncached mem t =
+    let _ : void = aligned_store_uncached mem t in
+    ()
+  ;;
+end
+
+module Raw64 (T : sig
+    (** Must be one of [int64x2,float64x2]. *)
+    type t : vec128
+  end) =
+struct
+  external load_low
+    :  nativeint#
+    -> T.t
+    @@ portable
+    = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_load_low64"
+  [@@noalloc] [@@builtin]
+
+  external load_low_zero_high
+    :  nativeint#
+    -> T.t
+    @@ portable
+    = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_load_zero_low64"
+  [@@noalloc] [@@builtin]
+
+  external load_low_copy_high
+    :  T.t
+    -> nativeint#
+    -> T.t
+    @@ portable
+    = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_load_low64_copy_high64"
+  [@@noalloc] [@@builtin]
+
+  let[@inline] load_low_copy_high mem t = load_low_copy_high t mem
+
+  external load_high_copy_low
+    :  T.t
+    -> nativeint#
+    -> T.t
+    @@ portable
+    = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_load_high64_copy_low64"
+  [@@noalloc] [@@builtin]
+
+  let[@inline] load_high_copy_low mem t = load_high_copy_low t mem
+
+  external broadcast
+    :  nativeint#
+    -> T.t
+    @@ portable
+    = "ocaml_simd_sse_unreachable" "caml_sse3_vec128_load_broadcast64"
+  [@@noalloc] [@@builtin]
+
+  external store_low
+    :  nativeint#
+    -> T.t
+    -> void
+    @@ portable
+    = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_store_low64"
+  [@@noalloc] [@@builtin]
+
+  let[@inline] store_low mem t =
+    let _ : void = store_low mem t in
+    ()
+  ;;
+end
+
+module Raw32 (T : sig
+    (** Must be one of [int32x4,float32x4]. *)
+    type t : vec128
+  end) =
+struct
+  external load_low
+    :  nativeint#
+    -> T.t
+    @@ portable
+    = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_load_low32"
+  [@@noalloc] [@@builtin]
+
+  external load_low_zero_high
+    :  nativeint#
+    -> T.t
+    @@ portable
+    = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_load_zero_low32"
+  [@@noalloc] [@@builtin]
+
+  external store_low
+    :  nativeint#
+    -> T.t
+    -> void
+    @@ portable
+    = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_store_low32"
+  [@@noalloc] [@@builtin]
+
+  let[@inline] store_low mem t =
+    let _ : void = store_low mem t in
+    ()
+  ;;
+end
+
+module Raw8 (T : sig
+    (** Must be one of [int8x16]. *)
+    type t : vec128
+  end) =
+struct
+  external store_masked
+    :  T.t
+    -> mask:int8x16#
+    -> nativeint#
+    -> void
+    @@ portable
+    = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_store_mask8"
+  [@@noalloc] [@@builtin]
+
+  let[@inline] store_masked mem t ~mask =
+    let _ : void = store_masked t ~mask mem in
+    ()
+  ;;
 end
 
 module String (T : sig
-    (** Must be one of [int8x16,int16x8,int32x4,int64x2,float32x4,float64x2]. *)
+    (** Must be one of [int8x16,int16x8,int32x4,int64x2,float16x8,float32x4,float64x2]. *)
     type t : vec128
   end) =
 struct
@@ -121,7 +284,7 @@ struct
 end
 
 module Bytes (T : sig
-    (** Must be one of [int8x16,int16x8,int32x4,int64x2,float32x4,float64x2]. *)
+    (** Must be one of [int8x16,int16x8,int32x4,int64x2,float16x8,float32x4,float64x2]. *)
     type t : vec128
   end) =
 struct
@@ -253,7 +416,7 @@ struct
 end
 
 module Bigstring (T : sig
-    (** Must be one of [int8x16,int16x8,int32x4,int64x2,float32x4,float64x2]. *)
+    (** Must be one of [int8x16,int16x8,int32x4,int64x2,float16x8,float32x4,float64x2]. *)
     type t : vec128
   end) =
 struct
@@ -1833,29 +1996,63 @@ module Int32_u_array = struct
   end
 end
 
-module Raw_Int8x16 = Raw (struct
-    type nonrec t = int8x16#
-  end)
+module Raw_Int8x16 = struct
+  include Raw8 (struct
+      type nonrec t = int8x16#
+    end)
+
+  include Raw (struct
+      type nonrec t = int8x16#
+    end)
+end
 
 module Raw_Int16x8 = Raw (struct
     type nonrec t = int16x8#
   end)
 
-module Raw_Int32x4 = Raw (struct
-    type nonrec t = int32x4#
+module Raw_Int32x4 = struct
+  include Raw32 (struct
+      type nonrec t = int32x4#
+    end)
+
+  include Raw (struct
+      type nonrec t = int32x4#
+    end)
+end
+
+module Raw_Int64x2 = struct
+  include Raw64 (struct
+      type nonrec t = int64x2#
+    end)
+
+  include Raw (struct
+      type nonrec t = int64x2#
+    end)
+end
+
+module Raw_Float16x8 = Raw (struct
+    type nonrec t = float16x8#
   end)
 
-module Raw_Int64x2 = Raw (struct
-    type nonrec t = int64x2#
-  end)
+module Raw_Float32x4 = struct
+  include Raw32 (struct
+      type nonrec t = float32x4#
+    end)
 
-module Raw_Float32x4 = Raw (struct
-    type nonrec t = float32x4#
-  end)
+  include Raw (struct
+      type nonrec t = float32x4#
+    end)
+end
 
-module Raw_Float64x2 = Raw (struct
-    type nonrec t = float64x2#
-  end)
+module Raw_Float64x2 = struct
+  include Raw64 (struct
+      type nonrec t = float64x2#
+    end)
+
+  include Raw (struct
+      type nonrec t = float64x2#
+    end)
+end
 
 module String_Int8x16 = String (struct
     type nonrec t = int8x16#
@@ -1871,6 +2068,10 @@ module String_Int32x4 = String (struct
 
 module String_Int64x2 = String (struct
     type nonrec t = int64x2#
+  end)
+
+module String_Float16x8 = String (struct
+    type nonrec t = float16x8#
   end)
 
 module String_Float32x4 = String (struct
@@ -1897,6 +2098,10 @@ module Bytes_Int64x2 = Bytes (struct
     type nonrec t = int64x2#
   end)
 
+module Bytes_Float16x8 = Bytes (struct
+    type nonrec t = float16x8#
+  end)
+
 module Bytes_Float32x4 = Bytes (struct
     type nonrec t = float32x4#
   end)
@@ -1919,6 +2124,10 @@ module Bigstring_Int32x4 = Bigstring (struct
 
 module Bigstring_Int64x2 = Bigstring (struct
     type nonrec t = int64x2#
+  end)
+
+module Bigstring_Float16x8 = Bigstring (struct
+    type nonrec t = float16x8#
   end)
 
 module Bigstring_Float32x4 = Bigstring (struct

@@ -1,4 +1,5 @@
 include Ocaml_simd_sse.Int64x2
+module Raw = Load_store.Vec128.Raw_Int64x2
 
 external permute
   :  (Ocaml_simd.Permute2.t[@untagged])

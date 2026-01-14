@@ -4,7 +4,7 @@ external low_of
   :  int16#
   -> t
   @@ portable
-  = "ocaml_simd_avx_unreachable" "caml_int16x8_low_of_int"
+  = "ocaml_simd_avx_unreachable" "caml_int16x8_low_of_int16"
 [@@noalloc] [@@builtin]
 
 external broadcast

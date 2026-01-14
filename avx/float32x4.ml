@@ -1,4 +1,5 @@
 include Ocaml_simd_sse.Float32x4
+module Raw = Load_store.Vec128.Raw_Float32x4
 
 external set1
   :  float32#
@@ -21,6 +22,67 @@ external permute_by
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128_permutev_32"
+[@@noalloc] [@@builtin]
+
+external mul_add
+  :  t
+  -> t
+  -> t
+  -> t
+  @@ portable
+  = "ocaml_simd_avx_unreachable" "caml_fma_float32x4_mul_add"
+[@@noalloc] [@@builtin]
+
+external mul_sub
+  :  t
+  -> t
+  -> t
+  -> t
+  @@ portable
+  = "ocaml_simd_avx_unreachable" "caml_fma_float32x4_mul_sub"
+[@@noalloc] [@@builtin]
+
+external mul_add_sub
+  :  t
+  -> t
+  -> t
+  -> t
+  @@ portable
+  = "ocaml_simd_avx_unreachable" "caml_fma_float32x4_mul_addsub"
+[@@noalloc] [@@builtin]
+
+external mul_sub_add
+  :  t
+  -> t
+  -> t
+  -> t
+  @@ portable
+  = "ocaml_simd_avx_unreachable" "caml_fma_float32x4_mul_subadd"
+[@@noalloc] [@@builtin]
+
+external neg_mul_add
+  :  t
+  -> t
+  -> t
+  -> t
+  @@ portable
+  = "ocaml_simd_avx_unreachable" "caml_fma_float32x4_neg_mul_add"
+[@@noalloc] [@@builtin]
+
+external neg_mul_sub
+  :  t
+  -> t
+  -> t
+  -> t
+  @@ portable
+  = "ocaml_simd_avx_unreachable" "caml_fma_float32x4_neg_mul_sub"
+[@@noalloc] [@@builtin]
+
+external of_float16x8
+  :  float16x8#
+  -> t
+  @@ portable
+  = "ocaml_simd_avx_unreachable" "caml_f16c_cvt_float16x8_float32x4"
 [@@noalloc] [@@builtin]
 
 let[@inline] of_float64x4 x = Float64x4_internal.cvt_f32 x

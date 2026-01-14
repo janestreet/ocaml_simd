@@ -16,6 +16,86 @@ module type Raw = sig @@ portable
   (** Store 32 bytes to a 32-byte-aligned address encoded as a [nativeint#]. Does not
       validate alignment. *)
   val aligned_store : nativeint# -> t -> unit
+
+  (** Non-temporally load 32 bytes from a 32-byte-aligned address encoded as a
+      [nativeint#]. Does not validate alignment. The address will not be cached. *)
+  val aligned_load_uncached : nativeint# -> t
+
+  (** Non-temporally store 32 bytes to a 32-byte-aligned address encoded as a
+      [nativeint#]. Does not validate alignment. The address will not be cached. *)
+  val aligned_store_uncached : nativeint# -> t -> unit
+
+  (** Load 16 bytes from an arbitrary address encoded as a [nativeint#] into both lanes. *)
+  val broadcast_lanes : nativeint# -> t
+end
+
+module type Raw64 = sig @@ portable
+  type t : vec256
+
+  (** Load 8 bytes from an arbitrary address encoded as a [nativeint#] into all lanes. *)
+  val broadcast : nativeint# -> t
+
+  (** Load 32 bytes from an arbitrary address encoded as a [nativeint#] subject to a mask.
+      If the upper bit of each 8-byte mask lane is zero, the corresponding output lane
+      will be zeroed, and page faults/memory exceptions will not be generated. *)
+  val load_masked : nativeint# -> mask:int64x4# -> t
+
+  (** Store 32 bytes to an arbitrary address encoded as a [nativeint#] subject to a mask.
+      If the upper bit of each 8-byte mask lane is zero, the corresponding input lane will
+      not be written to memory, and page faults/memory exceptions will not be generated. *)
+  val store_masked : nativeint# -> t -> mask:int64x4# -> unit
+end
+
+module type Raw32 = sig @@ portable
+  type t : vec256
+
+  (** Load 4 bytes from an arbitrary address encoded as a [nativeint#] into all lanes. *)
+  val broadcast : nativeint# -> t
+
+  (** Load 32 bytes from an arbitrary address encoded as a [nativeint#] subject to a mask.
+      If the upper bit of each 4-byte mask lane is zero, the corresponding output lane
+      will be zeroed, and page faults/memory exceptions will not be generated. *)
+  val load_masked : nativeint# -> mask:int32x8# -> t
+
+  (** Store 32 bytes to an arbitrary address encoded as a [nativeint#] subject to a mask.
+      If the upper bit of each 4-byte mask lane is zero, the corresponding input lane will
+      not be written to memory, and page faults/memory exceptions will not be generated. *)
+  val store_masked : nativeint# -> t -> mask:int32x8# -> unit
+end
+
+module Vec128 = struct
+  module type Raw64 = sig @@ portable
+    type t : vec128
+
+    (** Load 16 bytes from an arbitrary address encoded as a [nativeint#] subject to a
+        mask. If the upper bit of each 8-byte mask lane is zero, the corresponding output
+        lane will be zeroed, and page faults/memory exceptions will not be generated. *)
+    val load_masked : nativeint# -> mask:int64x2# -> t
+
+    (** Store 16 bytes to an arbitrary address encoded as a [nativeint#] subject to a
+        mask. If the upper bit of each 8-byte mask lane is zero, the corresponding input
+        lane will not be written to memory, and page faults/memory exceptions will not be
+        generated. *)
+    val store_masked : nativeint# -> t -> mask:int64x2# -> unit
+  end
+
+  module type Raw32 = sig @@ portable
+    type t : vec128
+
+    (** Load 4 bytes from an arbitrary address encoded as a [nativeint#] into all lanes. *)
+    val broadcast : nativeint# -> t
+
+    (** Load 16 bytes from an arbitrary address encoded as a [nativeint#] subject to a
+        mask. If the upper bit of each 4-byte mask lane is zero, the corresponding output
+        lane will be zeroed, and page faults/memory exceptions will not be generated. *)
+    val load_masked : nativeint# -> mask:int32x4# -> t
+
+    (** Store 16 bytes to an arbitrary address encoded as a [nativeint#] subject to a
+        mask. If the upper bit of each 4-byte mask lane is zero, the corresponding input
+        lane will not be written to memory, and page faults/memory exceptions will not be
+        generated. *)
+    val store_masked : nativeint# -> t -> mask:int32x4# -> unit
+  end
 end
 
 module type String_accessors = sig @@ portable
@@ -387,6 +467,8 @@ module type Bigstring = sig @@ portable
 end
 
 module type Load_store = sig @@ portable
+  module type Raw32 = Raw32
+  module type Raw64 = Raw64
   module type Raw = Raw
   module type String = String
   module type Bytes = Bytes
@@ -487,26 +569,90 @@ module type Load_store = sig @@ portable
 
   module Raw_Int8x32 : Raw with type t := int8x32#
   module Raw_Int16x16 : Raw with type t := int16x16#
-  module Raw_Int32x8 : Raw with type t := int32x8#
-  module Raw_Int64x4 : Raw with type t := int64x4#
-  module Raw_Float32x8 : Raw with type t := float32x8#
-  module Raw_Float64x4 : Raw with type t := float64x4#
+
+  module Raw_Int32x8 : sig
+    include Raw32 with type t := int32x8# (** @inline *)
+
+    include Raw with type t := int32x8# (** @inline *)
+  end
+
+  module Raw_Int64x4 : sig
+    include Raw64 with type t := int64x4# (** @inline *)
+
+    include Raw with type t := int64x4# (** @inline *)
+  end
+
+  module Raw_Float16x16 : Raw with type t := float16x16#
+
+  module Raw_Float32x8 : sig
+    include Raw32 with type t := float32x8# (** @inline *)
+
+    include Raw with type t := float32x8# (** @inline *)
+  end
+
+  module Raw_Float64x4 : sig
+    include Raw64 with type t := float64x4# (** @inline *)
+
+    include Raw with type t := float64x4# (** @inline *)
+  end
+
   module String_Int8x32 : String with type t := int8x32#
   module String_Int16x16 : String with type t := int16x16#
   module String_Int32x8 : String with type t := int32x8#
   module String_Int64x4 : String with type t := int64x4#
+  module String_Float16x16 : String with type t := float16x16#
   module String_Float32x8 : String with type t := float32x8#
   module String_Float64x4 : String with type t := float64x4#
   module Bytes_Int8x32 : Bytes with type t := int8x32#
   module Bytes_Int16x16 : Bytes with type t := int16x16#
   module Bytes_Int32x8 : Bytes with type t := int32x8#
   module Bytes_Int64x4 : Bytes with type t := int64x4#
+  module Bytes_Float16x16 : Bytes with type t := float16x16#
   module Bytes_Float32x8 : Bytes with type t := float32x8#
   module Bytes_Float64x4 : Bytes with type t := float64x4#
   module Bigstring_Int8x32 : Bigstring with type t := int8x32#
   module Bigstring_Int16x16 : Bigstring with type t := int16x16#
   module Bigstring_Int32x8 : Bigstring with type t := int32x8#
   module Bigstring_Int64x4 : Bigstring with type t := int64x4#
+  module Bigstring_Float16x16 : Bigstring with type t := float16x16#
   module Bigstring_Float32x8 : Bigstring with type t := float32x8#
   module Bigstring_Float64x4 : Bigstring with type t := float64x4#
+
+  module Vec128 : sig
+    include module type of struct
+      include Ocaml_simd_sse.Load_store (** @inline *)
+    end
+
+    module Raw_Int32x4 : sig
+      include module type of struct
+        include Raw_Int32x4 (** @inline *)
+      end
+
+      include Vec128.Raw32 with type t := int32x4# (** @inline *)
+    end
+
+    module Raw_Int64x2 : sig
+      include module type of struct
+        include Raw_Int64x2 (** @inline *)
+      end
+
+      include Vec128.Raw64 with type t := int64x2# (** @inline *)
+    end
+
+    module Raw_Float32x4 : sig
+      include module type of struct
+        include Raw_Float32x4 (** @inline *)
+      end
+
+      include Vec128.Raw32 with type t := float32x4# (** @inline *)
+    end
+
+    module Raw_Float64x2 : sig
+      include module type of struct
+        include Raw_Float64x2 (** @inline *)
+      end
+
+      include Vec128.Raw64 with type t := float64x2# (** @inline *)
+    end
+  end
 end

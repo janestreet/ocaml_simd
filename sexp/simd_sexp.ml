@@ -687,8 +687,8 @@ module Parse = struct
     | ')' when no_comment ->
       let top =
         match Vec.peek_back t.stack with
-        | None -> raise (Error (sprintf "Unbalanced parenthesis at index %d." idx))
-        | Some t -> t
+        | Null -> raise (Error (sprintf "Unbalanced parenthesis at index %d." idx))
+        | This t -> t
       in
       let sexp = Sexp.List (List.rev t.top) in
       t.top <- top;

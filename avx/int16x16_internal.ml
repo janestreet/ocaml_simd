@@ -7,14 +7,14 @@ module I16x8 = struct
     :  int16#
     -> t
     @@ portable
-    = "ocaml_simd_avx_unreachable" "caml_int16x8_low_of_int"
+    = "ocaml_simd_avx_unreachable" "caml_int16x8_low_of_int16"
   [@@noalloc] [@@builtin]
 
   external low_to
     :  t
     -> int16#
     @@ portable
-    = "ocaml_simd_avx_unreachable" "caml_int16x8_low_to_int"
+    = "ocaml_simd_avx_unreachable" "caml_int16x8_low_to_int16"
   [@@noalloc] [@@builtin]
 
   external cvtsx_i32
@@ -50,14 +50,14 @@ external low_of
   :  int16#
   -> t
   @@ portable
-  = "ocaml_simd_avx_unreachable" "caml_int16x16_low_of_int"
+  = "ocaml_simd_avx_unreachable" "caml_int16x16_low_of_int16"
 [@@noalloc] [@@builtin]
 
 external low_to
   :  t
   -> int16#
   @@ portable
-  = "ocaml_simd_avx_unreachable" "caml_int16x16_low_to_int"
+  = "ocaml_simd_avx_unreachable" "caml_int16x16_low_to_int16"
 [@@noalloc] [@@builtin]
 
 external low_of_i16x8
@@ -349,6 +349,13 @@ external sra
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_int16x16_sra"
+[@@noalloc] [@@builtin]
+
+external of_float16x16
+  :  float16x16#
+  -> t
+  @@ portable
+  = "ocaml_simd_avx_unreachable" "caml_vec256_cast"
 [@@noalloc] [@@builtin]
 
 external of_float32x8

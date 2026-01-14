@@ -377,6 +377,7 @@ external multi_sum_absolute_differences_unsigned_lanes
 [@@noalloc] [@@builtin]
 
 let[@inline] unsafe_of_int8x16 x = I.low_of_i8x16 x
+let[@inline] of_float16x16_bits x = I.of_float16x16 x
 let[@inline] of_float32x8_bits x = I.of_float32x8 x
 let[@inline] of_float64x4_bits x = I.of_float64x4 x
 let[@inline] of_int16x16_bits x = I.of_int16x16 x

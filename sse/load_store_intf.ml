@@ -16,6 +16,65 @@ module type Raw = sig @@ portable
   (** Store 16 bytes to a 16-byte-aligned address encoded as a [nativeint#]. Does not
       validate alignment. *)
   val aligned_store : nativeint# -> t -> unit
+
+  (** Non-temporally load 16 bytes from a 16-byte-aligned address encoded as a
+      [nativeint#]. Does not validate alignment. The address will not be cached. *)
+  val aligned_load_uncached : nativeint# -> t
+
+  (** Non-temporally store 16 bytes to a 16-byte-aligned address encoded as a
+      [nativeint#]. Does not validate alignment. The address will not be cached. *)
+  val aligned_store_uncached : nativeint# -> t -> unit
+end
+
+module type Raw64 = sig @@ portable
+  type t : vec128
+
+  (** Load the lower 8-byte lane from an arbitrary address encoded as a [nativeint#]. \
+      The upper 8-byte lane is undefined. *)
+  val load_low : nativeint# -> t
+
+  (** Load the lower 8-byte lane from an arbitrary address encoded as a [nativeint#]. \
+      The upper 8-byte lane is zeroed. *)
+  val load_low_zero_high : nativeint# -> t
+
+  (** Load the lower 8-byte lane from an arbitrary address encoded as a [nativeint#]. \
+      The upper 8-byte lane is copied from the input vector. *)
+  val load_low_copy_high : nativeint# -> t -> t
+
+  (** Load the upper 8-byte lane from an arbitrary address encoded as a [nativeint#]. \
+      The lower 8-byte lane is copied from the input vector. *)
+  val load_high_copy_low : nativeint# -> t -> t
+
+  (** Load 8 bytes from an arbitrary address encoded as a [nativeint#] into both lanes. *)
+  val broadcast : nativeint# -> t
+
+  (** Store the lower 8-byte lane to an arbitrary address encoded as a [nativeint#]. *)
+  val store_low : nativeint# -> t -> unit
+end
+
+module type Raw32 = sig @@ portable
+  type t : vec128
+
+  (** Load the lower 4-byte lane from an arbitrary address encoded as a [nativeint#]. \
+      The upper lanes are undefined. *)
+  val load_low : nativeint# -> t
+
+  (** Load the lower 4-byte lane from an arbitrary address encoded as a [nativeint#]. \
+      The upper lanes are zeroed. *)
+  val load_low_zero_high : nativeint# -> t
+
+  (** Store the lower 4-byte lane to an arbitrary address encoded as a [nativeint#]. *)
+  val store_low : nativeint# -> t -> unit
+end
+
+module type Raw8 = sig @@ portable
+  type t : vec128
+
+  (** Store 16 bytes to an arbitrary address encoded as a [nativeint#] subject to a mask.
+      If the upper bit of each 1-byte mask lane is zero, the corresponding input lane will
+      not be written to memory. However, page faults/memory exceptions may still be
+      triggered as if the full 16 bytes were written. *)
+  val store_masked : nativeint# -> t -> mask:int8x16# -> unit
 end
 
 module type String_accessors = sig @@ portable
@@ -385,6 +444,9 @@ module type Bigstring = sig @@ portable
 end
 
 module type Load_store = sig @@ portable
+  module type Raw8 = Raw8
+  module type Raw32 = Raw32
+  module type Raw64 = Raw64
   module type Raw = Raw
   module type String = String
   module type Bytes = Bytes
@@ -402,6 +464,18 @@ module type Load_store = sig @@ portable
   module type Int64_u_array_accessors = Int64_u_array_accessors
   module type Nativeint_u_array_accessors = Nativeint_u_array_accessors
   module type Int32_u_array_accessors = Int32_u_array_accessors
+
+  module Int32 : sig
+    (** Non-temporally store 4 bytes to an address encoded as a [nativeint#]. The address
+        will not be cached. *)
+    val store_uncached : nativeint# -> int32# -> unit
+  end
+
+  module Int64 : sig
+    (** Non-temporally store 8 bytes to an address encoded as a [nativeint#]. The address
+        will not be cached. *)
+    val store_uncached : nativeint# -> int64# -> unit
+  end
 
   module Float_array : sig
     include Float_array_accessors with type index := int (** @inline *)
@@ -483,28 +557,59 @@ module type Load_store = sig @@ portable
     module Nativeint_u : Int32_u_array_accessors with type index := nativeint#
   end
 
-  module Raw_Int8x16 : Raw with type t := int8x16#
+  module Raw_Int8x16 : sig
+    include Raw8 with type t := int8x16# (** @inline *)
+
+    include Raw with type t := int8x16# (** @inline *)
+  end
+
   module Raw_Int16x8 : Raw with type t := int16x8#
-  module Raw_Int32x4 : Raw with type t := int32x4#
-  module Raw_Int64x2 : Raw with type t := int64x2#
-  module Raw_Float32x4 : Raw with type t := float32x4#
-  module Raw_Float64x2 : Raw with type t := float64x2#
+
+  module Raw_Int32x4 : sig
+    include Raw32 with type t := int32x4# (** @inline *)
+
+    include Raw with type t := int32x4# (** @inline *)
+  end
+
+  module Raw_Int64x2 : sig
+    include Raw64 with type t := int64x2# (** @inline *)
+
+    include Raw with type t := int64x2# (** @inline *)
+  end
+
+  module Raw_Float16x8 : Raw with type t := float16x8#
+
+  module Raw_Float32x4 : sig
+    include Raw32 with type t := float32x4# (** @inline *)
+
+    include Raw with type t := float32x4# (** @inline *)
+  end
+
+  module Raw_Float64x2 : sig
+    include Raw64 with type t := float64x2# (** @inline *)
+
+    include Raw with type t := float64x2# (** @inline *)
+  end
+
   module String_Int8x16 : String with type t := int8x16#
   module String_Int16x8 : String with type t := int16x8#
   module String_Int32x4 : String with type t := int32x4#
   module String_Int64x2 : String with type t := int64x2#
+  module String_Float16x8 : String with type t := float16x8#
   module String_Float32x4 : String with type t := float32x4#
   module String_Float64x2 : String with type t := float64x2#
   module Bytes_Int8x16 : Bytes with type t := int8x16#
   module Bytes_Int16x8 : Bytes with type t := int16x8#
   module Bytes_Int32x4 : Bytes with type t := int32x4#
   module Bytes_Int64x2 : Bytes with type t := int64x2#
+  module Bytes_Float16x8 : Bytes with type t := float16x8#
   module Bytes_Float32x4 : Bytes with type t := float32x4#
   module Bytes_Float64x2 : Bytes with type t := float64x2#
   module Bigstring_Int8x16 : Bigstring with type t := int8x16#
   module Bigstring_Int16x8 : Bigstring with type t := int16x8#
   module Bigstring_Int32x4 : Bigstring with type t := int32x4#
   module Bigstring_Int64x2 : Bigstring with type t := int64x2#
+  module Bigstring_Float16x8 : Bigstring with type t := float16x8#
   module Bigstring_Float32x4 : Bigstring with type t := float32x4#
   module Bigstring_Float64x2 : Bigstring with type t := float64x2#
 end

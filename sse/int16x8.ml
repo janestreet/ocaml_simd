@@ -207,6 +207,7 @@ let[@inline] ( land ) x y = I.and_ x y
 let[@inline] ( lxor ) x y = I.xor x y
 let[@inline] lnot m = I.(xor (all_ones ()) m)
 let[@inline] landnot ~not y = I.andnot ~not y
+let[@inline] of_float16x8_bits x = I.of_float16x8 x
 let[@inline] of_float32x4_bits x = I.of_float32x4 x
 let[@inline] of_float64x2_bits x = I.of_float64x2 x
 let[@inline] of_int8x16_bits x = I.of_int8x16 x

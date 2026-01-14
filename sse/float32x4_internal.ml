@@ -42,6 +42,13 @@ external of_int64x2
   = "ocaml_simd_sse_unreachable" "caml_vec128_cast"
 [@@noalloc] [@@builtin]
 
+external of_float16x8
+  :  float16x8#
+  -> t
+  @@ portable
+  = "ocaml_simd_sse_unreachable" "caml_vec128_cast"
+[@@noalloc] [@@builtin]
+
 external of_float64x2
   :  float64x2#
   -> t

@@ -54,10 +54,10 @@ external const
 
 (* Load/Store *)
 
-module Raw : Load_store.Raw with type t := t
-module String : Load_store.String with type t := t
-module Bytes : Load_store.Bytes with type t := t
-module Bigstring : Load_store.Bigstring with type t := t
+module Raw = Load_store.Raw_Float32x8
+module String = Load_store.String_Float32x8
+module Bytes = Load_store.Bytes_Float32x8
+module Bigstring = Load_store.Bigstring_Float32x8
 module Float32_u_array = Load_store.Float32_u_array
 
 (* Control Flow *)
@@ -308,6 +308,46 @@ val horizontal_sub_lanes : t -> t -> t
 (** Dot product. *)
 val dot : t -> t -> float32#
 
+(** [_mm256_fmadd_ps]. Computes [x * y + z] without intermediate rounding. *)
+val mul_add : t -> t -> t -> t
+
+(** [_mm256_fmsub_ps]. Computes [x * y - z] without intermediate rounding. *)
+val mul_sub : t -> t -> t -> t
+
+(** [_mm256_fnmadd_ps]. Computes [-(x * y) + z] without intermediate rounding. *)
+val neg_mul_add : t -> t -> t -> t
+
+(** [_mm256_fnmsub_ps]. Computes [-(x * y) - z] without intermediate rounding. *)
+val neg_mul_sub : t -> t -> t -> t
+
+(** [_mm256_fmaddsub_ps]. Computes the following expression without intermediate rounding.
+    {[
+      mul_add_sub x y z
+      = ( (x.(0) * y.(0)) - z.(0)
+        , (x.(1) * y.(1)) + z.(1)
+        , (x.(2) * y.(2)) - z.(2)
+        , (x.(3) * y.(3)) + z.(3)
+        , (x.(4) * y.(4)) - z.(4)
+        , (x.(5) * y.(5)) + z.(5)
+        , (x.(6) * y.(6)) - z.(6)
+        , (x.(7) * y.(7)) + z.(7) )
+    ]} *)
+val mul_add_sub : t -> t -> t -> t
+
+(** [_mm256_fmsubadd_ps]. Computes the following expression without intermediate rounding.
+    {[
+      mul_add_sub x y z
+      = ( (x.(0) * y.(0)) + z.(0)
+        , (x.(1) * y.(1)) - z.(1)
+        , (x.(2) * y.(2)) + z.(2)
+        , (x.(3) * y.(3)) - z.(3)
+        , (x.(4) * y.(4)) + z.(4)
+        , (x.(5) * y.(5)) - z.(5)
+        , (x.(6) * y.(6)) + z.(6)
+        , (x.(7) * y.(7)) - z.(7) )
+    ]} *)
+val mul_sub_add : t -> t -> t -> t
+
 (* Operators *)
 
 val ( + ) : t -> t -> t
@@ -344,6 +384,9 @@ val unsafe_of_float32 : float32# -> t
 val unsafe_of_float32x4 : float32x4# -> t
 
 (** Identity in the bit representation. Different numeric interpretation. *)
+val of_float16x16_bits : float16x16# -> t
+
+(** Identity in the bit representation. Different numeric interpretation. *)
 val of_float64x4_bits : float64x4# -> t
 
 (** Identity in the bit representation. Different numeric interpretation. *)
@@ -357,6 +400,9 @@ val of_int32x8_bits : int32x8# -> t
 
 (** Identity in the bit representation. Different numeric interpretation. *)
 val of_int64x4_bits : int64x4# -> t
+
+(** [_mm256_cvtph_ps] *)
+val of_float16x8 : float16x8# -> t
 
 (** [_mm256_cvtepi32_ps]. Performs numeric conversion from int32# to float32# *)
 val of_int32x8 : int32x8# -> t

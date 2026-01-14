@@ -224,6 +224,7 @@ let[@inline] ( lxor ) x y = I.xor x y
 let[@inline] lnot m = I.(xor (all_ones ()) m)
 let[@inline] landnot ~not y = I.andnot ~not y
 let[@inline] unsafe_of_int32x4 x = I.low_of_i32x4 x
+let[@inline] of_float16x16_bits x = I.of_float16x16 x
 let[@inline] of_float32x8_bits x = I.of_float32x8 x
 let[@inline] of_float64x4_bits x = I.of_float64x4 x
 let[@inline] of_int8x32_bits x = I.of_int8x32 x

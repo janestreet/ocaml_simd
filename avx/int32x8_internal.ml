@@ -317,6 +317,13 @@ external srav
   = "ocaml_simd_avx_unreachable" "caml_avx2_int32x8_srav"
 [@@noalloc] [@@builtin]
 
+external of_float16x16
+  :  float16x16#
+  -> t
+  @@ portable
+  = "ocaml_simd_avx_unreachable" "caml_vec256_cast"
+[@@noalloc] [@@builtin]
+
 external of_float32x8
   :  float32x8#
   -> t

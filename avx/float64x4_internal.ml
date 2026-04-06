@@ -8,14 +8,14 @@ module F64x2 = struct
     -> t
     @@ portable
     = "ocaml_simd_avx_unreachable" "caml_float64x2_low_of_float"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   external low_to
     :  t
     -> float#
     @@ portable
     = "ocaml_simd_avx_unreachable" "caml_float64x2_low_to_float"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 end
 
 external low_of
@@ -23,56 +23,56 @@ external low_of
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_float64x4_low_of_float"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external low_to
   :  t
   -> float#
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_float64x4_low_to_float"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external low_of_f64x2
   :  float64x2#
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_vec256_low_of_vec128"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external low_to_f64x2
   :  t
   -> float64x2#
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_vec256_low_to_vec128"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external broadcast_64
   :  float64x2#
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_broadcast_64"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external cvt_f32
   :  t
   -> float32x4#
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_cvt_float64x4_float32x4"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external cvt_i32
   :  t
   -> int32x4#
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_cvt_float64x4_int32x4"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external cvtt_i32
   :  t
   -> int32x4#
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_cvtt_float64x4_int32x4"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external blendv_64
   :  t
@@ -81,7 +81,7 @@ external blendv_64
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_blendv_64"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external cmp
   :  (Ocaml_simd.Float.Comparison.t[@untagged])
@@ -90,7 +90,7 @@ external cmp
   -> int64x4#
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_float64x4_cmp"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external round
   :  (Ocaml_simd.Float.Rounding.t[@untagged])
@@ -98,7 +98,7 @@ external round
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_float64x4_round"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external interleave_high_64
   :  t
@@ -106,7 +106,7 @@ external interleave_high_64
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128x2_interleave_high_64"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external interleave_low_64
   :  t
@@ -114,14 +114,14 @@ external interleave_low_64
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128x2_interleave_low_64"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external dup_even_64
   :  t
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_dup_even_64"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external min
   :  t
@@ -129,7 +129,7 @@ external min
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_float64x4_min"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external max
   :  t
@@ -137,7 +137,7 @@ external max
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_float64x4_max"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external add
   :  t
@@ -145,7 +145,7 @@ external add
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_float64x4_add"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external sub
   :  t
@@ -153,7 +153,7 @@ external sub
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_float64x4_sub"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external mul
   :  t
@@ -161,7 +161,7 @@ external mul
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_float64x4_mul"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external div
   :  t
@@ -169,7 +169,7 @@ external div
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_float64x4_div"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external addsub
   :  t
@@ -177,7 +177,7 @@ external addsub
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_float64x4_addsub"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external hadd
   :  t
@@ -185,7 +185,7 @@ external hadd
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_float64x2x2_hadd"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external hsub
   :  t
@@ -193,14 +193,14 @@ external hsub
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_float64x2x2_hsub"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external sqrt
   :  t
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_float64x4_sqrt"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external mul_add
   :  t
@@ -209,7 +209,7 @@ external mul_add
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_fma_float64x4_mul_add"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external mul_sub
   :  t
@@ -218,7 +218,7 @@ external mul_sub
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_fma_float64x4_mul_sub"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external mul_add_sub
   :  t
@@ -227,7 +227,7 @@ external mul_add_sub
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_fma_float64x4_mul_addsub"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external mul_sub_add
   :  t
@@ -236,7 +236,7 @@ external mul_sub_add
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_fma_float64x4_mul_subadd"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external neg_mul_add
   :  t
@@ -245,7 +245,7 @@ external neg_mul_add
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_fma_float64x4_neg_mul_add"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external neg_mul_sub
   :  t
@@ -254,46 +254,46 @@ external neg_mul_sub
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_fma_float64x4_neg_mul_sub"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external of_float16x16
   :  float16x16#
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_vec256_cast"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external of_float32x8
   :  float32x8#
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_vec256_cast"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external of_int8x32
   :  int8x32#
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_vec256_cast"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external of_int16x16
   :  int16x16#
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_vec256_cast"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external of_int32x8
   :  int32x8#
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_vec256_cast"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external of_int64x4
   :  int64x4#
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_vec256_cast"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]

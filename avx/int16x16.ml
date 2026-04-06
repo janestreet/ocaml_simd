@@ -12,13 +12,14 @@ module Raw = Load_store.Raw_Int16x16
 module String = Load_store.String_Int16x16
 module Bytes = Load_store.Bytes_Int16x16
 module Bigstring = Load_store.Bigstring_Int16x16
+module Int16_u_array = Load_store.Int16_u_array
 
 external const1
   :  int16#
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_int16x16_const1"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external const
   :  int16#
@@ -40,7 +41,7 @@ external const
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_int16x16_const16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shuffle_upper_lanes
   :  (Ocaml_simd.Shuffle4.t[@untagged])
@@ -48,7 +49,7 @@ external shuffle_upper_lanes
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_shuffle_high_16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shuffle_lower_lanes
   :  (Ocaml_simd.Shuffle4.t[@untagged])
@@ -56,7 +57,7 @@ external shuffle_lower_lanes
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_shuffle_low_16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external insert_lane
   :  idx:int64#
@@ -65,7 +66,7 @@ external insert_lane
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_insert_128"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external extract_lane
   :  idx:int64#
@@ -73,11 +74,11 @@ external extract_lane
   -> int16x8#
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_extract_128"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
-let[@inline] zero () = const1 #0S
-let[@inline] one () = const1 #1S
-let[@inline] all_ones () = const1 (-#1S)
+let zero = const1 #0S
+let one = const1 #1S
+let all_ones = const1 (-#1S)
 let[@inline] set1 x = I.broadcast_16 (I.I16x8.low_of x)
 
 let[@inline] set x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 =
@@ -192,7 +193,7 @@ let[@inline] ( <= ) x y = I.(or_ (cmpgt y x) (cmpeq x y))
 let[@inline] ( = ) x y = I.cmpeq x y
 let[@inline] ( > ) x y = I.cmpgt x y
 let[@inline] ( < ) x y = I.cmpgt y x
-let[@inline] ( <> ) x y = I.(xor (all_ones ()) (cmpeq x y))
+let[@inline] ( <> ) x y = I.(xor all_ones (cmpeq x y))
 let[@inline] equal x y = I.cmpeq x y
 let[@inline] interleave_upper_lanes ~even ~odd = I.interleave_high_16 even odd
 let[@inline] interleave_lower_lanes ~even ~odd = I.interleave_low_16 even odd
@@ -204,7 +205,7 @@ external blend_lanes
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_blend_16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 let[@inline] min x y = I.min x y
 let[@inline] max x y = I.max x y
@@ -216,7 +217,7 @@ let[@inline] add_saturating_unsigned x y = I.add_saturating_unsigned x y
 let[@inline] sub x y = I.sub x y
 let[@inline] sub_saturating x y = I.sub_saturating x y
 let[@inline] sub_saturating_unsigned x y = I.sub_saturating_unsigned x y
-let[@inline] neg x = I.(mul_sign x (all_ones ()))
+let[@inline] neg x = I.(mul_sign x all_ones)
 let[@inline] abs x = I.abs x
 
 external shifti_left_bytes_lanes
@@ -225,7 +226,7 @@ external shifti_left_bytes_lanes
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_shift_left_bytes"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shifti_right_bytes_lanes
   :  int64#
@@ -233,7 +234,7 @@ external shifti_right_bytes_lanes
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_shift_right_bytes"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shifti_left_logical
   :  int64#
@@ -241,7 +242,7 @@ external shifti_left_logical
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_int16x16_slli"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shifti_right_logical
   :  int64#
@@ -249,7 +250,7 @@ external shifti_right_logical
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_int16x16_srli"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shifti_right_arithmetic
   :  int64#
@@ -257,7 +258,7 @@ external shifti_right_arithmetic
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_int16x16_srai"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 let[@inline] horizontal_add_lanes x y = I.horizontal_add x y
 let[@inline] horizontal_sub_lanes x y = I.horizontal_sub x y
@@ -270,7 +271,7 @@ let[@inline] ( - ) x y = I.sub x y
 let[@inline] ( lor ) x y = I.or_ x y
 let[@inline] ( land ) x y = I.and_ x y
 let[@inline] ( lxor ) x y = I.xor x y
-let[@inline] lnot m = I.(xor (all_ones ()) m)
+let[@inline] lnot m = I.(xor all_ones m)
 let[@inline] landnot ~not y = I.andnot ~not y
 let[@inline] unsafe_of_int16x8 x = I.low_of_i16x8 x
 let[@inline] of_float16x16_bits x = I.of_float16x16 x

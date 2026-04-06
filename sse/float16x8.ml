@@ -17,7 +17,7 @@ external blend
   -> t
   @@ portable
   = "ocaml_simd_sse_unreachable" "caml_sse41_vec128_blend_16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shuffle_upper
   :  (Ocaml_simd.Shuffle4.t[@untagged])
@@ -25,7 +25,7 @@ external shuffle_upper
   -> t
   @@ portable
   = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shuffle_high_16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shuffle_lower
   :  (Ocaml_simd.Shuffle4.t[@untagged])
@@ -33,7 +33,7 @@ external shuffle_lower
   -> t
   @@ portable
   = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shuffle_low_16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 let[@inline] interleave_upper ~even ~odd = I.interleave_high_16 even odd
 let[@inline] interleave_lower ~even ~odd = I.interleave_low_16 even odd

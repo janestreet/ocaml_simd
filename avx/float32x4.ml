@@ -6,7 +6,7 @@ external set1
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128_broadcast_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external permute
   :  (Ocaml_simd.Permute4.t[@untagged])
@@ -14,7 +14,7 @@ external permute
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128_permute_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external permute_by
   :  t
@@ -22,7 +22,7 @@ external permute_by
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128_permutev_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external mul_add
   :  t
@@ -31,7 +31,7 @@ external mul_add
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_fma_float32x4_mul_add"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external mul_sub
   :  t
@@ -40,7 +40,7 @@ external mul_sub
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_fma_float32x4_mul_sub"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external mul_add_sub
   :  t
@@ -49,7 +49,7 @@ external mul_add_sub
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_fma_float32x4_mul_addsub"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external mul_sub_add
   :  t
@@ -58,7 +58,7 @@ external mul_sub_add
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_fma_float32x4_mul_subadd"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external neg_mul_add
   :  t
@@ -67,7 +67,7 @@ external neg_mul_add
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_fma_float32x4_neg_mul_add"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external neg_mul_sub
   :  t
@@ -76,14 +76,14 @@ external neg_mul_sub
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_fma_float32x4_neg_mul_sub"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external of_float16x8
   :  float16x8#
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_f16c_cvt_float16x8_float32x4"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 let[@inline] of_float64x4 x = Float64x4_internal.cvt_f32 x
 let[@inline] of_float32x8 x = Float32x8_internal.low_to_f32x4 x

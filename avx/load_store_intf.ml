@@ -6,6 +6,11 @@ module type Raw = sig @@ portable
   (** Load 32 bytes from an arbitrary address encoded as a [nativeint#]. *)
   val unaligned_load : nativeint# -> t
 
+  (** Load 32 bytes from an arbitrary address encoded as a [nativeint#]. May be faster
+      than [unaligned_load] when the load crosses a cache line boundary. If the data will
+      be modified and stored to the same location, use [unaligned_load] instead. *)
+  val known_unaligned_load : nativeint# -> t
+
   (** Store 32 bytes to an arbitrary address encoded as a [nativeint#]. *)
   val unaligned_store : nativeint# -> t -> unit
 
@@ -44,6 +49,36 @@ module type Raw64 = sig @@ portable
       If the upper bit of each 8-byte mask lane is zero, the corresponding input lane will
       not be written to memory, and page faults/memory exceptions will not be generated. *)
   val store_masked : nativeint# -> t -> mask:int64x4# -> unit
+
+  (** Load four 8-byte lanes from arbitrary addresses encoded as a [base] address plus a
+      respective 64-bit [offset] multiplied by [scale], subject to [mask]. If the top bit
+      of each lane of [mask] is not set, the corresponding load is not performed, and the
+      result lane is copied from [onto]. [scale] must be a literal equal to 1, 2, 4, or 8.
+      Exposed as an external so user code can compile without cross-library inlining. *)
+  external gather
+    :  scale:int64#
+    -> onto:t
+    -> base:nativeint#
+    -> offset:int64x4#
+    -> mask:int64x4#
+    -> t
+    = "ocaml_simd_avx_unreachable" "caml_avx2_vec256_gather64_index64"
+  [@@noalloc] [@@builtin amd64]
+
+  (** Load four 8-byte lanes from arbitrary addresses encoded as a [base] address plus a
+      respective 32-bit [offset] multiplied by [scale], subject to [mask]. If the top bit
+      of each lane of [mask] is not set, the corresponding load is not performed, and the
+      result lane is copied from [onto]. [scale] must be a literal equal to 1, 2, 4, or 8.
+      Exposed as an external so user code can compile without cross-library inlining. *)
+  external gather32
+    :  scale:int64#
+    -> onto:t
+    -> base:nativeint#
+    -> offset:int32x4#
+    -> mask:int64x4#
+    -> t
+    = "ocaml_simd_avx_unreachable" "caml_avx2_vec256_gather64_index32"
+  [@@noalloc] [@@builtin amd64]
 end
 
 module type Raw32 = sig @@ portable
@@ -61,6 +96,21 @@ module type Raw32 = sig @@ portable
       If the upper bit of each 4-byte mask lane is zero, the corresponding input lane will
       not be written to memory, and page faults/memory exceptions will not be generated. *)
   val store_masked : nativeint# -> t -> mask:int32x8# -> unit
+
+  (** Load eight 4-byte lanes from arbitrary addresses encoded as a [base] address plus a
+      respective 32-bit [offset] multiplied by [scale], subject to [mask]. If the top bit
+      of each lane of [mask] is not set, the corresponding load is not performed, and the
+      result lane is copied from [onto]. [scale] must be a literal equal to 1, 2, 4, or 8.
+      Exposed as an external so user code can compile without cross-library inlining. *)
+  external gather
+    :  scale:int64#
+    -> onto:t
+    -> base:nativeint#
+    -> offset:int32x8#
+    -> mask:int32x8#
+    -> t
+    = "ocaml_simd_avx_unreachable" "caml_avx2_vec256_gather32_index32"
+  [@@noalloc] [@@builtin amd64]
 end
 
 module Vec128 = struct
@@ -77,6 +127,38 @@ module Vec128 = struct
         lane will not be written to memory, and page faults/memory exceptions will not be
         generated. *)
     val store_masked : nativeint# -> t -> mask:int64x2# -> unit
+
+    (** Load two 8-byte lanes from arbitrary addresses encoded as a [base] address plus a
+        respective 64-bit [offset] multiplied by [scale], subject to [mask]. If the top
+        bit of each lane of [mask] is not set, the corresponding load is not performed,
+        and the result lane is copied from [onto]. [scale] must be a literal equal to 1,
+        2, 4, or 8. Exposed as an external so user code can compile without cross-library
+        inlining. *)
+    external gather
+      :  scale:int64#
+      -> onto:t
+      -> base:nativeint#
+      -> offset:int64x2#
+      -> mask:int64x2#
+      -> t
+      = "ocaml_simd_avx_unreachable" "caml_avx2_vec128_gather64_index64"
+    [@@noalloc] [@@builtin amd64]
+
+    (** Load two 8-byte lanes from arbitrary addresses encoded as a [base] address plus a
+        respective 32-bit [offset] multiplied by [scale], subject to [mask]. The top two
+        lanes of [offset] are ignored. If the top bit of each lane of [mask] is not set,
+        the corresponding load is not performed, and the result lane is copied from
+        [onto]. [scale] must be a literal equal to 1, 2, 4, or 8. Exposed as an external
+        so user code can compile without cross-library inlining. *)
+    external gather32
+      :  scale:int64#
+      -> onto:t
+      -> base:nativeint#
+      -> offset:int32x4#
+      -> mask:int64x2#
+      -> t
+      = "ocaml_simd_avx_unreachable" "caml_avx2_vec128_gather64_index32"
+    [@@noalloc] [@@builtin amd64]
   end
 
   module type Raw32 = sig @@ portable
@@ -95,6 +177,55 @@ module Vec128 = struct
         lane will not be written to memory, and page faults/memory exceptions will not be
         generated. *)
     val store_masked : nativeint# -> t -> mask:int32x4# -> unit
+
+    (** Load four 4-byte lanes from arbitrary addresses encoded as a [base] address plus a
+        respective 64-bit [offset] multiplied by [scale], subject to [mask]. If the top
+        bit of each lane of [mask] is not set, the corresponding load is not performed,
+        and the result lane is copied from [onto]. [scale] must be a literal equal to 1,
+        2, 4, or 8. Exposed as an external so user code can compile without cross-library
+        inlining. *)
+    external gather
+      :  scale:int64#
+      -> onto:t
+      -> base:nativeint#
+      -> offset:int64x4#
+      -> mask:int32x4#
+      -> t
+      = "ocaml_simd_avx_unreachable" "caml_avx2_vec256_gather32_index64"
+    [@@noalloc] [@@builtin amd64]
+
+    (** Load the bottom two 4-byte lanes from arbitrary addresses encoded as a [base]
+        address plus a respective 64-bit [offset] multiplied by [scale], subject to
+        [mask]. The top two 4-byte lanes are zeroed regardless of [mask]. If the top bit
+        of each of the lower two lanes of [mask] is not set, the corresponding load is not
+        performed, and the result lane is copied from [onto]. [scale] must be a literal
+        equal to 1, 2, 4, or 8. Exposed as an external so user code can compile without
+        cross-library inlining. *)
+    external gather_low
+      :  scale:int64#
+      -> onto:t
+      -> base:nativeint#
+      -> offset:int64x2#
+      -> mask:int32x4#
+      -> t
+      = "ocaml_simd_avx_unreachable" "caml_avx2_vec128_gather32_index64"
+    [@@noalloc] [@@builtin amd64]
+
+    (** Load four 4-byte lanes from arbitrary addresses encoded as a [base] address plus a
+        respective 32-bit [offset] multiplied by [scale], subject to [mask]. If the top
+        bit of each lane of [mask] is not set, the corresponding load is not performed,
+        and the result lane is copied from [onto]. [scale] must be a literal equal to 1,
+        2, 4, or 8. Exposed as an external so user code can compile without cross-library
+        inlining. *)
+    external gather32
+      :  scale:int64#
+      -> onto:t
+      -> base:nativeint#
+      -> offset:int32x4#
+      -> mask:int32x4#
+      -> t
+      = "ocaml_simd_avx_unreachable" "caml_avx2_vec128_gather32_index32"
+    [@@noalloc] [@@builtin amd64]
   end
 end
 
@@ -408,6 +539,50 @@ module type Nativeint_u_array_accessors = sig @@ portable
   val unsafe_set : nativeint# array @ local -> idx:index -> int64x4# -> unit
 end
 
+module type Int8_u_array_accessors = sig @@ portable
+  type index : any
+
+  (** Load thirty-two int8s from a [int8# array] at an arbitrary (unaligned) index.
+
+      @raise Invalid_argument if [idx..idx+31] fails bounds checking. *)
+  val get : int8# array @ local read -> idx:index -> int8x32#
+
+  (** Load thirty-two int8s from a [int8# array] at an arbitrary (unaligned) index. Does
+      not check bounds. *)
+  val unsafe_get : int8# array @ local read -> idx:index -> int8x32#
+
+  (** Store thirty-two int8s to a [int8# array] at an arbitrary (unaligned) index.
+
+      @raise Invalid_argument if [idx..idx+31] fails bounds checking. *)
+  val set : int8# array @ local -> idx:index -> int8x32# -> unit
+
+  (** Store thirty-two int8s to a [int8# array] at an arbitrary (unaligned) index. Does
+      not check bounds. *)
+  val unsafe_set : int8# array @ local -> idx:index -> int8x32# -> unit
+end
+
+module type Int16_u_array_accessors = sig @@ portable
+  type index : any
+
+  (** Load sixteen int16s from a [int16# array] at an arbitrary (unaligned) index.
+
+      @raise Invalid_argument if [idx..idx+15] fails bounds checking. *)
+  val get : int16# array @ local read -> idx:index -> int16x16#
+
+  (** Load sixteen int16s from a [int16# array] at an arbitrary (unaligned) index. Does
+      not check bounds. *)
+  val unsafe_get : int16# array @ local read -> idx:index -> int16x16#
+
+  (** Store sixteen int16s to a [int16# array] at an arbitrary (unaligned) index.
+
+      @raise Invalid_argument if [idx..idx+15] fails bounds checking. *)
+  val set : int16# array @ local -> idx:index -> int16x16# -> unit
+
+  (** Store sixteen int16s to a [int16# array] at an arbitrary (unaligned) index. Does not
+      check bounds. *)
+  val unsafe_set : int16# array @ local -> idx:index -> int16x16# -> unit
+end
+
 module type Int32_u_array_accessors = sig @@ portable
   type index : any
 
@@ -437,6 +612,8 @@ module type String = sig @@ portable
   (** @inline *)
   include String_accessors with type t := t and type index := int
 
+  module Int8_u : String_accessors with type t := t and type index := int8#
+  module Int16_u : String_accessors with type t := t and type index := int16#
   module Int32_u : String_accessors with type t := t and type index := int32#
   module Int64_u : String_accessors with type t := t and type index := int64#
   module Nativeint_u : String_accessors with type t := t and type index := nativeint#
@@ -449,6 +626,8 @@ module type Bytes = sig @@ portable
   (** @inline *)
   include Bytes_accessors with type t := t and type index := int
 
+  module Int8_u : Bytes_accessors with type t := t and type index := int8#
+  module Int16_u : Bytes_accessors with type t := t and type index := int16#
   module Int32_u : Bytes_accessors with type t := t and type index := int32#
   module Int64_u : Bytes_accessors with type t := t and type index := int64#
   module Nativeint_u : Bytes_accessors with type t := t and type index := nativeint#
@@ -461,6 +640,8 @@ module type Bigstring = sig @@ portable
   (** @inline *)
   include Bigstring_accessors with type t := t and type index := int
 
+  module Int8_u : Bigstring_accessors with type t := t and type index := int8#
+  module Int16_u : Bigstring_accessors with type t := t and type index := int16#
   module Int32_u : Bigstring_accessors with type t := t and type index := int32#
   module Int64_u : Bigstring_accessors with type t := t and type index := int64#
   module Nativeint_u : Bigstring_accessors with type t := t and type index := nativeint#
@@ -485,11 +666,15 @@ module type Load_store = sig @@ portable
   module type Float32_u_array_accessors = Float32_u_array_accessors
   module type Int64_u_array_accessors = Int64_u_array_accessors
   module type Nativeint_u_array_accessors = Nativeint_u_array_accessors
+  module type Int8_u_array_accessors = Int8_u_array_accessors
+  module type Int16_u_array_accessors = Int16_u_array_accessors
   module type Int32_u_array_accessors = Int32_u_array_accessors
 
   module Float_array : sig
     include Float_array_accessors with type index := int (** @inline *)
 
+    module Int8_u : Float_array_accessors with type index := int8#
+    module Int16_u : Float_array_accessors with type index := int16#
     module Int32_u : Float_array_accessors with type index := int32#
     module Int64_u : Float_array_accessors with type index := int64#
     module Nativeint_u : Float_array_accessors with type index := nativeint#
@@ -498,6 +683,8 @@ module type Load_store = sig @@ portable
   module Floatarray : sig
     include Floatarray_accessors with type index := int (** @inline *)
 
+    module Int8_u : Floatarray_accessors with type index := int8#
+    module Int16_u : Floatarray_accessors with type index := int16#
     module Int32_u : Floatarray_accessors with type index := int32#
     module Int64_u : Floatarray_accessors with type index := int64#
     module Nativeint_u : Floatarray_accessors with type index := nativeint#
@@ -506,6 +693,8 @@ module type Load_store = sig @@ portable
   module Float_iarray : sig
     include Float_iarray_accessors with type index := int (** @inline *)
 
+    module Int8_u : Float_iarray_accessors with type index := int8#
+    module Int16_u : Float_iarray_accessors with type index := int16#
     module Int32_u : Float_iarray_accessors with type index := int32#
     module Int64_u : Float_iarray_accessors with type index := int64#
     module Nativeint_u : Float_iarray_accessors with type index := nativeint#
@@ -514,6 +703,8 @@ module type Load_store = sig @@ portable
   module Unsafe_immediate_array : sig
     include Unsafe_immediate_array_accessors with type index := int (** @inline *)
 
+    module Int8_u : Unsafe_immediate_array_accessors with type index := int8#
+    module Int16_u : Unsafe_immediate_array_accessors with type index := int16#
     module Int32_u : Unsafe_immediate_array_accessors with type index := int32#
     module Int64_u : Unsafe_immediate_array_accessors with type index := int64#
     module Nativeint_u : Unsafe_immediate_array_accessors with type index := nativeint#
@@ -522,6 +713,8 @@ module type Load_store = sig @@ portable
   module Unsafe_immediate_iarray : sig
     include Unsafe_immediate_iarray_accessors with type index := int (** @inline *)
 
+    module Int8_u : Unsafe_immediate_iarray_accessors with type index := int8#
+    module Int16_u : Unsafe_immediate_iarray_accessors with type index := int16#
     module Int32_u : Unsafe_immediate_iarray_accessors with type index := int32#
     module Int64_u : Unsafe_immediate_iarray_accessors with type index := int64#
     module Nativeint_u : Unsafe_immediate_iarray_accessors with type index := nativeint#
@@ -530,6 +723,8 @@ module type Load_store = sig @@ portable
   module Float_u_array : sig
     include Float_u_array_accessors with type index := int (** @inline *)
 
+    module Int8_u : Float_u_array_accessors with type index := int8#
+    module Int16_u : Float_u_array_accessors with type index := int16#
     module Int32_u : Float_u_array_accessors with type index := int32#
     module Int64_u : Float_u_array_accessors with type index := int64#
     module Nativeint_u : Float_u_array_accessors with type index := nativeint#
@@ -538,6 +733,8 @@ module type Load_store = sig @@ portable
   module Float32_u_array : sig
     include Float32_u_array_accessors with type index := int (** @inline *)
 
+    module Int8_u : Float32_u_array_accessors with type index := int8#
+    module Int16_u : Float32_u_array_accessors with type index := int16#
     module Int32_u : Float32_u_array_accessors with type index := int32#
     module Int64_u : Float32_u_array_accessors with type index := int64#
     module Nativeint_u : Float32_u_array_accessors with type index := nativeint#
@@ -546,6 +743,8 @@ module type Load_store = sig @@ portable
   module Int64_u_array : sig
     include Int64_u_array_accessors with type index := int (** @inline *)
 
+    module Int8_u : Int64_u_array_accessors with type index := int8#
+    module Int16_u : Int64_u_array_accessors with type index := int16#
     module Int32_u : Int64_u_array_accessors with type index := int32#
     module Int64_u : Int64_u_array_accessors with type index := int64#
     module Nativeint_u : Int64_u_array_accessors with type index := nativeint#
@@ -554,14 +753,38 @@ module type Load_store = sig @@ portable
   module Nativeint_u_array : sig
     include Nativeint_u_array_accessors with type index := int (** @inline *)
 
+    module Int8_u : Nativeint_u_array_accessors with type index := int8#
+    module Int16_u : Nativeint_u_array_accessors with type index := int16#
     module Int32_u : Nativeint_u_array_accessors with type index := int32#
     module Int64_u : Nativeint_u_array_accessors with type index := int64#
     module Nativeint_u : Nativeint_u_array_accessors with type index := nativeint#
   end
 
+  module Int8_u_array : sig
+    include Int8_u_array_accessors with type index := int (** @inline *)
+
+    module Int8_u : Int8_u_array_accessors with type index := int8#
+    module Int16_u : Int8_u_array_accessors with type index := int16#
+    module Int32_u : Int8_u_array_accessors with type index := int32#
+    module Int64_u : Int8_u_array_accessors with type index := int64#
+    module Nativeint_u : Int8_u_array_accessors with type index := nativeint#
+  end
+
+  module Int16_u_array : sig
+    include Int16_u_array_accessors with type index := int (** @inline *)
+
+    module Int8_u : Int16_u_array_accessors with type index := int8#
+    module Int16_u : Int16_u_array_accessors with type index := int16#
+    module Int32_u : Int16_u_array_accessors with type index := int32#
+    module Int64_u : Int16_u_array_accessors with type index := int64#
+    module Nativeint_u : Int16_u_array_accessors with type index := nativeint#
+  end
+
   module Int32_u_array : sig
     include Int32_u_array_accessors with type index := int (** @inline *)
 
+    module Int8_u : Int32_u_array_accessors with type index := int8#
+    module Int16_u : Int32_u_array_accessors with type index := int16#
     module Int32_u : Int32_u_array_accessors with type index := int32#
     module Int64_u : Int32_u_array_accessors with type index := int64#
     module Nativeint_u : Int32_u_array_accessors with type index := nativeint#
@@ -620,7 +843,7 @@ module type Load_store = sig @@ portable
 
   module Vec128 : sig
     include module type of struct
-      include Ocaml_simd_sse.Load_store (** @inline *)
+      include Ocaml_simd_sse.Vec128.Load_store (** @inline *)
     end
 
     module Raw_Int32x4 : sig

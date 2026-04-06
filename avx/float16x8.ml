@@ -5,7 +5,7 @@ external of_float16x16
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_vec256_low_to_vec128"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (* These intrinsics expect [0x0..0x7], but [%float_round] generates [0x8..0xC]. *)
 module Round = struct
@@ -24,7 +24,7 @@ external of_float32x4
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_f16c_cvt_float32x4_float16x8"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external of_float32x8
   :  Round.t
@@ -32,7 +32,7 @@ external of_float32x8
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_f16c_cvt_float32x8_float16x8"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 let[@inline] of_float32x4_nearest x = of_float32x4 (Round.nearest ()) x
 let[@inline] of_float32x4_current x = of_float32x4 (Round.current ()) x

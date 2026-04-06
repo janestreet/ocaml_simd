@@ -17,7 +17,7 @@ external const1
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_float32x8_const1"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external const
   :  float32#
@@ -31,7 +31,7 @@ external const
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_float32x8_const8"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external insert_lane
   :  idx:int64#
@@ -40,7 +40,7 @@ external insert_lane
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_insert_128"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external extract_lane
   :  idx:int64#
@@ -48,12 +48,12 @@ external extract_lane
   -> float32x4#
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_extract_128"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
-let[@inline] zero () = const1 #0.0s
-let[@inline] one () = const1 #1.0s
-let[@inline] sign32_mask () = Int32x8_internal.const1 #0x80000000l
-let[@inline] absf32_mask () = Int32x8_internal.const1 #0x7fffffffl
+let zero = const1 #0.0s
+let one = const1 #1.0s
+let sign32_mask = Int32x8_internal.const1 #0x80000000l
+let absf32_mask = Int32x8_internal.const1 #0x7fffffffl
 let[@inline] set1 x = I.broadcast_32 (I.F32x4.low_of x)
 
 let[@inline] set a b c d e f g h =
@@ -71,7 +71,7 @@ external blend
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_blend_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shuffle_lanes
   :  (Ocaml_simd.Shuffle4.t[@untagged])
@@ -80,7 +80,7 @@ external shuffle_lanes
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128x2_shuffle_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external permute_lanes
   :  (Ocaml_simd.Permute4.t[@untagged])
@@ -88,7 +88,7 @@ external permute_lanes
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128x2_permute_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external permute_lanes_by
   :  t
@@ -96,7 +96,7 @@ external permute_lanes_by
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128x2_permutev_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 let[@inline] insert ~idx t a =
   let a = set1 a in
@@ -188,15 +188,8 @@ let[@inline] add x y = I.add x y
 let[@inline] sub x y = I.sub x y
 let[@inline] mul x y = I.mul x y
 let[@inline] div x y = I.div x y
-
-let[@inline] neg x =
-  Int32x8_internal.(xor (sign32_mask ()) (of_float32x8 x)) |> I.of_int32x8
-;;
-
-let[@inline] abs x =
-  Int32x8_internal.(and_ (absf32_mask ()) (of_float32x8 x)) |> I.of_int32x8
-;;
-
+let[@inline] neg x = Int32x8_internal.(xor sign32_mask (of_float32x8 x)) |> I.of_int32x8
+let[@inline] abs x = Int32x8_internal.(and_ absf32_mask (of_float32x8 x)) |> I.of_int32x8
 let[@inline] rcp x = I.rcp x
 let[@inline] rsqrt x = I.rsqrt x
 let[@inline] sqrt x = I.sqrt x
@@ -226,6 +219,7 @@ let[@inline] ( - ) x y = I.sub x y
 let[@inline] ( / ) x y = I.div x y
 let[@inline] ( * ) x y = I.mul x y
 let[@inline] iround_current x = I.cvt_i32 x
+let[@inline] iround_trunc x = I.cvtt_i32 x
 let[@inline] round_nearest x = I.round [%float_round Nearest] x
 let[@inline] round_current x = I.round [%float_round Current] x
 let[@inline] round_down x = I.round [%float_round Negative_infinity] x
@@ -246,7 +240,7 @@ external of_float16x8
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_f16c_cvt_float16x8_float32x8"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 let[@inline] to_string x =
   let bx x = Float32_u.to_float x in

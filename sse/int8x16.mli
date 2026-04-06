@@ -9,10 +9,10 @@ val unbox : int8x16 @ local -> t
 (* Creation *)
 
 (** Equivalent to [const1 0]. *)
-val zero : unit -> t
+val zero : t
 
 (** Equivalent to [const1 1]. *)
-val one : unit -> t
+val one : t
 
 (** [_mm_set1_epi8] Compiles to mov,pshufb *)
 val set1 : int8# -> t
@@ -71,6 +71,7 @@ module Raw = Load_store.Raw_Int8x16
 module String = Load_store.String_Int8x16
 module Bytes = Load_store.Bytes_Int8x16
 module Bigstring = Load_store.Bigstring_Int8x16
+module Int8_u_array = Load_store.Int8_u_array
 
 (* Control Flow *)
 
@@ -154,7 +155,7 @@ external concat_shift_right_bytes
   -> t
   -> t
   = "ocaml_simd_sse_unreachable" "caml_ssse3_vec128_align_right_bytes"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (* Math *)
 
@@ -200,8 +201,10 @@ external shifti_left_bytes
   :  int64#
   -> t
   -> t
-  = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shift_left_bytes"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin
+  (amd64, "caml_sse2_vec128_shift_left_bytes") (arm64, "caml_neon_vec128_shift_left_bytes")]
 
 (** [_mm_bsrli_si128] First argument must be an unsigned integer literal in [0,15].
     Exposed as an external so user code can compile without cross-library inlining. *)
@@ -209,8 +212,11 @@ external shifti_right_bytes
   :  int64#
   -> t
   -> t
-  = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shift_right_bytes"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin
+  (amd64, "caml_sse2_vec128_shift_right_bytes")
+    (arm64, "caml_neon_vec128_shift_right_bytes")]
 
 (** [_mm_sign_epi8] *)
 val mul_sign : t -> t -> t
@@ -229,7 +235,7 @@ external multi_sum_absolute_differences_unsigned
   -> t
   -> int16x8#
   = "ocaml_simd_sse_unreachable" "caml_sse41_int8x16_multi_sad_unsigned"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm_maddubs_epi16] *)
 val mul_unsigned_by_signed_horizontal_add_saturating : t -> t -> int16x8#

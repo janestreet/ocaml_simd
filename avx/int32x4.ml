@@ -6,14 +6,14 @@ external low_of
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_int32x4_low_of_int32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external broadcast
   :  t
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128_broadcast_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external permute
   :  (Ocaml_simd.Permute4.t[@untagged])
@@ -21,7 +21,7 @@ external permute
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128_permute_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external permute_by
   :  t
@@ -29,7 +29,7 @@ external permute_by
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128_permutev_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shift_left_logical_by
   :  t
@@ -37,7 +37,7 @@ external shift_left_logical_by
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_int32x4_sllv"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shift_right_logical_by
   :  t
@@ -45,7 +45,7 @@ external shift_right_logical_by
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_int32x4_srlv"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shift_right_arithmetic_by
   :  t
@@ -53,7 +53,7 @@ external shift_right_arithmetic_by
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_int32x4_srav"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 let[@inline] set1 x = broadcast (low_of x)
 let[@inline] of_float64x4 x = Float64x4_internal.cvt_i32 x

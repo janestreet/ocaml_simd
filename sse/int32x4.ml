@@ -37,11 +37,11 @@ external shuffle
   -> t
   @@ portable
   = "ocaml_simd_sse_unreachable" "caml_sse_vec128_shuffle_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
-let[@inline] zero () = const1 #0l
-let[@inline] one () = const1 #1l
-let[@inline] all_ones () = const1 #0xffffffffl
+let zero = const1 #0l
+let one = const1 #1l
+let all_ones = const1 #0xffffffffl
 
 let[@inline] set1 a =
   let a = I.low_of a in
@@ -104,7 +104,7 @@ let[@inline] ( <= ) x y = I.(or_ (cmpgt y x) (cmpeq x y))
 let[@inline] ( = ) x y = I.cmpeq x y
 let[@inline] ( > ) x y = I.cmpgt x y
 let[@inline] ( < ) x y = I.cmpgt y x
-let[@inline] ( <> ) x y = I.(xor (all_ones ()) (cmpeq x y))
+let[@inline] ( <> ) x y = I.(xor all_ones (cmpeq x y))
 let[@inline] equal x y = I.cmpeq x y
 let[@inline] interleave_upper ~even ~odd = I.interleave_high_32 even odd
 let[@inline] interleave_lower ~even ~odd = I.interleave_low_32 even odd
@@ -118,7 +118,7 @@ external blend
   -> t
   @@ portable
   = "ocaml_simd_sse_unreachable" "caml_sse41_vec128_blend_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 let[@inline] min x y = I.min x y
 let[@inline] max x y = I.max x y
@@ -126,7 +126,7 @@ let[@inline] min_unsigned x y = I.min_unsigned x y
 let[@inline] max_unsigned x y = I.max_unsigned x y
 let[@inline] add x y = I.add x y
 let[@inline] sub x y = I.sub x y
-let[@inline] neg x = I.(mul_sign x (all_ones ()))
+let[@inline] neg x = I.(mul_sign x all_ones)
 let[@inline] abs x = I.abs x
 
 external shifti_left_bytes
@@ -134,40 +134,48 @@ external shifti_left_bytes
   -> t
   -> t
   @@ portable
-  = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shift_left_bytes"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin
+  (amd64, "caml_sse2_vec128_shift_left_bytes") (arm64, "caml_neon_vec128_shift_left_bytes")]
 
 external shifti_right_bytes
   :  int64#
   -> t
   -> t
   @@ portable
-  = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shift_right_bytes"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin
+  (amd64, "caml_sse2_vec128_shift_right_bytes")
+    (arm64, "caml_neon_vec128_shift_right_bytes")]
 
 external shifti_left_logical
   :  int64#
   -> t
   -> t
   @@ portable
-  = "ocaml_simd_sse_unreachable" "caml_sse2_int32x4_slli"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin (amd64, "caml_sse2_int32x4_slli") (arm64, "caml_neon_int32x4_slli")]
 
 external shifti_right_logical
   :  int64#
   -> t
   -> t
   @@ portable
-  = "ocaml_simd_sse_unreachable" "caml_sse2_int32x4_srli"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin (amd64, "caml_sse2_int32x4_srli") (arm64, "caml_neon_int32x4_srli")]
 
 external shifti_right_arithmetic
   :  int64#
   -> t
   -> t
   @@ portable
-  = "ocaml_simd_sse_unreachable" "caml_sse2_int32x4_srai"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin (amd64, "caml_sse2_int32x4_srai") (arm64, "caml_neon_int32x4_srai")]
 
 let[@inline] horizontal_add x y = I.horizontal_add x y
 let[@inline] horizontal_sub x y = I.horizontal_sub x y
@@ -180,8 +188,14 @@ let[@inline] ( - ) x y = I.sub x y
 let[@inline] ( lor ) x y = I.or_ x y
 let[@inline] ( land ) x y = I.and_ x y
 let[@inline] ( lxor ) x y = I.xor x y
-let[@inline] lnot m = I.(xor (all_ones ()) m)
-let[@inline] landnot ~not y = I.andnot ~not y
+let[@inline] lnot m = I.(xor all_ones m)
+
+let[@inline] landnot ~not y =
+  match Sys.arch with
+  | Amd64 -> I.Sse.andnot ~not y
+  | Arm64 -> I.and_ (lnot not) y
+;;
+
 let[@inline] of_float16x8_bits x = I.of_float16x8 x
 let[@inline] of_float32x4_bits x = I.of_float32x4 x
 let[@inline] of_float64x2_bits x = I.of_float64x2 x
@@ -190,26 +204,65 @@ let[@inline] of_int16x8_bits x = I.of_int16x8 x
 let[@inline] of_int64x2_bits x = I.of_int64x2 x
 let[@inline] of_float32x4 x = Float32x4_internal.cvt_i32 x
 let[@inline] of_float32x4_trunc x = Float32x4_internal.cvtt_i32 x
-let[@inline] of_int8x16 x = Int8x16_internal.cvtsx_i32 x
-let[@inline] of_int8x16_unsigned x = Int8x16_internal.cvtzx_i32 x
+
+let[@inline] of_int8x16 x =
+  match Sys.arch with
+  | Amd64 -> Int8x16_internal.Sse.cvtsx_i32 x
+  | Arm64 -> Int8x16_internal.cvtsx_i16 x |> Int16x8_internal.cvtsx_i32
+;;
+
+let[@inline] of_int8x16_unsigned x =
+  match Sys.arch with
+  | Amd64 -> Int8x16_internal.Sse.cvtzx_i32 x
+  | Arm64 -> Int8x16_internal.cvtzx_i16 x |> Int16x8_internal.cvtzx_i32
+;;
+
 let[@inline] of_int16x8 x = Int16x8_internal.cvtsx_i32 x
 let[@inline] of_int16x8_unsigned x = Int16x8_internal.cvtzx_i32 x
-let[@inline] of_float64x2 x = Float64x2_internal.cvt_i32 x
-let[@inline] of_float64x2_trunc x = Float64x2_internal.cvtt_i32 x
+
+let[@inline] of_float64x2 x =
+  match Sys.arch with
+  | Amd64 -> Float64x2_internal.Sse.cvt_i32 x
+  | Arm64 -> Float64x2_internal.Neon.cvt_i64 x |> Int64x2_internal.Neon.cvt_i32_saturating
+;;
+
+let[@inline] of_float64x2_trunc x =
+  match Sys.arch with
+  | Amd64 -> Float64x2_internal.Sse.cvtt_i32 x
+  | Arm64 ->
+    Float64x2_internal.Neon.cvtt_i64 x |> Int64x2_internal.Neon.cvt_i32_saturating
+;;
+
+external i64_to_i32 : int64# -> int32# @@ portable = "%int32#_of_int64#"
 
 let[@inline] shift_left_logical x i =
-  let c = Int64x2_internal.low_of i in
-  I.(sll x c)
+  match Sys.arch with
+  | Amd64 ->
+    let c = Int64x2_internal.low_of i in
+    I.Sse.sll x c
+  | Arm64 ->
+    let c = I.low_of (i64_to_i32 i) in
+    I.Neon.shift x (I.Neon.broadcast c)
 ;;
 
 let[@inline] shift_right_logical x i =
-  let c = Int64x2_internal.low_of i in
-  I.(srl x c)
+  match Sys.arch with
+  | Amd64 ->
+    let c = Int64x2_internal.low_of i in
+    I.Sse.srl x c
+  | Arm64 ->
+    let c = I.low_of (i64_to_i32 (Int64_u.neg i)) in
+    I.Neon.shift_logical x (I.Neon.broadcast c)
 ;;
 
 let[@inline] shift_right_arithmetic x i =
-  let c = Int64x2_internal.low_of i in
-  I.(sra x c)
+  match Sys.arch with
+  | Amd64 ->
+    let c = Int64x2_internal.low_of i in
+    I.Sse.sra x c
+  | Arm64 ->
+    let c = I.low_of (i64_to_i32 (Int64_u.neg i)) in
+    I.Neon.shift x (I.Neon.broadcast c)
 ;;
 
 let[@inline] to_string x =

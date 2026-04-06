@@ -5,4 +5,4 @@
  (libraries ocaml_simd ppxlib)
  (ppx_runtime_libraries ocaml_simd)
  (preprocess
-  (pps ppx_jane ppxlib.metaquot)))
+  (pps ppx_jane ppxlib.metaquot -compare-require-explicit-locality)))

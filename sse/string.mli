@@ -102,7 +102,7 @@ module Byte : sig
     -> b_len:int64#
     -> mask
     = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestrm"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   (** Specify comparison with pxp_simd: [%bytes S, C, P] where (S : Signed.t), (C :
       Comparison.t), (P : Polarity.t) *)
@@ -114,7 +114,7 @@ module Byte : sig
     -> b_len:int64#
     -> int64#
     = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestra"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   (** Specify comparison with pxp_simd: [%bytes S, C, P] where (S : Signed.t), (C :
       Comparison.t), (P : Polarity.t) *)
@@ -126,7 +126,7 @@ module Byte : sig
     -> b_len:int64#
     -> int64#
     = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestrc"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   (** Specify comparison with pxp_simd: [%bytes S, C, P, I] where (S : Signed.t), (C :
       Comparison.t), (P : Polarity.t), (I : Index.t) *)
@@ -138,7 +138,7 @@ module Byte : sig
     -> b_len:int64#
     -> int64#
     = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestri"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   (** Specify comparison with pxp_simd: [%bytes S, C, P] where (S : Signed.t), (C :
       Comparison.t), (P : Polarity.t) *)
@@ -150,7 +150,7 @@ module Byte : sig
     -> b_len:int64#
     -> int64#
     = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestro"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   val cmpestrs : a:t -> b:t -> a_len:int64# -> b_len:int64# -> int64#
   val cmpestrz : a:t -> b:t -> a_len:int64# -> b_len:int64# -> int64#
@@ -163,7 +163,7 @@ module Byte : sig
     -> b:t
     -> mask
     = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistrm"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   (** Specify comparison with pxp_simd: [%bytes S, C, P] where (S : Signed.t), (C :
       Comparison.t), (P : Polarity.t) *)
@@ -173,7 +173,7 @@ module Byte : sig
     -> b:t
     -> int64#
     = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistra"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   (** Specify comparison with pxp_simd: [%bytes S, C, P] where (S : Signed.t), (C :
       Comparison.t), (P : Polarity.t) *)
@@ -183,7 +183,7 @@ module Byte : sig
     -> b:t
     -> int64#
     = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistrc"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   (** Specify comparison with pxp_simd: [%bytes S, C, P, I] where (S : Signed.t), (C :
       Comparison.t), (P : Polarity.t), (I : Index.t) *)
@@ -193,7 +193,7 @@ module Byte : sig
     -> b:t
     -> int64#
     = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistri"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   (** Specify comparison with pxp_simd: [%bytes S, C, P] where (S : Signed.t), (C :
       Comparison.t), (P : Polarity.t) *)
@@ -203,7 +203,7 @@ module Byte : sig
     -> b:t
     -> int64#
     = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistro"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   val cmpistrs : a:t -> b:t -> int64#
   val cmpistrz : a:t -> b:t -> int64#
@@ -223,7 +223,7 @@ module Word : sig
     -> b_len:int64#
     -> mask
     = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestrm"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   (** Specify comparison with pxp_simd: [%words S, C, P] where (S : Signed.t), (C :
       Comparison.t), (P : Polarity.t) *)
@@ -235,7 +235,7 @@ module Word : sig
     -> b_len:int64#
     -> int64#
     = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestra"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   (** Specify comparison with pxp_simd: [%words S, C, P] where (S : Signed.t), (C :
       Comparison.t), (P : Polarity.t) *)
@@ -247,7 +247,7 @@ module Word : sig
     -> b_len:int64#
     -> int64#
     = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestrc"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   (** Specify comparison with pxp_simd: [%words S, C, P, I] where (S : Signed.t), (C :
       Comparison.t), (P : Polarity.t), (I : Index.t) *)
@@ -259,7 +259,7 @@ module Word : sig
     -> b_len:int64#
     -> int64#
     = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestri"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   (** Specify comparison with pxp_simd: [%words S, C, P] where (S : Signed.t), (C :
       Comparison.t), (P : Polarity.t) *)
@@ -271,7 +271,7 @@ module Word : sig
     -> b_len:int64#
     -> int64#
     = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpestro"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   val cmpestrs : a:t -> b:t -> a_len:int64# -> b_len:int64# -> int64#
   val cmpestrz : a:t -> b:t -> a_len:int64# -> b_len:int64# -> int64#
@@ -284,7 +284,7 @@ module Word : sig
     -> b:t
     -> mask
     = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistrm"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   (** Specify comparison with pxp_simd: [%words S, C, P] where (S : Signed.t), (C :
       Comparison.t), (P : Polarity.t) *)
@@ -294,7 +294,7 @@ module Word : sig
     -> b:t
     -> int64#
     = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistra"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   (** Specify comparison with pxp_simd: [%words S, C, P] where (S : Signed.t), (C :
       Comparison.t), (P : Polarity.t) *)
@@ -304,7 +304,7 @@ module Word : sig
     -> b:t
     -> int64#
     = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistrc"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   (** Specify comparison with pxp_simd: [%words S, C, P, I] where (S : Signed.t), (C :
       Comparison.t), (P : Polarity.t), (I : Index.t) *)
@@ -314,7 +314,7 @@ module Word : sig
     -> b:t
     -> int64#
     = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistri"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   (** Specify comparison with pxp_simd: [%words S, C, P] where (S : Signed.t), (C :
       Comparison.t), (P : Polarity.t) *)
@@ -324,7 +324,7 @@ module Word : sig
     -> b:t
     -> int64#
     = "ocaml_simd_sse_unreachable" "caml_sse42_vec128_cmpistro"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   val cmpistrs : a:t -> b:t -> int64#
   val cmpistrz : a:t -> b:t -> int64#

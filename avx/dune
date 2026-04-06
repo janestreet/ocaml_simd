@@ -2,11 +2,19 @@
  (foreign_stubs
   (language c)
   (names avx_stubs)
-  (flags :standard -mavx2))
+  (flags
+   (:standard
+    (:include c_flags.sexp))
+   (-I ../simde)))
  (name ocaml_simd_avx)
  (public_name ocaml_simd.avx)
  (modes native)
  (libraries base unboxed.float32_u unboxed.float_u unboxed.int32_u
    unboxed.int64_u ocaml_simd_sse stdlib_stable)
  (preprocess
-  (pps ppx_simd ppx_template)))
+  (pps ppx_simd ppx_template ppx_builtin)))
+
+(rule
+ (targets c_flags.sexp)
+ (action
+  (run ./discover/ocaml_simd_avx_discover.exe %{targets})))

@@ -28,7 +28,7 @@ external insert_lane
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_insert_128"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [idx] must be a literal in [0,1]. Operates on two float16x8 lanes. Exposed as an
     external so user code can compile without cross-library inlining. *)
@@ -38,7 +38,7 @@ external extract_lane
   -> float16x8#
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_extract_128"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** Projection. Has no runtime cost. Operates on two float16x8 lanes. *)
 val extract_lane0 : t -> float16x8#
@@ -116,7 +116,7 @@ external blend_lanes
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_blend_16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm256_shufflehi_epi16] Specify shuffle with ppx_simd: [%shuffle N, N, N, N], where
     each N is in [0,3]. Operates on two float16x8 lanes. Exposed as an external so user
@@ -146,7 +146,7 @@ external shuffle_upper_lanes
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_shuffle_high_16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm256_shufflelo_epi16] Specify shuffle with ppx_simd: [%shuffle N, N, N, N], where
     each N is in [0,3]. Operates on two float16x8 lanes. Exposed as an external so user
@@ -176,7 +176,7 @@ external shuffle_lower_lanes
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_shuffle_low_16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (* Casts *)
 

@@ -7,7 +7,7 @@ external permute
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128_permute_64"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external permute_by
   :  t
@@ -15,7 +15,7 @@ external permute_by
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128_permutev_64"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external mul_add
   :  t
@@ -24,7 +24,7 @@ external mul_add
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_fma_float64x2_mul_add"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external mul_sub
   :  t
@@ -33,7 +33,7 @@ external mul_sub
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_fma_float64x2_mul_sub"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external mul_add_sub
   :  t
@@ -42,7 +42,7 @@ external mul_add_sub
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_fma_float64x2_mul_addsub"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external mul_sub_add
   :  t
@@ -51,7 +51,7 @@ external mul_sub_add
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_fma_float64x2_mul_subadd"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external neg_mul_add
   :  t
@@ -60,7 +60,7 @@ external neg_mul_add
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_fma_float64x2_neg_mul_add"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external neg_mul_sub
   :  t
@@ -69,6 +69,6 @@ external neg_mul_sub
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_fma_float64x2_neg_mul_sub"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 let[@inline] of_float64x4 x = Float64x4_internal.low_to_f64x2 x

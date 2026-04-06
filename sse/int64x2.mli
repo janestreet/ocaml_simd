@@ -9,10 +9,10 @@ val unbox : int64x2 @ local -> t
 (* Creation *)
 
 (** Equivalent to [const1 #0L]. *)
-val zero : unit -> t
+val zero : t
 
 (** Equivalent to [const1 #1L]. *)
-val one : unit -> t
+val one : t
 
 (** [_mm_set1_epi64x] Compiles to mov,shufpd. *)
 val set1 : int64# -> t
@@ -116,7 +116,7 @@ external blend
   -> t
   -> t
   = "ocaml_simd_sse_unreachable" "caml_sse41_vec128_blend_64"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm_shuffle_pd] Specify shuffle with ppx_simd: [%shuffle N, N], where each N is in
     [0,1]. Exposed as an external so user code can compile without cross-library inlining. *)
@@ -126,7 +126,7 @@ external shuffle
   -> t
   -> t
   = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shuffle_64"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (* Math *)
 
@@ -154,8 +154,10 @@ external shifti_left_bytes
   :  int64#
   -> t
   -> t
-  = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shift_left_bytes"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin
+  (amd64, "caml_sse2_vec128_shift_left_bytes") (arm64, "caml_neon_vec128_shift_left_bytes")]
 
 (** [_mm_bsrli_si128] First argument must be an unsigned integer literal in [0,15].
     Exposed as an external so user code can compile without cross-library inlining. *)
@@ -163,8 +165,11 @@ external shifti_right_bytes
   :  int64#
   -> t
   -> t
-  = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shift_right_bytes"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin
+  (amd64, "caml_sse2_vec128_shift_right_bytes")
+    (arm64, "caml_neon_vec128_shift_right_bytes")]
 
 (** [_mm_slli_epi64] First argument must be an unsigned integer literal in [0,63]. Exposed
     as an external so user code can compile without cross-library inlining. *)
@@ -172,8 +177,9 @@ external shifti_left_logical
   :  int64#
   -> t
   -> t
-  = "ocaml_simd_sse_unreachable" "caml_sse2_int64x2_slli"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin (amd64, "caml_sse2_int64x2_slli") (arm64, "caml_neon_int64x2_slli")]
 
 (** [_mm_srli_epi64] First argument must be an unsigned integer literal in [0,63]. Exposed
     as an external so user code can compile without cross-library inlining. *)
@@ -181,8 +187,9 @@ external shifti_right_logical
   :  int64#
   -> t
   -> t
-  = "ocaml_simd_sse_unreachable" "caml_sse2_int64x2_srli"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin (amd64, "caml_sse2_int64x2_srli") (arm64, "caml_neon_int64x2_srli")]
 
 (* [_mm_clmulepi64_si128] First argument must be an unsigned integer literal in [0,31].
    Exposed as an external so user code can compile without cross-library inlining. *)
@@ -192,7 +199,7 @@ external mul_without_carry
   -> t
   -> t
   = "ocaml_simd_sse_unreachable" "caml_clmul_int64x2"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (* Operators *)
 
@@ -246,10 +253,10 @@ val of_int16x8 : int16x8# -> t
 (** [_mm_cvtepu16_epi64] *)
 val of_int16x8_unsigned : int16x8# -> t
 
-(** [_mm_cvtepi16_epi64] *)
+(** [_mm_cvtepi32_epi64] *)
 val of_int32x4 : int32x4# -> t
 
-(** [_mm_cvtepu16_epi64] *)
+(** [_mm_cvtepu32_epi64] *)
 val of_int32x4_unsigned : int32x4# -> t
 
 (* Strings (Slow) *)

@@ -9,10 +9,10 @@ val unbox : int16x8 @ local -> t
 (* Creation *)
 
 (** Equivalent to [const1 0]. *)
-val zero : unit -> t
+val zero : t
 
 (** Equivalent to [const1 1]. *)
-val one : unit -> t
+val one : t
 
 (** [_mm_set1_epi16] Compiles to movd,pshufb. *)
 val set1 : int16# -> t
@@ -55,6 +55,7 @@ module Raw = Load_store.Raw_Int16x8
 module String = Load_store.String_Int16x8
 module Bytes = Load_store.Bytes_Int16x8
 module Bigstring = Load_store.Bigstring_Int16x8
+module Int16_u_array = Load_store.Int16_u_array
 
 (* Control Flow *)
 
@@ -110,7 +111,7 @@ external blend
   -> t
   -> t
   = "ocaml_simd_sse_unreachable" "caml_sse41_vec128_blend_16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm_shufflehi_epi16] Specify shuffle with ppx_simd: [%shuffle N, N, N, N], where each
     N is in [0,3]. Exposed as an external so user code can compile without cross-library
@@ -120,7 +121,7 @@ external shuffle_upper
   -> t
   -> t
   = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shuffle_high_16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm_shufflelo_epi16] Specify shuffle with ppx_simd: [%shuffle N, N, N, N], where each
     N is in [0,3]. Exposed as an external so user code can compile without cross-library
@@ -130,7 +131,7 @@ external shuffle_lower
   -> t
   -> t
   = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shuffle_low_16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (* Math *)
 
@@ -185,8 +186,10 @@ external shifti_left_bytes
   :  int64#
   -> t
   -> t
-  = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shift_left_bytes"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin
+  (amd64, "caml_sse2_vec128_shift_left_bytes") (arm64, "caml_neon_vec128_shift_left_bytes")]
 
 (** [_mm_bsrli_si128] First argument must be an unsigned integer literal in [0,15].
     Exposed as an external so user code can compile without cross-library inlining. *)
@@ -194,8 +197,11 @@ external shifti_right_bytes
   :  int64#
   -> t
   -> t
-  = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shift_right_bytes"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin
+  (amd64, "caml_sse2_vec128_shift_right_bytes")
+    (arm64, "caml_neon_vec128_shift_right_bytes")]
 
 (** [_mm_slli_epi16] First argument must be an unsigned integer literal in [0,15]. Exposed
     as an external so user code can compile without cross-library inlining. *)
@@ -203,8 +209,9 @@ external shifti_left_logical
   :  int64#
   -> t
   -> t
-  = "ocaml_simd_sse_unreachable" "caml_sse2_int16x8_slli"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin (amd64, "caml_sse2_int16x8_slli") (arm64, "caml_neon_int16x8_slli")]
 
 (** [_mm_srli_epi16] First argument must be an unsigned integer literal in [0,15]. Exposed
     as an external so user code can compile without cross-library inlining. *)
@@ -212,8 +219,9 @@ external shifti_right_logical
   :  int64#
   -> t
   -> t
-  = "ocaml_simd_sse_unreachable" "caml_sse2_int16x8_srli"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin (amd64, "caml_sse2_int16x8_srli") (arm64, "caml_neon_int16x8_srli")]
 
 (** [_mm_srai_epi16] First argument must be an unsigned integer literal in [0,15]. Exposed
     as an external so user code can compile without cross-library inlining. *)
@@ -221,8 +229,9 @@ external shifti_right_arithmetic
   :  int64#
   -> t
   -> t
-  = "ocaml_simd_sse_unreachable" "caml_sse2_int16x8_srai"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin (amd64, "caml_sse2_int16x8_srai") (arm64, "caml_neon_int16x8_srai")]
 
 (** [_mm_hadd_epi16] *)
 val horizontal_add : t -> t -> t

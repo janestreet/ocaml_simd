@@ -9,10 +9,10 @@ val unbox : float32x4 @ local -> t
 (* Creation *)
 
 (** Equivalent to [const1 #0.0s]. *)
-val zero : unit -> t
+val zero : t
 
 (** Equivalent to [const1 #1.0s]. *)
-val one : unit -> t
+val one : t
 
 (** [_mm_set1_ps] Compiles to shufps. *)
 val set1 : float32# -> t
@@ -117,7 +117,7 @@ external blend
   -> t
   -> t
   = "ocaml_simd_sse_unreachable" "caml_sse41_vec128_blend_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm_shuffle_ps] Specify shuffle with ppx_simd: [%shuffle N, N, N, N], where each N is
     in [0,3]. Exposed as an external so user code can compile without cross-library
@@ -128,7 +128,7 @@ external shuffle
   -> t
   -> t
   = "ocaml_simd_sse_unreachable" "caml_sse_vec128_shuffle_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (* Math *)
 
@@ -158,12 +158,10 @@ val neg : t -> t
 (** Compiles to and with a static constant. *)
 val abs : t -> t
 
-(** [_mm_rcp_ps] WARNING: result has relative error up to 1.5*2^-12, and may differ
-    between CPU vendors. *)
+(** [_mm_rcp_ps] WARNING: result has high relative error and differs across CPU vendors. *)
 val rcp : t -> t
 
-(** [_mm_rsqrt_ps] WARNING: result has relative error up to 1.5*2^-12, and may differ
-    between CPU vendors. *)
+(** [_mm_rsqrt_ps] WARNING: result has high relative error and differs across CPU vendors. *)
 val rsqrt : t -> t
 
 (** [_mm_sqrt_ps] *)
@@ -190,8 +188,13 @@ val ( * ) : t -> t -> t
 
 (* Rounding *)
 
-(** [_mm_cvtps_epi32] *)
+(** [_mm_cvtps_epi32] If the argument is NaN or infinite or if the rounded value cannot be
+    represented, the result is unspecified. Uses the current rounding mode. *)
 val iround_current : t -> int32x4#
+
+(** [_mm_cvttps_epi32] If the argument is NaN or infinite or if the rounded value cannot
+    be represented, the result is unspecified. *)
+val iround_trunc : t -> int32x4#
 
 (** [_mm_round_ps] *)
 val round_nearest : t -> t

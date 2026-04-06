@@ -12,13 +12,14 @@ module Raw = Load_store.Raw_Int8x32
 module String = Load_store.String_Int8x32
 module Bytes = Load_store.Bytes_Int8x32
 module Bigstring = Load_store.Bigstring_Int8x32
+module Int8_u_array = Load_store.Int8_u_array
 
 external const1
   :  int8#
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_int8x32_const1"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external const
   :  int8#
@@ -56,7 +57,7 @@ external const
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_int8x32_const32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external insert_lane
   :  idx:int64#
@@ -65,7 +66,7 @@ external insert_lane
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_insert_128"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external extract_lane
   :  idx:int64#
@@ -73,11 +74,11 @@ external extract_lane
   -> int8x16#
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_extract_128"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
-let[@inline] zero () = const1 #0s
-let[@inline] one () = const1 #1s
-let[@inline] all_ones () = const1 #0xffs
+let zero = const1 #0s
+let one = const1 #1s
+let all_ones = const1 #0xffs
 let[@inline] shuffle_lanes ~pattern x = I.shuffle_8 x pattern
 let[@inline] set1 x = I.broadcast_8 (I.I8x16.low_of x)
 
@@ -310,7 +311,7 @@ let[@inline] ( <= ) x y = I.(or_ (cmpgt y x) (cmpeq x y))
 let[@inline] ( = ) x y = I.cmpeq x y
 let[@inline] ( > ) x y = I.cmpgt x y
 let[@inline] ( < ) x y = I.cmpgt y x
-let[@inline] ( <> ) x y = I.(xor (all_ones ()) (cmpeq x y))
+let[@inline] ( <> ) x y = I.(xor all_ones (cmpeq x y))
 let[@inline] equal x y = I.cmpeq x y
 let[@inline] interleave_upper_lanes ~even ~odd = I.interleave_high_8 even odd
 let[@inline] interleave_lower_lanes ~even ~odd = I.interleave_low_8 even odd
@@ -324,7 +325,7 @@ let[@inline] add_saturating_unsigned x y = I.add_saturating_unsigned x y
 let[@inline] sub x y = I.sub x y
 let[@inline] sub_saturating x y = I.sub_saturating x y
 let[@inline] sub_saturating_unsigned x y = I.sub_saturating_unsigned x y
-let[@inline] neg x = I.(mul_sign x (all_ones ()))
+let[@inline] neg x = I.(mul_sign x all_ones)
 let[@inline] abs x = I.abs x
 
 external shifti_left_bytes_lanes
@@ -333,7 +334,7 @@ external shifti_left_bytes_lanes
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_shift_left_bytes"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shifti_right_bytes_lanes
   :  int64#
@@ -341,7 +342,7 @@ external shifti_right_bytes_lanes
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_shift_right_bytes"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external concat_shift_right_bytes_lanes
   :  int64#
@@ -350,7 +351,7 @@ external concat_shift_right_bytes_lanes
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128x2_align_right_bytes"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 let[@inline] mul_sign x y = I.mul_sign x y
 let[@inline] average_unsigned x y = I.avg_unsigned x y
@@ -359,7 +360,7 @@ let[@inline] ( - ) x y = I.sub x y
 let[@inline] ( lor ) x y = I.or_ x y
 let[@inline] ( land ) x y = I.and_ x y
 let[@inline] ( lxor ) x y = I.xor x y
-let[@inline] lnot m = I.(xor (all_ones ()) m)
+let[@inline] lnot m = I.(xor all_ones m)
 let[@inline] landnot ~not y = I.andnot ~not y
 let[@inline] sum_absolute_differences_unsigned x y = I.sadu x y
 
@@ -374,7 +375,7 @@ external multi_sum_absolute_differences_unsigned_lanes
   -> int16x16#
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_int8x16x2_multi_sad_unsigned"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 let[@inline] unsafe_of_int8x16 x = I.low_of_i8x16 x
 let[@inline] of_float16x16_bits x = I.of_float16x16 x

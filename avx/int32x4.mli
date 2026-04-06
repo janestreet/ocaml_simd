@@ -17,7 +17,7 @@ external permute
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128_permute_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm_permutevar_ps] Each entry of [idx] is interpreted as an integer in [0,3] by
     taking its bottom two bits.
@@ -35,10 +35,12 @@ val shift_right_logical_by : t -> shift:t -> t
 (** [_mm_srav_epi32] *)
 val shift_right_arithmetic_by : t -> shift:t -> t
 
-(** [_mm256_cvtpd_epi32] *)
+(** [_mm256_cvtpd_epi32] If the argument is NaN or infinite or if the rounded value cannot
+    be represented, the result is unspecified. Uses the current rounding mode. *)
 val of_float64x4 : float64x4# -> t
 
-(** [_mm256_cvttpd_epi32] *)
+(** [_mm256_cvttpd_epi32] If the argument is NaN or infinite or if the rounded value
+    cannot be represented, the result is unspecified. *)
 val of_float64x4_trunc : float64x4# -> t
 
 (** Projection. Truncates to lower 128 bits. *)

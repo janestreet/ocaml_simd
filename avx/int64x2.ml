@@ -7,7 +7,7 @@ external permute
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128_permute_64"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external permute_by
   :  t
@@ -15,7 +15,7 @@ external permute_by
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128_permutev_64"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shift_left_logical_by
   :  t
@@ -23,7 +23,7 @@ external shift_left_logical_by
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_int64x2_sllv"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shift_right_logical_by
   :  t
@@ -31,6 +31,6 @@ external shift_right_logical_by
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_int64x2_srlv"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 let[@inline] of_int64x4 x = Int64x4_internal.low_to_i64x2 x

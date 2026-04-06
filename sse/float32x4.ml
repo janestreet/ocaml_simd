@@ -36,16 +36,18 @@ external shuffle
   -> t
   @@ portable
   = "ocaml_simd_sse_unreachable" "caml_sse_vec128_shuffle_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
-let[@inline] zero () = const1 #0.0s
-let[@inline] one () = const1 #1.0s
+let zero = const1 #0.0s
+let one = const1 #1.0s
 let[@inline] sign32_mask () = Int32x4_internal.const1 #0x80000000l
 let[@inline] absf32_mask () = Int32x4_internal.const1 #0x7fffffffl
 
 let[@inline] set1 a =
   let a = I.low_of a in
-  shuffle [%shuffle 0, 0, 0, 0] a a
+  match Sys.arch with
+  | Amd64 -> shuffle [%shuffle 0, 0, 0, 0] a a
+  | Arm64 -> I.Neon.broadcast a
 ;;
 
 let[@inline] set a b c d =
@@ -67,9 +69,10 @@ external blend
   -> t
   @@ portable
   = "ocaml_simd_sse_unreachable" "caml_sse41_vec128_blend_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 let[@inline] insert ~idx t a =
+  (* insertps doesn't do exactly what we want *)
   let aaaa = set1 a in
   match idx with
   | #0L -> blend [%blend 1, 0, 0, 0] t aaaa
@@ -110,21 +113,78 @@ let[@inline] extract0 x = I.low_to x
 let[@inline] bitmask m = m
 
 (* Comparisons do not use [C.not_...], as they have different NaN behavior. *)
-let[@inline] ( >= ) x y = I.cmp [%float_compare Less_or_equal] y x
-let[@inline] ( <= ) x y = I.cmp [%float_compare Less_or_equal] x y
-let[@inline] ( = ) x y = I.cmp [%float_compare Equal] x y
-let[@inline] ( > ) x y = I.cmp [%float_compare Less] y x
-let[@inline] ( < ) x y = I.cmp [%float_compare Less] x y
-let[@inline] ( <> ) x y = I.cmp [%float_compare Not_equal] x y
-let[@inline] equal x y = I.cmp [%float_compare Equal] x y
-let[@inline] is_nan x = I.cmp [%float_compare Unordered] x x
-let[@inline] is_not_nan x = I.cmp [%float_compare Ordered] x x
+
+let[@inline] ( >= ) x y =
+  match Sys.arch with
+  | Amd64 -> I.Sse.cmp [%float_compare Less_or_equal] y x
+  | Arm64 -> I.Neon.cmpge x y
+;;
+
+let[@inline] ( <= ) x y =
+  match Sys.arch with
+  | Amd64 -> I.Sse.cmp [%float_compare Less_or_equal] x y
+  | Arm64 -> I.Neon.cmple x y
+;;
+
+let[@inline] ( = ) x y =
+  match Sys.arch with
+  | Amd64 -> I.Sse.cmp [%float_compare Equal] x y
+  | Arm64 -> I.Neon.cmpeq x y
+;;
+
+let[@inline] ( > ) x y =
+  match Sys.arch with
+  | Amd64 -> I.Sse.cmp [%float_compare Less] y x
+  | Arm64 -> I.Neon.cmpgt x y
+;;
+
+let[@inline] ( < ) x y =
+  match Sys.arch with
+  | Amd64 -> I.Sse.cmp [%float_compare Less] x y
+  | Arm64 -> I.Neon.cmplt x y
+;;
+
+let[@inline] ( <> ) x y =
+  match Sys.arch with
+  | Amd64 -> I.Sse.cmp [%float_compare Not_equal] x y
+  | Arm64 -> Int32x4.lnot (I.Neon.cmpeq x y)
+;;
+
+let[@inline] equal x y =
+  match Sys.arch with
+  | Amd64 -> I.Sse.cmp [%float_compare Equal] x y
+  | Arm64 -> I.Neon.cmpeq x y
+;;
+
+let[@inline] is_nan x =
+  match Sys.arch with
+  | Amd64 -> I.Sse.cmp [%float_compare Unordered] x x
+  | Arm64 -> Int32x4.lnot (I.Neon.cmpeq x x)
+;;
+
+let[@inline] is_not_nan x =
+  match Sys.arch with
+  | Amd64 -> I.Sse.cmp [%float_compare Ordered] x x
+  | Arm64 -> I.Neon.cmpeq x x
+;;
+
 let[@inline] interleave_upper ~even ~odd = I.interleave_high_32 even odd
 let[@inline] interleave_lower ~even ~odd = I.interleave_low_32 even odd
 let[@inline] duplicate_even x = I.dup_even_32 x
 let[@inline] duplicate_odd x = I.dup_odd_32 x
-let[@inline] min x y = I.min x y
-let[@inline] max x y = I.max x y
+
+let[@inline] min x y =
+  match Sys.arch with
+  | Amd64 -> I.min x y
+  | Arm64 -> I.blendv_32 y x (x < y)
+;;
+
+let[@inline] max x y =
+  match Sys.arch with
+  | Amd64 -> I.max x y
+  | Arm64 -> I.blendv_32 y x (x > y)
+;;
+
 let[@inline] add x y = I.add x y
 let[@inline] sub x y = I.sub x y
 let[@inline] mul x y = I.mul x y
@@ -150,11 +210,38 @@ let[@inline] ( - ) x y = I.sub x y
 let[@inline] ( / ) x y = I.div x y
 let[@inline] ( * ) x y = I.mul x y
 let[@inline] iround_current x = I.cvt_i32 x
-let[@inline] round_nearest x = I.round [%float_round Nearest] x
-let[@inline] round_current x = I.round [%float_round Current] x
-let[@inline] round_down x = I.round [%float_round Negative_infinity] x
-let[@inline] round_up x = I.round [%float_round Positive_infinity] x
-let[@inline] round_toward_zero x = I.round [%float_round Zero] x
+let[@inline] iround_trunc x = I.cvtt_i32 x
+
+let[@inline] round_nearest x =
+  match Sys.arch with
+  | Amd64 -> I.Sse.round [%float_round Nearest] x
+  | Arm64 -> I.Neon.round_near x
+;;
+
+let[@inline] round_current x =
+  match Sys.arch with
+  | Amd64 -> I.Sse.round [%float_round Current] x
+  | Arm64 -> I.Neon.round_current x
+;;
+
+let[@inline] round_down x =
+  match Sys.arch with
+  | Amd64 -> I.Sse.round [%float_round Negative_infinity] x
+  | Arm64 -> I.Neon.round_neg_inf x
+;;
+
+let[@inline] round_up x =
+  match Sys.arch with
+  | Amd64 -> I.Sse.round [%float_round Positive_infinity] x
+  | Arm64 -> I.Neon.round_pos_inf x
+;;
+
+let[@inline] round_toward_zero x =
+  match Sys.arch with
+  | Amd64 -> I.Sse.round [%float_round Zero] x
+  | Arm64 -> I.Neon.round_towards_zero x
+;;
+
 let[@inline] unsafe_of_float32 x = I.low_of x
 let[@inline] of_float16x8_bits x = I.of_float16x8 x
 let[@inline] of_float64x2_bits x = I.of_float64x2 x

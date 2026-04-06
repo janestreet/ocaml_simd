@@ -12,8 +12,8 @@ module Int32 = struct
     -> int32#
     -> void
     @@ portable
-    = "ocaml_simd_sse_unreachable" "caml_sse2_int32_store_uncached"
-  [@@noalloc] [@@builtin]
+    = "ocaml_simd_sse_unreachable" "caml_native_pointer_store_unboxed_int32"
+  [@@noalloc] [@@builtin amd64, "caml_sse2_int32_store_uncached"]
 
   let[@inline] store_uncached mem t =
     let _ : void = store_uncached mem t in
@@ -27,8 +27,8 @@ module Int64 = struct
     -> int64#
     -> void
     @@ portable
-    = "ocaml_simd_sse_unreachable" "caml_sse2_int64_store_uncached"
-  [@@noalloc] [@@builtin]
+    = "ocaml_simd_sse_unreachable" "caml_native_pointer_store_unboxed_int64"
+  [@@noalloc] [@@builtin amd64, "caml_sse2_int64_store_uncached"]
 
   let[@inline] store_uncached mem t =
     let _ : void = store_uncached mem t in
@@ -46,14 +46,21 @@ struct
     -> T.t
     @@ portable
     = "ocaml_simd_sse_unreachable" "caml_sse_vec128_load_aligned"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   external unaligned_load
     :  nativeint#
     -> T.t
     @@ portable
     = "ocaml_simd_sse_unreachable" "caml_sse_vec128_load_unaligned"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
+
+  external known_unaligned_load
+    :  nativeint#
+    -> T.t
+    @@ portable
+    = "ocaml_simd_sse_unreachable" "caml_sse3_vec128_load_known_unaligned"
+  [@@noalloc] [@@builtin amd64]
 
   external aligned_store
     :  nativeint#
@@ -61,7 +68,7 @@ struct
     -> void
     @@ portable
     = "ocaml_simd_sse_unreachable" "caml_sse_vec128_store_aligned"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   external unaligned_store
     :  nativeint#
@@ -69,7 +76,7 @@ struct
     -> void
     @@ portable
     = "ocaml_simd_sse_unreachable" "caml_sse_vec128_store_unaligned"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   let[@inline] aligned_store mem t =
     let _ : void = aligned_store mem t in
@@ -86,7 +93,7 @@ struct
     -> T.t
     @@ portable
     = "ocaml_simd_sse_unreachable" "caml_sse41_vec128_load_aligned_uncached"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   external aligned_store_uncached
     :  nativeint#
@@ -94,7 +101,7 @@ struct
     -> void
     @@ portable
     = "ocaml_simd_sse_unreachable" "caml_sse_vec128_store_aligned_uncached"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   let[@inline] aligned_store_uncached mem t =
     let _ : void = aligned_store_uncached mem t in
@@ -112,14 +119,14 @@ struct
     -> T.t
     @@ portable
     = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_load_low64"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   external load_low_zero_high
     :  nativeint#
     -> T.t
     @@ portable
     = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_load_zero_low64"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   external load_low_copy_high
     :  T.t
@@ -127,7 +134,7 @@ struct
     -> T.t
     @@ portable
     = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_load_low64_copy_high64"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   let[@inline] load_low_copy_high mem t = load_low_copy_high t mem
 
@@ -137,7 +144,7 @@ struct
     -> T.t
     @@ portable
     = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_load_high64_copy_low64"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   let[@inline] load_high_copy_low mem t = load_high_copy_low t mem
 
@@ -146,7 +153,7 @@ struct
     -> T.t
     @@ portable
     = "ocaml_simd_sse_unreachable" "caml_sse3_vec128_load_broadcast64"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   external store_low
     :  nativeint#
@@ -154,7 +161,7 @@ struct
     -> void
     @@ portable
     = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_store_low64"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   let[@inline] store_low mem t =
     let _ : void = store_low mem t in
@@ -172,14 +179,14 @@ struct
     -> T.t
     @@ portable
     = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_load_low32"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   external load_low_zero_high
     :  nativeint#
     -> T.t
     @@ portable
     = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_load_zero_low32"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   external store_low
     :  nativeint#
@@ -187,7 +194,7 @@ struct
     -> void
     @@ portable
     = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_store_low32"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   let[@inline] store_low mem t =
     let _ : void = store_low mem t in
@@ -207,7 +214,7 @@ struct
     -> void
     @@ portable
     = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_store_mask8"
-  [@@noalloc] [@@builtin]
+  [@@noalloc] [@@builtin amd64]
 
   let[@inline] store_masked mem t ~mask =
     let _ : void = store_masked t ~mask mem in
@@ -233,6 +240,38 @@ struct
     -> T.t
     @@ portable
     = "%caml_string_getu128u#"
+
+  module Int8_u = struct
+    external get
+      :  (string[@local_opt])
+      -> byte:int8#
+      -> T.t
+      @@ portable
+      = "%caml_string_getu128#_indexed_by_int8#"
+
+    external unsafe_get
+      :  (string[@local_opt])
+      -> byte:int8#
+      -> T.t
+      @@ portable
+      = "%caml_string_getu128u#_indexed_by_int8#"
+  end
+
+  module Int16_u = struct
+    external get
+      :  (string[@local_opt])
+      -> byte:int16#
+      -> T.t
+      @@ portable
+      = "%caml_string_getu128#_indexed_by_int16#"
+
+    external unsafe_get
+      :  (string[@local_opt])
+      -> byte:int16#
+      -> T.t
+      @@ portable
+      = "%caml_string_getu128u#_indexed_by_int16#"
+  end
 
   module Int32_u = struct
     external get
@@ -317,6 +356,70 @@ struct
     -> unit
     @@ portable
     = "%caml_bytes_setu128u#"
+
+  module Int8_u = struct
+    external get
+      :  (bytes[@local_opt]) @ read
+      -> byte:int8#
+      -> T.t
+      @@ portable
+      = "%caml_bytes_getu128#_indexed_by_int8#"
+
+    external unsafe_get
+      :  (bytes[@local_opt]) @ read
+      -> byte:int8#
+      -> T.t
+      @@ portable
+      = "%caml_bytes_getu128u#_indexed_by_int8#"
+
+    external set
+      :  (bytes[@local_opt])
+      -> byte:int8#
+      -> T.t
+      -> unit
+      @@ portable
+      = "%caml_bytes_setu128#_indexed_by_int8#"
+
+    external unsafe_set
+      :  (bytes[@local_opt])
+      -> byte:int8#
+      -> T.t
+      -> unit
+      @@ portable
+      = "%caml_bytes_setu128u#_indexed_by_int8#"
+  end
+
+  module Int16_u = struct
+    external get
+      :  (bytes[@local_opt]) @ read
+      -> byte:int16#
+      -> T.t
+      @@ portable
+      = "%caml_bytes_getu128#_indexed_by_int16#"
+
+    external unsafe_get
+      :  (bytes[@local_opt]) @ read
+      -> byte:int16#
+      -> T.t
+      @@ portable
+      = "%caml_bytes_getu128u#_indexed_by_int16#"
+
+    external set
+      :  (bytes[@local_opt])
+      -> byte:int16#
+      -> T.t
+      -> unit
+      @@ portable
+      = "%caml_bytes_setu128#_indexed_by_int16#"
+
+    external unsafe_set
+      :  (bytes[@local_opt])
+      -> byte:int16#
+      -> T.t
+      -> unit
+      @@ portable
+      = "%caml_bytes_setu128u#_indexed_by_int16#"
+  end
 
   module Int32_u = struct
     external get
@@ -481,6 +584,130 @@ struct
     -> unit
     @@ portable
     = "%caml_bigstring_seta128u#"
+
+  module Int8_u = struct
+    external unaligned_get
+      :  (bigstring[@local_opt]) @ read
+      -> byte:int8#
+      -> T.t
+      @@ portable
+      = "%caml_bigstring_getu128#_indexed_by_int8#"
+
+    external unsafe_unaligned_get
+      :  (bigstring[@local_opt]) @ read
+      -> byte:int8#
+      -> T.t
+      @@ portable
+      = "%caml_bigstring_getu128u#_indexed_by_int8#"
+
+    external aligned_get
+      :  (bigstring[@local_opt]) @ read
+      -> byte:int8#
+      -> T.t
+      @@ portable
+      = "%caml_bigstring_geta128#_indexed_by_int8#"
+
+    external unsafe_aligned_get
+      :  (bigstring[@local_opt]) @ read
+      -> byte:int8#
+      -> T.t
+      @@ portable
+      = "%caml_bigstring_geta128u#_indexed_by_int8#"
+
+    external unaligned_set
+      :  (bigstring[@local_opt])
+      -> byte:int8#
+      -> T.t
+      -> unit
+      @@ portable
+      = "%caml_bigstring_setu128#_indexed_by_int8#"
+
+    external unsafe_unaligned_set
+      :  (bigstring[@local_opt])
+      -> byte:int8#
+      -> T.t
+      -> unit
+      @@ portable
+      = "%caml_bigstring_setu128u#_indexed_by_int8#"
+
+    external aligned_set
+      :  (bigstring[@local_opt])
+      -> byte:int8#
+      -> T.t
+      -> unit
+      @@ portable
+      = "%caml_bigstring_seta128#_indexed_by_int8#"
+
+    external unsafe_aligned_set
+      :  (bigstring[@local_opt])
+      -> byte:int8#
+      -> T.t
+      -> unit
+      @@ portable
+      = "%caml_bigstring_seta128u#_indexed_by_int8#"
+  end
+
+  module Int16_u = struct
+    external unaligned_get
+      :  (bigstring[@local_opt]) @ read
+      -> byte:int16#
+      -> T.t
+      @@ portable
+      = "%caml_bigstring_getu128#_indexed_by_int16#"
+
+    external unsafe_unaligned_get
+      :  (bigstring[@local_opt]) @ read
+      -> byte:int16#
+      -> T.t
+      @@ portable
+      = "%caml_bigstring_getu128u#_indexed_by_int16#"
+
+    external aligned_get
+      :  (bigstring[@local_opt]) @ read
+      -> byte:int16#
+      -> T.t
+      @@ portable
+      = "%caml_bigstring_geta128#_indexed_by_int16#"
+
+    external unsafe_aligned_get
+      :  (bigstring[@local_opt]) @ read
+      -> byte:int16#
+      -> T.t
+      @@ portable
+      = "%caml_bigstring_geta128u#_indexed_by_int16#"
+
+    external unaligned_set
+      :  (bigstring[@local_opt])
+      -> byte:int16#
+      -> T.t
+      -> unit
+      @@ portable
+      = "%caml_bigstring_setu128#_indexed_by_int16#"
+
+    external unsafe_unaligned_set
+      :  (bigstring[@local_opt])
+      -> byte:int16#
+      -> T.t
+      -> unit
+      @@ portable
+      = "%caml_bigstring_setu128u#_indexed_by_int16#"
+
+    external aligned_set
+      :  (bigstring[@local_opt])
+      -> byte:int16#
+      -> T.t
+      -> unit
+      @@ portable
+      = "%caml_bigstring_seta128#_indexed_by_int16#"
+
+    external unsafe_aligned_set
+      :  (bigstring[@local_opt])
+      -> byte:int16#
+      -> T.t
+      -> unit
+      @@ portable
+      = "%caml_bigstring_seta128u#_indexed_by_int16#"
+  end
 
   module Int32_u = struct
     external unaligned_get
@@ -702,6 +929,70 @@ module Float_array = struct
     @@ portable
     = "%caml_float_array_set128u#"
 
+  module Int8_u = struct
+    external get
+      :  (float array[@local_opt]) @ read
+      -> idx:int8#
+      -> t
+      @@ portable
+      = "%caml_float_array_get128#_indexed_by_int8#"
+
+    external unsafe_get
+      :  (float array[@local_opt]) @ read
+      -> idx:int8#
+      -> t
+      @@ portable
+      = "%caml_float_array_get128u#_indexed_by_int8#"
+
+    external set
+      :  (float array[@local_opt])
+      -> idx:int8#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_float_array_set128#_indexed_by_int8#"
+
+    external unsafe_set
+      :  (float array[@local_opt])
+      -> idx:int8#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_float_array_set128u#_indexed_by_int8#"
+  end
+
+  module Int16_u = struct
+    external get
+      :  (float array[@local_opt]) @ read
+      -> idx:int16#
+      -> t
+      @@ portable
+      = "%caml_float_array_get128#_indexed_by_int16#"
+
+    external unsafe_get
+      :  (float array[@local_opt]) @ read
+      -> idx:int16#
+      -> t
+      @@ portable
+      = "%caml_float_array_get128u#_indexed_by_int16#"
+
+    external set
+      :  (float array[@local_opt])
+      -> idx:int16#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_float_array_set128#_indexed_by_int16#"
+
+    external unsafe_set
+      :  (float array[@local_opt])
+      -> idx:int16#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_float_array_set128u#_indexed_by_int16#"
+  end
+
   module Int32_u = struct
     external get
       :  (float array[@local_opt]) @ read
@@ -832,6 +1123,70 @@ module Floatarray = struct
     @@ portable
     = "%caml_floatarray_set128u#"
 
+  module Int8_u = struct
+    external get
+      :  (floatarray[@local_opt]) @ read
+      -> idx:int8#
+      -> t
+      @@ portable
+      = "%caml_floatarray_get128#_indexed_by_int8#"
+
+    external unsafe_get
+      :  (floatarray[@local_opt]) @ read
+      -> idx:int8#
+      -> t
+      @@ portable
+      = "%caml_floatarray_get128u#_indexed_by_int8#"
+
+    external set
+      :  (floatarray[@local_opt])
+      -> idx:int8#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_floatarray_set128#_indexed_by_int8#"
+
+    external unsafe_set
+      :  (floatarray[@local_opt])
+      -> idx:int8#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_floatarray_set128u#_indexed_by_int8#"
+  end
+
+  module Int16_u = struct
+    external get
+      :  (floatarray[@local_opt]) @ read
+      -> idx:int16#
+      -> t
+      @@ portable
+      = "%caml_floatarray_get128#_indexed_by_int16#"
+
+    external unsafe_get
+      :  (floatarray[@local_opt]) @ read
+      -> idx:int16#
+      -> t
+      @@ portable
+      = "%caml_floatarray_get128u#_indexed_by_int16#"
+
+    external set
+      :  (floatarray[@local_opt])
+      -> idx:int16#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_floatarray_set128#_indexed_by_int16#"
+
+    external unsafe_set
+      :  (floatarray[@local_opt])
+      -> idx:int16#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_floatarray_set128u#_indexed_by_int16#"
+  end
+
   module Int32_u = struct
     external get
       :  (floatarray[@local_opt]) @ read
@@ -945,6 +1300,38 @@ module Float_iarray = struct
     -> t
     @@ portable
     = "%caml_float_array_get128u#"
+
+  module Int8_u = struct
+    external get
+      :  (float iarray[@local_opt])
+      -> idx:int8#
+      -> t
+      @@ portable
+      = "%caml_float_array_get128#_indexed_by_int8#"
+
+    external unsafe_get
+      :  (float iarray[@local_opt])
+      -> idx:int8#
+      -> t
+      @@ portable
+      = "%caml_float_array_get128u#_indexed_by_int8#"
+  end
+
+  module Int16_u = struct
+    external get
+      :  (float iarray[@local_opt])
+      -> idx:int16#
+      -> t
+      @@ portable
+      = "%caml_float_array_get128#_indexed_by_int16#"
+
+    external unsafe_get
+      :  (float iarray[@local_opt])
+      -> idx:int16#
+      -> t
+      @@ portable
+      = "%caml_float_array_get128u#_indexed_by_int16#"
+  end
 
   module Int32_u = struct
     external get
@@ -1076,6 +1463,118 @@ module Unsafe_immediate_array = struct
     let v = I.or_ v (one ()) in
     unsafe_set_tagged arr ~idx v
   ;;
+
+  module Int8_u = struct
+    external get_tagged
+      : ('a : immediate64).
+      ('a array[@local_opt]) @ read -> idx:int8# -> t
+      @@ portable
+      = "%caml_int_array_get128#_indexed_by_int8#"
+
+    external unsafe_get_tagged
+      : ('a : immediate64).
+      ('a array[@local_opt]) @ read -> idx:int8# -> t
+      @@ portable
+      = "%caml_int_array_get128u#_indexed_by_int8#"
+
+    let get_and_untag arr ~idx =
+      let v = get_tagged arr ~idx in
+      I.srli #1L v
+    ;;
+
+    let unsafe_get_and_untag arr ~idx =
+      let v = unsafe_get_tagged arr ~idx in
+      I.srli #1L v
+    ;;
+
+    external set_raw
+      : ('a : immediate64).
+      ('a array[@local_opt]) -> idx:int8# -> t -> unit
+      @@ portable
+      = "%caml_int_array_set128#_indexed_by_int8#"
+
+    external unsafe_set_tagged
+      : ('a : immediate64).
+      ('a array[@local_opt]) -> idx:int8# -> t -> unit
+      @@ portable
+      = "%caml_int_array_set128u#_indexed_by_int8#"
+
+    let set_tagged arr ~idx v =
+      let mask = I.(slli #63L v |> movemask_64) in
+      if not (I64.equal mask #0b11L) then invalid_set_tagged mask;
+      set_raw arr ~idx v
+    ;;
+
+    let tag_and_set arr ~idx v =
+      let mask = I.movemask_64 v in
+      if not (I64.equal mask #0L) then invalid_tag_and_set mask;
+      let v = I.slli #1L v in
+      let v = I.or_ v (one ()) in
+      set_raw arr ~idx v
+    ;;
+
+    let unsafe_tag_and_set arr ~idx v =
+      let v = I.slli #1L v in
+      let v = I.or_ v (one ()) in
+      unsafe_set_tagged arr ~idx v
+    ;;
+  end
+
+  module Int16_u = struct
+    external get_tagged
+      : ('a : immediate64).
+      ('a array[@local_opt]) @ read -> idx:int16# -> t
+      @@ portable
+      = "%caml_int_array_get128#_indexed_by_int16#"
+
+    external unsafe_get_tagged
+      : ('a : immediate64).
+      ('a array[@local_opt]) @ read -> idx:int16# -> t
+      @@ portable
+      = "%caml_int_array_get128u#_indexed_by_int16#"
+
+    let get_and_untag arr ~idx =
+      let v = get_tagged arr ~idx in
+      I.srli #1L v
+    ;;
+
+    let unsafe_get_and_untag arr ~idx =
+      let v = unsafe_get_tagged arr ~idx in
+      I.srli #1L v
+    ;;
+
+    external set_raw
+      : ('a : immediate64).
+      ('a array[@local_opt]) -> idx:int16# -> t -> unit
+      @@ portable
+      = "%caml_int_array_set128#_indexed_by_int16#"
+
+    external unsafe_set_tagged
+      : ('a : immediate64).
+      ('a array[@local_opt]) -> idx:int16# -> t -> unit
+      @@ portable
+      = "%caml_int_array_set128u#_indexed_by_int16#"
+
+    let set_tagged arr ~idx v =
+      let mask = I.(slli #63L v |> movemask_64) in
+      if not (I64.equal mask #0b11L) then invalid_set_tagged mask;
+      set_raw arr ~idx v
+    ;;
+
+    let tag_and_set arr ~idx v =
+      let mask = I.movemask_64 v in
+      if not (I64.equal mask #0L) then invalid_tag_and_set mask;
+      let v = I.slli #1L v in
+      let v = I.or_ v (one ()) in
+      set_raw arr ~idx v
+    ;;
+
+    let unsafe_tag_and_set arr ~idx v =
+      let v = I.slli #1L v in
+      let v = I.or_ v (one ()) in
+      unsafe_set_tagged arr ~idx v
+    ;;
+  end
 
   module Int32_u = struct
     external get_tagged
@@ -1273,6 +1772,54 @@ module Unsafe_immediate_iarray = struct
     I.srli #1L v
   ;;
 
+  module Int8_u = struct
+    external get_tagged
+      : ('a : immediate64).
+      ('a iarray[@local_opt]) -> idx:int8# -> t
+      @@ portable
+      = "%caml_int_array_get128#_indexed_by_int8#"
+
+    external unsafe_get_tagged
+      : ('a : immediate64).
+      ('a iarray[@local_opt]) -> idx:int8# -> t
+      @@ portable
+      = "%caml_int_array_get128u#_indexed_by_int8#"
+
+    let get_and_untag (local_ arr) ~idx =
+      let v = get_tagged arr ~idx in
+      I.srli #1L v
+    ;;
+
+    let unsafe_get_and_untag (local_ arr) ~idx =
+      let v = unsafe_get_tagged arr ~idx in
+      I.srli #1L v
+    ;;
+  end
+
+  module Int16_u = struct
+    external get_tagged
+      : ('a : immediate64).
+      ('a iarray[@local_opt]) -> idx:int16# -> t
+      @@ portable
+      = "%caml_int_array_get128#_indexed_by_int16#"
+
+    external unsafe_get_tagged
+      : ('a : immediate64).
+      ('a iarray[@local_opt]) -> idx:int16# -> t
+      @@ portable
+      = "%caml_int_array_get128u#_indexed_by_int16#"
+
+    let get_and_untag (local_ arr) ~idx =
+      let v = get_tagged arr ~idx in
+      I.srli #1L v
+    ;;
+
+    let unsafe_get_and_untag (local_ arr) ~idx =
+      let v = unsafe_get_tagged arr ~idx in
+      I.srli #1L v
+    ;;
+  end
+
   module Int32_u = struct
     external get_tagged
       : ('a : immediate64).
@@ -1378,6 +1925,70 @@ module Float_u_array = struct
     -> unit
     @@ portable
     = "%caml_unboxed_float_array_set128u#"
+
+  module Int8_u = struct
+    external get
+      :  (float# array[@local_opt]) @ read
+      -> idx:int8#
+      -> t
+      @@ portable
+      = "%caml_unboxed_float_array_get128#_indexed_by_int8#"
+
+    external unsafe_get
+      :  (float# array[@local_opt]) @ read
+      -> idx:int8#
+      -> t
+      @@ portable
+      = "%caml_unboxed_float_array_get128u#_indexed_by_int8#"
+
+    external set
+      :  (float# array[@local_opt])
+      -> idx:int8#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_unboxed_float_array_set128#_indexed_by_int8#"
+
+    external unsafe_set
+      :  (float# array[@local_opt])
+      -> idx:int8#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_unboxed_float_array_set128u#_indexed_by_int8#"
+  end
+
+  module Int16_u = struct
+    external get
+      :  (float# array[@local_opt]) @ read
+      -> idx:int16#
+      -> t
+      @@ portable
+      = "%caml_unboxed_float_array_get128#_indexed_by_int16#"
+
+    external unsafe_get
+      :  (float# array[@local_opt]) @ read
+      -> idx:int16#
+      -> t
+      @@ portable
+      = "%caml_unboxed_float_array_get128u#_indexed_by_int16#"
+
+    external set
+      :  (float# array[@local_opt])
+      -> idx:int16#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_unboxed_float_array_set128#_indexed_by_int16#"
+
+    external unsafe_set
+      :  (float# array[@local_opt])
+      -> idx:int16#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_unboxed_float_array_set128u#_indexed_by_int16#"
+  end
 
   module Int32_u = struct
     external get
@@ -1509,6 +2120,70 @@ module Float32_u_array = struct
     @@ portable
     = "%caml_unboxed_float32_array_set128u#"
 
+  module Int8_u = struct
+    external get
+      :  (float32# array[@local_opt]) @ read
+      -> idx:int8#
+      -> t
+      @@ portable
+      = "%caml_unboxed_float32_array_get128#_indexed_by_int8#"
+
+    external unsafe_get
+      :  (float32# array[@local_opt]) @ read
+      -> idx:int8#
+      -> t
+      @@ portable
+      = "%caml_unboxed_float32_array_get128u#_indexed_by_int8#"
+
+    external set
+      :  (float32# array[@local_opt])
+      -> idx:int8#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_unboxed_float32_array_set128#_indexed_by_int8#"
+
+    external unsafe_set
+      :  (float32# array[@local_opt])
+      -> idx:int8#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_unboxed_float32_array_set128u#_indexed_by_int8#"
+  end
+
+  module Int16_u = struct
+    external get
+      :  (float32# array[@local_opt]) @ read
+      -> idx:int16#
+      -> t
+      @@ portable
+      = "%caml_unboxed_float32_array_get128#_indexed_by_int16#"
+
+    external unsafe_get
+      :  (float32# array[@local_opt]) @ read
+      -> idx:int16#
+      -> t
+      @@ portable
+      = "%caml_unboxed_float32_array_get128u#_indexed_by_int16#"
+
+    external set
+      :  (float32# array[@local_opt])
+      -> idx:int16#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_unboxed_float32_array_set128#_indexed_by_int16#"
+
+    external unsafe_set
+      :  (float32# array[@local_opt])
+      -> idx:int16#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_unboxed_float32_array_set128u#_indexed_by_int16#"
+  end
+
   module Int32_u = struct
     external get
       :  (float32# array[@local_opt]) @ read
@@ -1638,6 +2313,70 @@ module Int64_u_array = struct
     -> unit
     @@ portable
     = "%caml_unboxed_int64_array_set128u#"
+
+  module Int8_u = struct
+    external get
+      :  (int64# array[@local_opt]) @ read
+      -> idx:int8#
+      -> t
+      @@ portable
+      = "%caml_unboxed_int64_array_get128#_indexed_by_int8#"
+
+    external unsafe_get
+      :  (int64# array[@local_opt]) @ read
+      -> idx:int8#
+      -> t
+      @@ portable
+      = "%caml_unboxed_int64_array_get128u#_indexed_by_int8#"
+
+    external set
+      :  (int64# array[@local_opt])
+      -> idx:int8#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_unboxed_int64_array_set128#_indexed_by_int8#"
+
+    external unsafe_set
+      :  (int64# array[@local_opt])
+      -> idx:int8#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_unboxed_int64_array_set128u#_indexed_by_int8#"
+  end
+
+  module Int16_u = struct
+    external get
+      :  (int64# array[@local_opt]) @ read
+      -> idx:int16#
+      -> t
+      @@ portable
+      = "%caml_unboxed_int64_array_get128#_indexed_by_int16#"
+
+    external unsafe_get
+      :  (int64# array[@local_opt]) @ read
+      -> idx:int16#
+      -> t
+      @@ portable
+      = "%caml_unboxed_int64_array_get128u#_indexed_by_int16#"
+
+    external set
+      :  (int64# array[@local_opt])
+      -> idx:int16#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_unboxed_int64_array_set128#_indexed_by_int16#"
+
+    external unsafe_set
+      :  (int64# array[@local_opt])
+      -> idx:int16#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_unboxed_int64_array_set128u#_indexed_by_int16#"
+  end
 
   module Int32_u = struct
     external get
@@ -1769,6 +2508,70 @@ module Nativeint_u_array = struct
     @@ portable
     = "%caml_unboxed_nativeint_array_set128u#"
 
+  module Int8_u = struct
+    external get
+      :  (nativeint# array[@local_opt]) @ read
+      -> idx:int8#
+      -> t
+      @@ portable
+      = "%caml_unboxed_nativeint_array_get128#_indexed_by_int8#"
+
+    external unsafe_get
+      :  (nativeint# array[@local_opt]) @ read
+      -> idx:int8#
+      -> t
+      @@ portable
+      = "%caml_unboxed_nativeint_array_get128u#_indexed_by_int8#"
+
+    external set
+      :  (nativeint# array[@local_opt])
+      -> idx:int8#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_unboxed_nativeint_array_set128#_indexed_by_int8#"
+
+    external unsafe_set
+      :  (nativeint# array[@local_opt])
+      -> idx:int8#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_unboxed_nativeint_array_set128u#_indexed_by_int8#"
+  end
+
+  module Int16_u = struct
+    external get
+      :  (nativeint# array[@local_opt]) @ read
+      -> idx:int16#
+      -> t
+      @@ portable
+      = "%caml_unboxed_nativeint_array_get128#_indexed_by_int16#"
+
+    external unsafe_get
+      :  (nativeint# array[@local_opt]) @ read
+      -> idx:int16#
+      -> t
+      @@ portable
+      = "%caml_unboxed_nativeint_array_get128u#_indexed_by_int16#"
+
+    external set
+      :  (nativeint# array[@local_opt])
+      -> idx:int16#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_unboxed_nativeint_array_set128#_indexed_by_int16#"
+
+    external unsafe_set
+      :  (nativeint# array[@local_opt])
+      -> idx:int16#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_unboxed_nativeint_array_set128u#_indexed_by_int16#"
+  end
+
   module Int32_u = struct
     external get
       :  (nativeint# array[@local_opt]) @ read
@@ -1866,6 +2669,394 @@ module Nativeint_u_array = struct
   end
 end
 
+module Int8_u_array = struct
+  type t = int8x16#
+
+  external get
+    :  (int8# array[@local_opt]) @ read
+    -> idx:int
+    -> t
+    @@ portable
+    = "%caml_untagged_int8_array_get128#"
+
+  external unsafe_get
+    :  (int8# array[@local_opt]) @ read
+    -> idx:int
+    -> t
+    @@ portable
+    = "%caml_untagged_int8_array_get128u#"
+
+  external set
+    :  (int8# array[@local_opt])
+    -> idx:int
+    -> t
+    -> unit
+    @@ portable
+    = "%caml_untagged_int8_array_set128#"
+
+  external unsafe_set
+    :  (int8# array[@local_opt])
+    -> idx:int
+    -> t
+    -> unit
+    @@ portable
+    = "%caml_untagged_int8_array_set128u#"
+
+  module Int8_u = struct
+    external get
+      :  (int8# array[@local_opt]) @ read
+      -> idx:int8#
+      -> t
+      @@ portable
+      = "%caml_untagged_int8_array_get128#_indexed_by_int8#"
+
+    external unsafe_get
+      :  (int8# array[@local_opt]) @ read
+      -> idx:int8#
+      -> t
+      @@ portable
+      = "%caml_untagged_int8_array_get128u#_indexed_by_int8#"
+
+    external set
+      :  (int8# array[@local_opt])
+      -> idx:int8#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_untagged_int8_array_set128#_indexed_by_int8#"
+
+    external unsafe_set
+      :  (int8# array[@local_opt])
+      -> idx:int8#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_untagged_int8_array_set128u#_indexed_by_int8#"
+  end
+
+  module Int16_u = struct
+    external get
+      :  (int8# array[@local_opt]) @ read
+      -> idx:int16#
+      -> t
+      @@ portable
+      = "%caml_untagged_int8_array_get128#_indexed_by_int16#"
+
+    external unsafe_get
+      :  (int8# array[@local_opt]) @ read
+      -> idx:int16#
+      -> t
+      @@ portable
+      = "%caml_untagged_int8_array_get128u#_indexed_by_int16#"
+
+    external set
+      :  (int8# array[@local_opt])
+      -> idx:int16#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_untagged_int8_array_set128#_indexed_by_int16#"
+
+    external unsafe_set
+      :  (int8# array[@local_opt])
+      -> idx:int16#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_untagged_int8_array_set128u#_indexed_by_int16#"
+  end
+
+  module Int32_u = struct
+    external get
+      :  (int8# array[@local_opt]) @ read
+      -> idx:int32#
+      -> t
+      @@ portable
+      = "%caml_untagged_int8_array_get128#_indexed_by_int32#"
+
+    external unsafe_get
+      :  (int8# array[@local_opt]) @ read
+      -> idx:int32#
+      -> t
+      @@ portable
+      = "%caml_untagged_int8_array_get128u#_indexed_by_int32#"
+
+    external set
+      :  (int8# array[@local_opt])
+      -> idx:int32#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_untagged_int8_array_set128#_indexed_by_int32#"
+
+    external unsafe_set
+      :  (int8# array[@local_opt])
+      -> idx:int32#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_untagged_int8_array_set128u#_indexed_by_int32#"
+  end
+
+  module Int64_u = struct
+    external get
+      :  (int8# array[@local_opt]) @ read
+      -> idx:int64#
+      -> t
+      @@ portable
+      = "%caml_untagged_int8_array_get128#_indexed_by_int64#"
+
+    external unsafe_get
+      :  (int8# array[@local_opt]) @ read
+      -> idx:int64#
+      -> t
+      @@ portable
+      = "%caml_untagged_int8_array_get128u#_indexed_by_int64#"
+
+    external set
+      :  (int8# array[@local_opt])
+      -> idx:int64#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_untagged_int8_array_set128#_indexed_by_int64#"
+
+    external unsafe_set
+      :  (int8# array[@local_opt])
+      -> idx:int64#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_untagged_int8_array_set128u#_indexed_by_int64#"
+  end
+
+  module Nativeint_u = struct
+    external get
+      :  (int8# array[@local_opt]) @ read
+      -> idx:nativeint#
+      -> t
+      @@ portable
+      = "%caml_untagged_int8_array_get128#_indexed_by_nativeint#"
+
+    external unsafe_get
+      :  (int8# array[@local_opt]) @ read
+      -> idx:nativeint#
+      -> t
+      @@ portable
+      = "%caml_untagged_int8_array_get128u#_indexed_by_nativeint#"
+
+    external set
+      :  (int8# array[@local_opt])
+      -> idx:nativeint#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_untagged_int8_array_set128#_indexed_by_nativeint#"
+
+    external unsafe_set
+      :  (int8# array[@local_opt])
+      -> idx:nativeint#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_untagged_int8_array_set128u#_indexed_by_nativeint#"
+  end
+end
+
+module Int16_u_array = struct
+  type t = int16x8#
+
+  external get
+    :  (int16# array[@local_opt]) @ read
+    -> idx:int
+    -> t
+    @@ portable
+    = "%caml_untagged_int16_array_get128#"
+
+  external unsafe_get
+    :  (int16# array[@local_opt]) @ read
+    -> idx:int
+    -> t
+    @@ portable
+    = "%caml_untagged_int16_array_get128u#"
+
+  external set
+    :  (int16# array[@local_opt])
+    -> idx:int
+    -> t
+    -> unit
+    @@ portable
+    = "%caml_untagged_int16_array_set128#"
+
+  external unsafe_set
+    :  (int16# array[@local_opt])
+    -> idx:int
+    -> t
+    -> unit
+    @@ portable
+    = "%caml_untagged_int16_array_set128u#"
+
+  module Int8_u = struct
+    external get
+      :  (int16# array[@local_opt]) @ read
+      -> idx:int8#
+      -> t
+      @@ portable
+      = "%caml_untagged_int16_array_get128#_indexed_by_int8#"
+
+    external unsafe_get
+      :  (int16# array[@local_opt]) @ read
+      -> idx:int8#
+      -> t
+      @@ portable
+      = "%caml_untagged_int16_array_get128u#_indexed_by_int8#"
+
+    external set
+      :  (int16# array[@local_opt])
+      -> idx:int8#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_untagged_int16_array_set128#_indexed_by_int8#"
+
+    external unsafe_set
+      :  (int16# array[@local_opt])
+      -> idx:int8#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_untagged_int16_array_set128u#_indexed_by_int8#"
+  end
+
+  module Int16_u = struct
+    external get
+      :  (int16# array[@local_opt]) @ read
+      -> idx:int16#
+      -> t
+      @@ portable
+      = "%caml_untagged_int16_array_get128#_indexed_by_int16#"
+
+    external unsafe_get
+      :  (int16# array[@local_opt]) @ read
+      -> idx:int16#
+      -> t
+      @@ portable
+      = "%caml_untagged_int16_array_get128u#_indexed_by_int16#"
+
+    external set
+      :  (int16# array[@local_opt])
+      -> idx:int16#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_untagged_int16_array_set128#_indexed_by_int16#"
+
+    external unsafe_set
+      :  (int16# array[@local_opt])
+      -> idx:int16#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_untagged_int16_array_set128u#_indexed_by_int16#"
+  end
+
+  module Int32_u = struct
+    external get
+      :  (int16# array[@local_opt]) @ read
+      -> idx:int32#
+      -> t
+      @@ portable
+      = "%caml_untagged_int16_array_get128#_indexed_by_int32#"
+
+    external unsafe_get
+      :  (int16# array[@local_opt]) @ read
+      -> idx:int32#
+      -> t
+      @@ portable
+      = "%caml_untagged_int16_array_get128u#_indexed_by_int32#"
+
+    external set
+      :  (int16# array[@local_opt])
+      -> idx:int32#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_untagged_int16_array_set128#_indexed_by_int32#"
+
+    external unsafe_set
+      :  (int16# array[@local_opt])
+      -> idx:int32#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_untagged_int16_array_set128u#_indexed_by_int32#"
+  end
+
+  module Int64_u = struct
+    external get
+      :  (int16# array[@local_opt]) @ read
+      -> idx:int64#
+      -> t
+      @@ portable
+      = "%caml_untagged_int16_array_get128#_indexed_by_int64#"
+
+    external unsafe_get
+      :  (int16# array[@local_opt]) @ read
+      -> idx:int64#
+      -> t
+      @@ portable
+      = "%caml_untagged_int16_array_get128u#_indexed_by_int64#"
+
+    external set
+      :  (int16# array[@local_opt])
+      -> idx:int64#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_untagged_int16_array_set128#_indexed_by_int64#"
+
+    external unsafe_set
+      :  (int16# array[@local_opt])
+      -> idx:int64#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_untagged_int16_array_set128u#_indexed_by_int64#"
+  end
+
+  module Nativeint_u = struct
+    external get
+      :  (int16# array[@local_opt]) @ read
+      -> idx:nativeint#
+      -> t
+      @@ portable
+      = "%caml_untagged_int16_array_get128#_indexed_by_nativeint#"
+
+    external unsafe_get
+      :  (int16# array[@local_opt]) @ read
+      -> idx:nativeint#
+      -> t
+      @@ portable
+      = "%caml_untagged_int16_array_get128u#_indexed_by_nativeint#"
+
+    external set
+      :  (int16# array[@local_opt])
+      -> idx:nativeint#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_untagged_int16_array_set128#_indexed_by_nativeint#"
+
+    external unsafe_set
+      :  (int16# array[@local_opt])
+      -> idx:nativeint#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_untagged_int16_array_set128u#_indexed_by_nativeint#"
+  end
+end
+
 module Int32_u_array = struct
   type t = int32x4#
 
@@ -1898,6 +3089,70 @@ module Int32_u_array = struct
     -> unit
     @@ portable
     = "%caml_unboxed_int32_array_set128u#"
+
+  module Int8_u = struct
+    external get
+      :  (int32# array[@local_opt]) @ read
+      -> idx:int8#
+      -> t
+      @@ portable
+      = "%caml_unboxed_int32_array_get128#_indexed_by_int8#"
+
+    external unsafe_get
+      :  (int32# array[@local_opt]) @ read
+      -> idx:int8#
+      -> t
+      @@ portable
+      = "%caml_unboxed_int32_array_get128u#_indexed_by_int8#"
+
+    external set
+      :  (int32# array[@local_opt])
+      -> idx:int8#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_unboxed_int32_array_set128#_indexed_by_int8#"
+
+    external unsafe_set
+      :  (int32# array[@local_opt])
+      -> idx:int8#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_unboxed_int32_array_set128u#_indexed_by_int8#"
+  end
+
+  module Int16_u = struct
+    external get
+      :  (int32# array[@local_opt]) @ read
+      -> idx:int16#
+      -> t
+      @@ portable
+      = "%caml_unboxed_int32_array_get128#_indexed_by_int16#"
+
+    external unsafe_get
+      :  (int32# array[@local_opt]) @ read
+      -> idx:int16#
+      -> t
+      @@ portable
+      = "%caml_unboxed_int32_array_get128u#_indexed_by_int16#"
+
+    external set
+      :  (int32# array[@local_opt])
+      -> idx:int16#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_unboxed_int32_array_set128#_indexed_by_int16#"
+
+    external unsafe_set
+      :  (int32# array[@local_opt])
+      -> idx:int16#
+      -> t
+      -> unit
+      @@ portable
+      = "%caml_unboxed_int32_array_set128u#_indexed_by_int16#"
+  end
 
   module Int32_u = struct
     external get

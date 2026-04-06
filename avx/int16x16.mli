@@ -9,10 +9,10 @@ val unbox : int16x16 @ local -> t
 (* Creation *)
 
 (** Equivalent to [const1 0]. *)
-val zero : unit -> t
+val zero : t
 
 (** Equivalent to [const1 1]. *)
-val one : unit -> t
+val one : t
 
 (** [_mm256_set1_epi16] *)
 val set1 : int16# -> t
@@ -43,7 +43,7 @@ val set_lanes : int16x8# -> int16x8# -> t
 (** Argument must be an unsigned 16-bit int literal. Compiles to a static vector literal.
     Exposed as an external so user code can compile without cross-library inlining. *)
 external const1 : int16# -> t = "ocaml_simd_avx_unreachable" "caml_int16x16_const1"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** Arguments must be unsigned 16-bit int literals. Compiles to a static vector literal.
     Exposed as an external so user code can compile without cross-library inlining. *)
@@ -66,7 +66,7 @@ external const
   -> int16#
   -> t
   = "ocaml_simd_avx_unreachable" "caml_int16x16_const16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (* Load/Store *)
 
@@ -74,6 +74,7 @@ module Raw = Load_store.Raw_Int16x16
 module String = Load_store.String_Int16x16
 module Bytes = Load_store.Bytes_Int16x16
 module Bigstring = Load_store.Bigstring_Int16x16
+module Int16_u_array = Load_store.Int16_u_array
 
 (* Control Flow *)
 
@@ -120,7 +121,7 @@ external insert_lane
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_insert_128"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [idx] must be a literal in [0,1]. Operates on two int16x8 lanes. Exposed as an
     external so user code can compile without cross-library inlining. *)
@@ -130,7 +131,7 @@ external extract_lane
   -> int16x8#
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_extract_128"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** Projection. Has no runtime cost. Operates on two int16x8 lanes. *)
 val extract_lane0 : t -> int16x8#
@@ -228,7 +229,7 @@ external blend_lanes
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_blend_16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm256_shufflehi_epi16] Specify shuffle with ppx_simd: [%shuffle N, N, N, N], where
     each N is in [0,3]. Operates on two int16x8 lanes. Exposed as an external so user code
@@ -258,7 +259,7 @@ external shuffle_upper_lanes
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_shuffle_high_16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm256_shufflelo_epi16] Specify shuffle with ppx_simd: [%shuffle N, N, N, N], where
     each N is in [0,3]. Operates on two int16x8 lanes. Exposed as an external so user code
@@ -288,7 +289,7 @@ external shuffle_lower_lanes
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_shuffle_low_16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (* Math *)
 
@@ -345,7 +346,7 @@ external shifti_left_bytes_lanes
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_shift_left_bytes"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm256_bsrli_epi128] First argument must be an unsigned integer literal in [0,15].
     Operates on two int16x8 lanes. Exposed as an external so user code can compile without
@@ -355,7 +356,7 @@ external shifti_right_bytes_lanes
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_shift_right_bytes"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm256_slli_epi16] First argument must be an unsigned integer literal in [0,15].
     Exposed as an external so user code can compile without cross-library inlining. *)
@@ -364,7 +365,7 @@ external shifti_left_logical
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx2_int16x16_slli"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm256_srli_epi16] First argument must be an unsigned integer literal in [0,15].
     Exposed as an external so user code can compile without cross-library inlining. *)
@@ -373,7 +374,7 @@ external shifti_right_logical
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx2_int16x16_srli"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm256_srai_epi16] First argument must be an unsigned integer literal in [0,15].
     Exposed as an external so user code can compile without cross-library inlining. *)
@@ -382,7 +383,7 @@ external shifti_right_arithmetic
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx2_int16x16_srai"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm256_hadd_epi16] Operates on two int16x8 lanes. *)
 val horizontal_add_lanes : t -> t -> t

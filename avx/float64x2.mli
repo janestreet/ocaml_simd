@@ -16,7 +16,7 @@ external permute
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128_permute_64"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm_permutevar_pd] Variable permute using runtime indices. Each index value controls
     which element to select (only low bit used: 0 or 1).

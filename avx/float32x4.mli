@@ -14,7 +14,7 @@ external permute
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128_permute_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm_permutevar_ps] *)
 val permute_by : t -> idx:int32x4# -> t

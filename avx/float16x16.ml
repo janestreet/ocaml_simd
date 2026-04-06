@@ -16,7 +16,7 @@ external shuffle_upper_lanes
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_shuffle_high_16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shuffle_lower_lanes
   :  (Ocaml_simd.Shuffle4.t[@untagged])
@@ -24,7 +24,7 @@ external shuffle_lower_lanes
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_shuffle_low_16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external blend_lanes
   :  (Ocaml_simd.Blend8.t[@untagged])
@@ -33,7 +33,7 @@ external blend_lanes
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_blend_16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external insert_lane
   :  idx:int64#
@@ -42,7 +42,7 @@ external insert_lane
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_insert_128"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external extract_lane
   :  idx:int64#
@@ -50,7 +50,7 @@ external extract_lane
   -> float16x8#
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_extract_128"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 let[@inline] extract_lane0 x = I.low_to_f16x8 x
 let[@inline] set_lanes a b = insert_lane ~idx:#1L (I.low_of_f16x8 a) b

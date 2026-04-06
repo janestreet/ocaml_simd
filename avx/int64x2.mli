@@ -16,7 +16,7 @@ external permute
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128_permute_64"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm_permutevar_pd] Each lane of [idx] is interpreted as an integer in [0,1] by taking
     its bottom bit.

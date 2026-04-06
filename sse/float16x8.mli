@@ -29,7 +29,7 @@ external blend
   -> t
   -> t
   = "ocaml_simd_sse_unreachable" "caml_sse41_vec128_blend_16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm_shufflehi_epi16] Specify shuffle with ppx_simd: [%shuffle N, N, N, N], where each
     N is in [0,3]. Exposed as an external so user code can compile without cross-library
@@ -39,7 +39,7 @@ external shuffle_upper
   -> t
   -> t
   = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shuffle_high_16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm_shufflelo_epi16] Specify shuffle with ppx_simd: [%shuffle N, N, N, N], where each
     N is in [0,3]. Exposed as an external so user code can compile without cross-library
@@ -49,7 +49,7 @@ external shuffle_lower
   -> t
   -> t
   = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shuffle_low_16"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (* Casts *)
 

@@ -21,7 +21,7 @@ external const1
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_int64x4_const1"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external const
   :  int64#
@@ -31,7 +31,7 @@ external const
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_int64x4_const4"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shuffle_lanes
   :  (Ocaml_simd.Shuffle2x2.t[@untagged])
@@ -40,7 +40,7 @@ external shuffle_lanes
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128x2_shuffle_64"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external permute
   :  (Ocaml_simd.Permute4.t[@untagged])
@@ -48,7 +48,7 @@ external permute
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec256_permute_64"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external permute_lanes
   :  (Ocaml_simd.Permute2x2.t[@untagged])
@@ -56,7 +56,7 @@ external permute_lanes
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128x2_permute_64"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external permute_lanes_by
   :  t
@@ -64,7 +64,7 @@ external permute_lanes_by
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128x2_permutev_64"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external blend
   :  (Ocaml_simd.Blend4.t[@untagged])
@@ -73,7 +73,7 @@ external blend
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_blend_64"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external insert_lane
   :  idx:int64#
@@ -82,7 +82,7 @@ external insert_lane
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_insert_128"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external extract_lane
   :  idx:int64#
@@ -90,12 +90,12 @@ external extract_lane
   -> int64x2#
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_extract_128"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
-let[@inline] zero () = const1 #0L
-let[@inline] one () = const1 #1L
-let[@inline] all_ones () = const1 #0xffffffffffffffffL
-let[@inline] sign64_mask () = const1 #0x8000000000000000L
+let zero = const1 #0L
+let one = const1 #1L
+let all_ones = const1 #0xffffffffffffffffL
+let sign64_mask = const1 #0x8000000000000000L
 let[@inline] set1 x = I.broadcast_64 (I.I64x2.low_of x)
 
 let[@inline] set a b c d =
@@ -149,15 +149,15 @@ let[@inline] ( <= ) x y = I.(or_ (cmpgt y x) (cmpeq x y))
 let[@inline] ( = ) x y = I.cmpeq x y
 let[@inline] ( > ) x y = I.cmpgt x y
 let[@inline] ( < ) x y = I.cmpgt y x
-let[@inline] ( <> ) x y = I.(xor (all_ones ()) (cmpeq x y))
+let[@inline] ( <> ) x y = I.(xor all_ones (cmpeq x y))
 let[@inline] equal x y = I.cmpeq x y
 let[@inline] interleave_upper_lanes ~even ~odd = I.interleave_high_64 even odd
 let[@inline] interleave_lower_lanes ~even ~odd = I.interleave_low_64 even odd
 let[@inline] duplicate_even x = I.dup_even_64 x
 let[@inline] add x y = I.add x y
 let[@inline] sub x y = I.sub x y
-let[@inline] neg x = I.add I.(xor x (all_ones ())) (one ())
-let[@inline] abs x = select I.(and_ x (sign64_mask ())) ~pass:(neg x) ~fail:x
+let[@inline] neg x = I.add I.(xor x all_ones) one
+let[@inline] abs x = select I.(and_ x sign64_mask) ~pass:(neg x) ~fail:x
 
 external shifti_left_bytes_lanes
   :  int64#
@@ -165,7 +165,7 @@ external shifti_left_bytes_lanes
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_shift_left_bytes"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shifti_right_bytes_lanes
   :  int64#
@@ -173,7 +173,7 @@ external shifti_right_bytes_lanes
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_shift_right_bytes"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shifti_left_logical
   :  int64#
@@ -181,7 +181,7 @@ external shifti_left_logical
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_int64x4_slli"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shifti_right_logical
   :  int64#
@@ -189,14 +189,14 @@ external shifti_right_logical
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_int64x4_srli"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 let[@inline] ( + ) x y = I.add x y
 let[@inline] ( - ) x y = I.sub x y
 let[@inline] ( lor ) x y = I.or_ x y
 let[@inline] ( land ) x y = I.and_ x y
 let[@inline] ( lxor ) x y = I.xor x y
-let[@inline] lnot m = I.(xor (all_ones ()) m)
+let[@inline] lnot m = I.(xor all_ones m)
 let[@inline] landnot ~not y = I.andnot ~not y
 let[@inline] unsafe_of_int64x2 x = I.low_of_i64x2 x
 let[@inline] of_float16x16_bits x = I.of_float16x16 x

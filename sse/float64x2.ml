@@ -37,7 +37,7 @@ external shuffle
   -> t
   @@ portable
   = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shuffle_64"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external blend
   :  (Ocaml_simd.Blend2.t[@untagged])
@@ -46,10 +46,10 @@ external blend
   -> t
   @@ portable
   = "ocaml_simd_sse_unreachable" "caml_sse41_vec128_blend_64"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
-let[@inline] zero () = const1 #0.0
-let[@inline] one () = const1 #1.0
+let zero = const1 #0.0
+let one = const1 #1.0
 let[@inline] sign64_mask () = Int64x2_internal.const1 #0x8000000000000000L
 let[@inline] absf64_mask () = Int64x2_internal.const1 #0x7fffffffffffffffL
 
@@ -99,22 +99,79 @@ let[@inline] extract0 x = I.low_to x
 let[@inline] bitmask m = m
 
 (* Comparisons do not use [C.not_...], as they have different NaN behavior. *)
-let[@inline] ( >= ) x y = I.cmp [%float_compare Less_or_equal] y x
-let[@inline] ( <= ) x y = I.cmp [%float_compare Less_or_equal] x y
-let[@inline] ( = ) x y = I.cmp [%float_compare Equal] x y
-let[@inline] ( > ) x y = I.cmp [%float_compare Less] y x
-let[@inline] ( < ) x y = I.cmp [%float_compare Less] x y
-let[@inline] ( <> ) x y = I.cmp [%float_compare Not_equal] x y
-let[@inline] equal x y = I.cmp [%float_compare Equal] x y
-let[@inline] is_nan x = I.cmp [%float_compare Unordered] x x
-let[@inline] is_not_nan x = I.cmp [%float_compare Ordered] x x
+
+let[@inline] ( >= ) x y =
+  match Sys.arch with
+  | Amd64 -> I.Sse.cmp [%float_compare Less_or_equal] y x
+  | Arm64 -> I.Neon.cmpge x y
+;;
+
+let[@inline] ( <= ) x y =
+  match Sys.arch with
+  | Amd64 -> I.Sse.cmp [%float_compare Less_or_equal] x y
+  | Arm64 -> I.Neon.cmple x y
+;;
+
+let[@inline] ( = ) x y =
+  match Sys.arch with
+  | Amd64 -> I.Sse.cmp [%float_compare Equal] x y
+  | Arm64 -> I.Neon.cmpeq x y
+;;
+
+let[@inline] ( > ) x y =
+  match Sys.arch with
+  | Amd64 -> I.Sse.cmp [%float_compare Less] y x
+  | Arm64 -> I.Neon.cmpgt x y
+;;
+
+let[@inline] ( < ) x y =
+  match Sys.arch with
+  | Amd64 -> I.Sse.cmp [%float_compare Less] x y
+  | Arm64 -> I.Neon.cmplt x y
+;;
+
+let[@inline] ( <> ) x y =
+  match Sys.arch with
+  | Amd64 -> I.Sse.cmp [%float_compare Not_equal] x y
+  | Arm64 -> Int64x2.lnot (I.Neon.cmpeq x y)
+;;
+
+let[@inline] equal x y =
+  match Sys.arch with
+  | Amd64 -> I.Sse.cmp [%float_compare Equal] x y
+  | Arm64 -> I.Neon.cmpeq x y
+;;
+
+let[@inline] is_nan x =
+  match Sys.arch with
+  | Amd64 -> I.Sse.cmp [%float_compare Unordered] x x
+  | Arm64 -> Int64x2.lnot (I.Neon.cmpeq x x)
+;;
+
+let[@inline] is_not_nan x =
+  match Sys.arch with
+  | Amd64 -> I.Sse.cmp [%float_compare Ordered] x x
+  | Arm64 -> I.Neon.cmpeq x x
+;;
+
 let[@inline] interleave_upper ~even ~odd = I.interleave_high_64 even odd
 let[@inline] interleave_lower ~even ~odd = I.interleave_low_64 even odd
 let[@inline] upper_to_lower ~from ~onto = I.high_64_to_low_64 onto from
 let[@inline] lower_to_upper ~from ~onto = I.low_64_to_high_64 onto from
 let[@inline] duplicate_lower x = I.dup_low_64 x
-let[@inline] min x y = I.min x y
-let[@inline] max x y = I.max x y
+
+let[@inline] min x y =
+  match Sys.arch with
+  | Amd64 -> I.min x y
+  | Arm64 -> I.blendv_64 y x (x < y)
+;;
+
+let[@inline] max x y =
+  match Sys.arch with
+  | Amd64 -> I.max x y
+  | Arm64 -> I.blendv_64 y x (x > y)
+;;
+
 let[@inline] add x y = I.add x y
 let[@inline] sub x y = I.sub x y
 let[@inline] mul x y = I.mul x y
@@ -137,12 +194,49 @@ let[@inline] ( + ) x y = I.add x y
 let[@inline] ( - ) x y = I.sub x y
 let[@inline] ( / ) x y = I.div x y
 let[@inline] ( * ) x y = I.mul x y
-let[@inline] iround_current x = Float64x2_internal.cvt_i32 x
-let[@inline] round_nearest x = I.round [%float_round Nearest] x
-let[@inline] round_current x = I.round [%float_round Current] x
-let[@inline] round_down x = I.round [%float_round Negative_infinity] x
-let[@inline] round_up x = I.round [%float_round Positive_infinity] x
-let[@inline] round_toward_zero x = I.round [%float_round Zero] x
+
+let[@inline] iround_current x =
+  match Sys.arch with
+  | Amd64 -> I.Sse.cvt_i32 x
+  | Arm64 -> I.Neon.cvt_i64 x |> Int64x2_internal.Neon.cvt_i32_saturating
+;;
+
+let[@inline] iround_trunc x =
+  match Sys.arch with
+  | Amd64 -> I.Sse.cvtt_i32 x
+  | Arm64 -> I.Neon.cvtt_i64 x |> Int64x2_internal.Neon.cvt_i32_saturating
+;;
+
+let[@inline] round_nearest x =
+  match Sys.arch with
+  | Amd64 -> I.Sse.round [%float_round Nearest] x
+  | Arm64 -> I.Neon.round_near x
+;;
+
+let[@inline] round_current x =
+  match Sys.arch with
+  | Amd64 -> I.Sse.round [%float_round Current] x
+  | Arm64 -> I.Neon.round_current x
+;;
+
+let[@inline] round_down x =
+  match Sys.arch with
+  | Amd64 -> I.Sse.round [%float_round Negative_infinity] x
+  | Arm64 -> I.Neon.round_neg_inf x
+;;
+
+let[@inline] round_up x =
+  match Sys.arch with
+  | Amd64 -> I.Sse.round [%float_round Positive_infinity] x
+  | Arm64 -> I.Neon.round_pos_inf x
+;;
+
+let[@inline] round_toward_zero x =
+  match Sys.arch with
+  | Amd64 -> I.Sse.round [%float_round Zero] x
+  | Arm64 -> I.Neon.round_towards_zero x
+;;
+
 let[@inline] unsafe_of_float f = I.low_of f
 let[@inline] of_float16x8_bits x = I.of_float16x8 x
 let[@inline] of_float32x4_bits x = I.of_float32x4 x
@@ -150,7 +244,13 @@ let[@inline] of_int8x16_bits x = I.of_int8x16 x
 let[@inline] of_int16x8_bits x = I.of_int16x8 x
 let[@inline] of_int32x4_bits x = I.of_int32x4 x
 let[@inline] of_int64x2_bits x = I.of_int64x2 x
-let[@inline] of_int32x4 x = Int32x4_internal.cvt_f64 x
+
+let[@inline] of_int32x4 x =
+  match Sys.arch with
+  | Amd64 -> Int32x4_internal.Sse.cvt_f64 x
+  | Arm64 -> Int32x4_internal.cvtsx_i64 x |> Int64x2_internal.Neon.cvt_f64
+;;
+
 let[@inline] of_float32x4 x = Float32x4_internal.cvt_f64 x
 
 let[@inline] to_string x =

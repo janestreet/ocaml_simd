@@ -42,18 +42,22 @@ external of_float64x2
   = "ocaml_simd_sse_unreachable" "caml_vec128_cast"
 [@@noalloc] [@@builtin]
 
-external interleave_high_16
-  :  t
-  -> t
-  -> t
-  @@ portable
-  = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_interleave_high_16"
-[@@noalloc] [@@builtin]
-
 external interleave_low_16
   :  t
   -> t
   -> t
   @@ portable
-  = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_interleave_low_16"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin
+  (amd64, "caml_sse2_vec128_interleave_low_16") (arm64, "caml_neon_int16x8_zip1")]
+
+external interleave_high_16
+  :  t
+  -> t
+  -> t
+  @@ portable
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin
+  (amd64, "caml_sse2_vec128_interleave_high_16") (arm64, "caml_neon_int16x8_zip2")]

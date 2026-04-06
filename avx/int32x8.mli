@@ -9,10 +9,10 @@ val unbox : int32x8 @ local -> t
 (* Creation *)
 
 (** Equivalent to [const1 #0l]. *)
-val zero : unit -> t
+val zero : t
 
 (** Equivalent to [const1 #1l]. *)
-val one : unit -> t
+val one : t
 
 (** [_mm256_set1_epi32] *)
 val set1 : int32# -> t
@@ -36,7 +36,7 @@ val set_lanes : int32x4# -> int32x4# -> t
     static vector literal. Exposed as an external so user code can compile without
     cross-library inlining. *)
 external const1 : int32# -> t = "ocaml_simd_avx_unreachable" "caml_int32x8_const1"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** Arguments must be literals or unboxing functions applied to literals. Compiles to a
     static vector literal. Exposed as an external so user code can compile without
@@ -52,7 +52,7 @@ external const
   -> int32#
   -> t
   = "ocaml_simd_avx_unreachable" "caml_int32x8_const8"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (* Load/Store *)
 
@@ -114,7 +114,7 @@ external insert_lane
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_insert_128"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [idx] must be a literal in [0,1]. Operates on two int32x4 lanes. Exposed as an
     external so user code can compile without cross-library inlining. *)
@@ -124,7 +124,7 @@ external extract_lane
   -> int32x4#
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_extract_128"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** Projection. Has no runtime cost. Operates on two int32x4 lanes. *)
 val extract_lane0 : t -> int32x4#
@@ -171,7 +171,7 @@ external blend
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_blend_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm256_shuffle_ps] Specify shuffle with ppx_simd: [%shuffle N, N, N, N], where each N
     is in [0,3]. Operates on two int32x4 lanes. Exposed as an external so user code can
@@ -186,7 +186,7 @@ external shuffle_lanes
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128x2_shuffle_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm256_permute_ps] Specify permute with ppx_simd: [%permute N, N, N, N], where each N
     is in [0,3]. Operates on two int32x4 lanes. Exposed as an external so user code can
@@ -200,7 +200,7 @@ external permute_lanes
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128x2_permute_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (* Math *)
 
@@ -254,7 +254,7 @@ external shifti_left_bytes_lanes
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_shift_left_bytes"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm256_bsrli_epi128] First argument must be an unsigned integer literal in [0,15].
     Operates on two int32x4 lanes. Exposed as an external so user code can compile without
@@ -264,7 +264,7 @@ external shifti_right_bytes_lanes
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_shift_right_bytes"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm256_slli_epi32] First argument must be an unsigned integer literal in [0,31].
     Exposed as an external so user code can compile without cross-library inlining. *)
@@ -273,7 +273,7 @@ external shifti_left_logical
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx2_int32x8_slli"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm256_srli_epi32] First argument must be an unsigned integer literal in [0,31].
     Exposed as an external so user code can compile without cross-library inlining. *)
@@ -282,7 +282,7 @@ external shifti_right_logical
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx2_int32x8_srli"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm256_srai_epi32] First argument must be an unsigned integer literal in [0,31].
     Exposed as an external so user code can compile without cross-library inlining. *)
@@ -291,7 +291,7 @@ external shifti_right_arithmetic
   -> t
   -> t
   = "ocaml_simd_avx_unreachable" "caml_avx2_int32x8_srai"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm256_hadd_epi32] *)
 val horizontal_add_lanes : t -> t -> t
@@ -354,10 +354,12 @@ val of_int16x16_bits : int16x16# -> t
 (** Identity in the bit representation. Different numeric interpretation. *)
 val of_int64x4_bits : int64x4# -> t
 
-(** [_mm256_cvtps_epi32] *)
+(** [_mm256_cvtps_epi32] If the argument is NaN or infinite or if the rounded value cannot
+    be represented, the result is unspecified. Uses the current rounding mode. *)
 val of_float32x8 : float32x8# -> t
 
-(** [_mm256_cvttps_epi32] *)
+(** [_mm256_cvttps_epi32] If the argument is NaN or infinite or if the rounded value
+    cannot be represented, the result is unspecified. *)
 val of_float32x8_trunc : float32x8# -> t
 
 (** [_mm256_cvtepi8_epi32] *)

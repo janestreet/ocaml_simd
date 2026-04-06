@@ -9,10 +9,10 @@ val unbox : int32x4 @ local -> t
 (* Creation *)
 
 (** Equivalent to [const1 #0l]. *)
-val zero : unit -> t
+val zero : t
 
 (** Equivalent to [const1 #1l]. *)
-val one : unit -> t
+val one : t
 
 (** [_mm_set1_epi32] Compiles to mov,shufps. *)
 val set1 : int32# -> t
@@ -112,7 +112,7 @@ external blend
   -> t
   -> t
   = "ocaml_simd_sse_unreachable" "caml_sse41_vec128_blend_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (** [_mm_shuffle_ps] Specify shuffle with ppx_simd: [%shuffle N, N, N, N], where each N is
     in [0,3]. Exposed as an external so user code can compile without cross-library
@@ -123,7 +123,7 @@ external shuffle
   -> t
   -> t
   = "ocaml_simd_sse_unreachable" "caml_sse_vec128_shuffle_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 (* Math *)
 
@@ -166,8 +166,10 @@ external shifti_left_bytes
   :  int64#
   -> t
   -> t
-  = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shift_left_bytes"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin
+  (amd64, "caml_sse2_vec128_shift_left_bytes") (arm64, "caml_neon_vec128_shift_left_bytes")]
 
 (** [_mm_bsrli_si128] First argument must be an unsigned integer literal in [0,15].
     Exposed as an external so user code can compile without cross-library inlining. *)
@@ -175,8 +177,11 @@ external shifti_right_bytes
   :  int64#
   -> t
   -> t
-  = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shift_right_bytes"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin
+  (amd64, "caml_sse2_vec128_shift_right_bytes")
+    (arm64, "caml_neon_vec128_shift_right_bytes")]
 
 (** [_mm_slli_epi32] First argument must be an unsigned integer literal in [0,31]. Exposed
     as an external so user code can compile without cross-library inlining. *)
@@ -184,8 +189,9 @@ external shifti_left_logical
   :  int64#
   -> t
   -> t
-  = "ocaml_simd_sse_unreachable" "caml_sse2_int32x4_slli"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin (amd64, "caml_sse2_int32x4_slli") (arm64, "caml_neon_int32x4_slli")]
 
 (** [_mm_srli_epi32] First argument must be an unsigned integer literal in [0,31]. Exposed
     as an external so user code can compile without cross-library inlining. *)
@@ -193,8 +199,9 @@ external shifti_right_logical
   :  int64#
   -> t
   -> t
-  = "ocaml_simd_sse_unreachable" "caml_sse2_int32x4_srli"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin (amd64, "caml_sse2_int32x4_srli") (arm64, "caml_neon_int32x4_srli")]
 
 (** [_mm_srai_epi32] First argument must be an unsigned integer literal in [0,31]. Exposed
     as an external so user code can compile without cross-library inlining. *)
@@ -202,8 +209,9 @@ external shifti_right_arithmetic
   :  int64#
   -> t
   -> t
-  = "ocaml_simd_sse_unreachable" "caml_sse2_int32x4_srai"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin (amd64, "caml_sse2_int32x4_srai") (arm64, "caml_neon_int32x4_srai")]
 
 (** [_mm_hadd_epi32] *)
 val horizontal_add : t -> t -> t
@@ -263,10 +271,12 @@ val of_int16x8_bits : int16x8# -> t
 (** Identity in the bit representation. Different numeric interpretation. *)
 val of_int64x2_bits : int64x2# -> t
 
-(** [_mm_cvtps_epi32] *)
+(** [_mm_cvtps_epi32] If the argument is NaN or infinite or if the rounded value cannot be
+    represented, the result is unspecified. Uses the current rounding mode. *)
 val of_float32x4 : float32x4# -> t
 
-(** [_mm_cvttps_epi32] *)
+(** [_mm_cvttps_epi32] If the argument is NaN or infinite or if the rounded value cannot
+    be represented, the result is unspecified. *)
 val of_float32x4_trunc : float32x4# -> t
 
 (** [_mm_cvtepi8_epi32] *)
@@ -281,10 +291,12 @@ val of_int16x8 : int16x8# -> t
 (** [_mm_cvtepu16_epi32] *)
 val of_int16x8_unsigned : int16x8# -> t
 
-(** [_mm_cvtpd_epi32] *)
+(** [_mm_cvtpd_epi32] If the argument is NaN or infinite or if the rounded value cannot be
+    represented, the result is unspecified. Uses the current rounding mode. *)
 val of_float64x2 : float64x2# -> t
 
-(** [_mm_cvttpd_epi32] *)
+(** [_mm_cvttpd_epi32] If the argument is NaN or infinite or if the rounded value cannot
+    be represented, the result is unspecified. *)
 val of_float64x2_trunc : float64x2# -> t
 
 (* Strings (Slow) *)

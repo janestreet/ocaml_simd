@@ -6,6 +6,11 @@ module type Raw = sig @@ portable
   (** Load 16 bytes from an arbitrary address encoded as a [nativeint#]. *)
   val unaligned_load : nativeint# -> t
 
+  (** Load 16 bytes from an arbitrary address encoded as a [nativeint#]. May be faster
+      than [unaligned_load] when the load crosses a cache line boundary. If the data will
+      be modified and stored to the same location, use [unaligned_load] instead. *)
+  val known_unaligned_load : nativeint# -> t
+
   (** Store 16 bytes to an arbitrary address encoded as a [nativeint#]. *)
   val unaligned_store : nativeint# -> t -> unit
 
@@ -385,6 +390,50 @@ module type Nativeint_u_array_accessors = sig @@ portable
   val unsafe_set : nativeint# array @ local -> idx:index -> int64x2# -> unit
 end
 
+module type Int8_u_array_accessors = sig @@ portable
+  type index : any
+
+  (** Load sixteen int8s from a [int8# array] at an arbitrary (unaligned) index.
+
+      @raise Invalid_argument if [idx..idx+15] fails bounds checking. *)
+  val get : int8# array @ local read -> idx:index -> int8x16#
+
+  (** Load sixteen int8s from a [int8# array] at an arbitrary (unaligned) index. Does not
+      check bounds. *)
+  val unsafe_get : int8# array @ local read -> idx:index -> int8x16#
+
+  (** Store sixteen int8s to a [int8# array] at an arbitrary (unaligned) index.
+
+      @raise Invalid_argument if [idx..idx+15] fails bounds checking. *)
+  val set : int8# array @ local -> idx:index -> int8x16# -> unit
+
+  (** Store sixteen int8s to a [int8# array] at an arbitrary (unaligned) index. Does not
+      check bounds. *)
+  val unsafe_set : int8# array @ local -> idx:index -> int8x16# -> unit
+end
+
+module type Int16_u_array_accessors = sig @@ portable
+  type index : any
+
+  (** Load eight int16s from a [int16# array] at an arbitrary (unaligned) index.
+
+      @raise Invalid_argument if [idx..idx+7] fails bounds checking. *)
+  val get : int16# array @ local read -> idx:index -> int16x8#
+
+  (** Load eight int16s from a [int16# array] at an arbitrary (unaligned) index. Does not
+      check bounds. *)
+  val unsafe_get : int16# array @ local read -> idx:index -> int16x8#
+
+  (** Store eight int16s to a [int16# array] at an arbitrary (unaligned) index.
+
+      @raise Invalid_argument if [idx..idx+7] fails bounds checking. *)
+  val set : int16# array @ local -> idx:index -> int16x8# -> unit
+
+  (** Store eight int16s to a [int16# array] at an arbitrary (unaligned) index. Does not
+      check bounds. *)
+  val unsafe_set : int16# array @ local -> idx:index -> int16x8# -> unit
+end
+
 module type Int32_u_array_accessors = sig @@ portable
   type index : any
 
@@ -414,6 +463,8 @@ module type String = sig @@ portable
   (** @inline *)
   include String_accessors with type t := t and type index := int
 
+  module Int8_u : String_accessors with type t := t and type index := int8#
+  module Int16_u : String_accessors with type t := t and type index := int16#
   module Int32_u : String_accessors with type t := t and type index := int32#
   module Int64_u : String_accessors with type t := t and type index := int64#
   module Nativeint_u : String_accessors with type t := t and type index := nativeint#
@@ -426,6 +477,8 @@ module type Bytes = sig @@ portable
   (** @inline *)
   include Bytes_accessors with type t := t and type index := int
 
+  module Int8_u : Bytes_accessors with type t := t and type index := int8#
+  module Int16_u : Bytes_accessors with type t := t and type index := int16#
   module Int32_u : Bytes_accessors with type t := t and type index := int32#
   module Int64_u : Bytes_accessors with type t := t and type index := int64#
   module Nativeint_u : Bytes_accessors with type t := t and type index := nativeint#
@@ -438,6 +491,8 @@ module type Bigstring = sig @@ portable
   (** @inline *)
   include Bigstring_accessors with type t := t and type index := int
 
+  module Int8_u : Bigstring_accessors with type t := t and type index := int8#
+  module Int16_u : Bigstring_accessors with type t := t and type index := int16#
   module Int32_u : Bigstring_accessors with type t := t and type index := int32#
   module Int64_u : Bigstring_accessors with type t := t and type index := int64#
   module Nativeint_u : Bigstring_accessors with type t := t and type index := nativeint#
@@ -463,6 +518,8 @@ module type Load_store = sig @@ portable
   module type Float32_u_array_accessors = Float32_u_array_accessors
   module type Int64_u_array_accessors = Int64_u_array_accessors
   module type Nativeint_u_array_accessors = Nativeint_u_array_accessors
+  module type Int8_u_array_accessors = Int8_u_array_accessors
+  module type Int16_u_array_accessors = Int16_u_array_accessors
   module type Int32_u_array_accessors = Int32_u_array_accessors
 
   module Int32 : sig
@@ -480,6 +537,8 @@ module type Load_store = sig @@ portable
   module Float_array : sig
     include Float_array_accessors with type index := int (** @inline *)
 
+    module Int8_u : Float_array_accessors with type index := int8#
+    module Int16_u : Float_array_accessors with type index := int16#
     module Int32_u : Float_array_accessors with type index := int32#
     module Int64_u : Float_array_accessors with type index := int64#
     module Nativeint_u : Float_array_accessors with type index := nativeint#
@@ -488,6 +547,8 @@ module type Load_store = sig @@ portable
   module Floatarray : sig
     include Floatarray_accessors with type index := int (** @inline *)
 
+    module Int8_u : Floatarray_accessors with type index := int8#
+    module Int16_u : Floatarray_accessors with type index := int16#
     module Int32_u : Floatarray_accessors with type index := int32#
     module Int64_u : Floatarray_accessors with type index := int64#
     module Nativeint_u : Floatarray_accessors with type index := nativeint#
@@ -496,6 +557,8 @@ module type Load_store = sig @@ portable
   module Float_iarray : sig
     include Float_iarray_accessors with type index := int (** @inline *)
 
+    module Int8_u : Float_iarray_accessors with type index := int8#
+    module Int16_u : Float_iarray_accessors with type index := int16#
     module Int32_u : Float_iarray_accessors with type index := int32#
     module Int64_u : Float_iarray_accessors with type index := int64#
     module Nativeint_u : Float_iarray_accessors with type index := nativeint#
@@ -504,6 +567,8 @@ module type Load_store = sig @@ portable
   module Unsafe_immediate_array : sig
     include Unsafe_immediate_array_accessors with type index := int (** @inline *)
 
+    module Int8_u : Unsafe_immediate_array_accessors with type index := int8#
+    module Int16_u : Unsafe_immediate_array_accessors with type index := int16#
     module Int32_u : Unsafe_immediate_array_accessors with type index := int32#
     module Int64_u : Unsafe_immediate_array_accessors with type index := int64#
     module Nativeint_u : Unsafe_immediate_array_accessors with type index := nativeint#
@@ -512,6 +577,8 @@ module type Load_store = sig @@ portable
   module Unsafe_immediate_iarray : sig
     include Unsafe_immediate_iarray_accessors with type index := int (** @inline *)
 
+    module Int8_u : Unsafe_immediate_iarray_accessors with type index := int8#
+    module Int16_u : Unsafe_immediate_iarray_accessors with type index := int16#
     module Int32_u : Unsafe_immediate_iarray_accessors with type index := int32#
     module Int64_u : Unsafe_immediate_iarray_accessors with type index := int64#
     module Nativeint_u : Unsafe_immediate_iarray_accessors with type index := nativeint#
@@ -520,6 +587,8 @@ module type Load_store = sig @@ portable
   module Float_u_array : sig
     include Float_u_array_accessors with type index := int (** @inline *)
 
+    module Int8_u : Float_u_array_accessors with type index := int8#
+    module Int16_u : Float_u_array_accessors with type index := int16#
     module Int32_u : Float_u_array_accessors with type index := int32#
     module Int64_u : Float_u_array_accessors with type index := int64#
     module Nativeint_u : Float_u_array_accessors with type index := nativeint#
@@ -528,6 +597,8 @@ module type Load_store = sig @@ portable
   module Float32_u_array : sig
     include Float32_u_array_accessors with type index := int (** @inline *)
 
+    module Int8_u : Float32_u_array_accessors with type index := int8#
+    module Int16_u : Float32_u_array_accessors with type index := int16#
     module Int32_u : Float32_u_array_accessors with type index := int32#
     module Int64_u : Float32_u_array_accessors with type index := int64#
     module Nativeint_u : Float32_u_array_accessors with type index := nativeint#
@@ -536,6 +607,8 @@ module type Load_store = sig @@ portable
   module Int64_u_array : sig
     include Int64_u_array_accessors with type index := int (** @inline *)
 
+    module Int8_u : Int64_u_array_accessors with type index := int8#
+    module Int16_u : Int64_u_array_accessors with type index := int16#
     module Int32_u : Int64_u_array_accessors with type index := int32#
     module Int64_u : Int64_u_array_accessors with type index := int64#
     module Nativeint_u : Int64_u_array_accessors with type index := nativeint#
@@ -544,14 +617,38 @@ module type Load_store = sig @@ portable
   module Nativeint_u_array : sig
     include Nativeint_u_array_accessors with type index := int (** @inline *)
 
+    module Int8_u : Nativeint_u_array_accessors with type index := int8#
+    module Int16_u : Nativeint_u_array_accessors with type index := int16#
     module Int32_u : Nativeint_u_array_accessors with type index := int32#
     module Int64_u : Nativeint_u_array_accessors with type index := int64#
     module Nativeint_u : Nativeint_u_array_accessors with type index := nativeint#
   end
 
+  module Int8_u_array : sig
+    include Int8_u_array_accessors with type index := int (** @inline *)
+
+    module Int8_u : Int8_u_array_accessors with type index := int8#
+    module Int16_u : Int8_u_array_accessors with type index := int16#
+    module Int32_u : Int8_u_array_accessors with type index := int32#
+    module Int64_u : Int8_u_array_accessors with type index := int64#
+    module Nativeint_u : Int8_u_array_accessors with type index := nativeint#
+  end
+
+  module Int16_u_array : sig
+    include Int16_u_array_accessors with type index := int (** @inline *)
+
+    module Int8_u : Int16_u_array_accessors with type index := int8#
+    module Int16_u : Int16_u_array_accessors with type index := int16#
+    module Int32_u : Int16_u_array_accessors with type index := int32#
+    module Int64_u : Int16_u_array_accessors with type index := int64#
+    module Nativeint_u : Int16_u_array_accessors with type index := nativeint#
+  end
+
   module Int32_u_array : sig
     include Int32_u_array_accessors with type index := int (** @inline *)
 
+    module Int8_u : Int32_u_array_accessors with type index := int8#
+    module Int16_u : Int32_u_array_accessors with type index := int16#
     module Int32_u : Int32_u_array_accessors with type index := int32#
     module Int64_u : Int32_u_array_accessors with type index := int64#
     module Nativeint_u : Int32_u_array_accessors with type index := nativeint#

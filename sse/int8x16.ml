@@ -12,6 +12,7 @@ module Raw = Load_store.Raw_Int8x16
 module String = Load_store.String_Int8x16
 module Bytes = Load_store.Bytes_Int8x16
 module Bigstring = Load_store.Bigstring_Int8x16
+module Int8_u_array = Load_store.Int8_u_array
 
 external const1
   :  int8#
@@ -88,11 +89,17 @@ let[@inline] extract ~idx t =
      | (_ : Base.Nothing.t) -> .)
 ;;
 
-let[@inline] zero () = const1 #0s
-let[@inline] one () = const1 #1s
-let[@inline] all_ones () = const1 #0xffs
+let zero = const1 #0s
+let one = const1 #1s
+let all_ones = const1 #0xffs
 let[@inline] shuffle ~pattern x = I.shuffle_8 x pattern
-let[@inline] set1 a = shuffle ~pattern:(zero ()) (I.low_of a)
+
+let[@inline] set1 a =
+  let a = I.low_of a in
+  match Sys.arch with
+  | Amd64 -> shuffle ~pattern:zero a
+  | Arm64 -> I.Neon.broadcast a
+;;
 
 let[@inline] set a b c d e f g h i j k l m n o p =
   (*=movd, + 15x insert -> 31 cycle latency
@@ -152,7 +159,7 @@ let[@inline] ( <= ) x y = I.(or_ (cmpgt y x) (cmpeq x y))
 let[@inline] ( = ) x y = I.cmpeq x y
 let[@inline] ( > ) x y = I.cmpgt x y
 let[@inline] ( < ) x y = I.cmpgt y x
-let[@inline] ( <> ) x y = I.(xor (all_ones ()) (cmpeq x y))
+let[@inline] ( <> ) x y = I.(xor all_ones (cmpeq x y))
 let[@inline] equal x y = I.cmpeq x y
 let[@inline] interleave_upper ~even ~odd = I.interleave_high_8 even odd
 let[@inline] interleave_lower ~even ~odd = I.interleave_low_8 even odd
@@ -166,7 +173,7 @@ let[@inline] add_saturating_unsigned x y = I.add_saturating_unsigned x y
 let[@inline] sub x y = I.sub x y
 let[@inline] sub_saturating x y = I.sub_saturating x y
 let[@inline] sub_saturating_unsigned x y = I.sub_saturating_unsigned x y
-let[@inline] neg x = I.(mul_sign x (all_ones ()))
+let[@inline] neg x = I.(mul_sign x all_ones)
 let[@inline] abs x = I.abs x
 
 external shifti_left_bytes
@@ -174,16 +181,21 @@ external shifti_left_bytes
   -> t
   -> t
   @@ portable
-  = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shift_left_bytes"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin
+  (amd64, "caml_sse2_vec128_shift_left_bytes") (arm64, "caml_neon_vec128_shift_left_bytes")]
 
 external shifti_right_bytes
   :  int64#
   -> t
   -> t
   @@ portable
-  = "ocaml_simd_sse_unreachable" "caml_sse2_vec128_shift_right_bytes"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "ocaml_simd_sse_unreachable"
+[@@noalloc]
+[@@builtin
+  (amd64, "caml_sse2_vec128_shift_right_bytes")
+    (arm64, "caml_neon_vec128_shift_right_bytes")]
 
 external concat_shift_right_bytes
   :  int64#
@@ -192,7 +204,7 @@ external concat_shift_right_bytes
   -> t
   @@ portable
   = "ocaml_simd_sse_unreachable" "caml_ssse3_vec128_align_right_bytes"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 let[@inline] mul_sign x y = I.mul_sign x y
 let[@inline] average_unsigned x y = I.avg_unsigned x y
@@ -201,8 +213,14 @@ let[@inline] ( - ) x y = I.sub x y
 let[@inline] ( lor ) x y = I.or_ x y
 let[@inline] ( land ) x y = I.and_ x y
 let[@inline] ( lxor ) x y = I.xor x y
-let[@inline] lnot m = I.(xor (all_ones ()) m)
-let[@inline] landnot ~not y = I.andnot ~not y
+let[@inline] lnot m = I.(xor all_ones m)
+
+let[@inline] landnot ~not y =
+  match Sys.arch with
+  | Amd64 -> I.Sse.andnot ~not y
+  | Arm64 -> I.and_ (lnot not) y
+;;
+
 let[@inline] sum_absolute_differences_unsigned x y = I.sadu x y
 
 let[@inline] mul_unsigned_by_signed_horizontal_add_saturating x y =
@@ -216,7 +234,7 @@ external multi_sum_absolute_differences_unsigned
   -> int16x8#
   @@ portable
   = "ocaml_simd_sse_unreachable" "caml_sse41_int8x16_multi_sad_unsigned"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 let[@inline] of_float16x8_bits x = I.of_float16x8 x
 let[@inline] of_float32x4_bits x = I.of_float32x4 x
@@ -224,8 +242,16 @@ let[@inline] of_float64x2_bits x = I.of_float64x2 x
 let[@inline] of_int16x8_bits x = I.of_int16x8 x
 let[@inline] of_int32x4_bits x = I.of_int32x4 x
 let[@inline] of_int64x2_bits x = I.of_int64x2 x
-let[@inline] of_int16x8_saturating x y = Int16x8_internal.(cvt_si8 x y)
-let[@inline] of_int16x8_saturating_unsigned x y = Int16x8_internal.(cvt_su8 x y)
+
+let[@inline] of_int16x8_saturating x y =
+  match Sys.arch with
+  | Amd64 -> Int16x8_internal.Sse.cvt_si8 x y
+  | Arm64 ->
+    let low = Int16x8_internal.Neon.cvt_si8_low x in
+    Int16x8_internal.Neon.cvt_si8_high low y
+;;
+
+let[@inline] of_int16x8_saturating_unsigned x y = Int16x8_internal.cvt_su8 x y
 
 let[@inline] to_string x =
   let bx = Int8_u.to_int in

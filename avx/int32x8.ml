@@ -18,7 +18,7 @@ external const1
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_int32x8_const1"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external const
   :  int32#
@@ -32,7 +32,7 @@ external const
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_int32x8_const8"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shuffle_lanes
   :  (Ocaml_simd.Shuffle4.t[@untagged])
@@ -41,7 +41,7 @@ external shuffle_lanes
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128x2_shuffle_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external permute_lanes
   :  (Ocaml_simd.Permute4.t[@untagged])
@@ -49,7 +49,7 @@ external permute_lanes
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec128x2_permute_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external insert_lane
   :  idx:int64#
@@ -58,7 +58,7 @@ external insert_lane
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_insert_128"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external extract_lane
   :  idx:int64#
@@ -66,7 +66,7 @@ external extract_lane
   -> int32x4#
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_extract_128"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external blend
   :  (Ocaml_simd.Blend8.t[@untagged])
@@ -75,11 +75,11 @@ external blend
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx_vec256_blend_32"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
-let[@inline] zero () = const1 #0l
-let[@inline] one () = const1 #1l
-let[@inline] all_ones () = const1 #0xffffffffl
+let zero = const1 #0l
+let one = const1 #1l
+let all_ones = const1 #0xffffffffl
 let[@inline] set1 x = I.broadcast_32 (I.I32x4.low_of x)
 
 let[@inline] set a b c d e f g h =
@@ -155,7 +155,7 @@ let[@inline] ( <= ) x y = I.(or_ (cmpgt y x) (cmpeq x y))
 let[@inline] ( = ) x y = I.cmpeq x y
 let[@inline] ( > ) x y = I.cmpgt x y
 let[@inline] ( < ) x y = I.cmpgt y x
-let[@inline] ( <> ) x y = I.(xor (all_ones ()) (cmpeq x y))
+let[@inline] ( <> ) x y = I.(xor all_ones (cmpeq x y))
 let[@inline] equal x y = I.cmpeq x y
 let[@inline] interleave_upper_lanes ~even ~odd = I.interleave_high_32 even odd
 let[@inline] interleave_lower_lanes ~even ~odd = I.interleave_low_32 even odd
@@ -167,7 +167,7 @@ let[@inline] min_unsigned x y = I.min_unsigned x y
 let[@inline] max_unsigned x y = I.max_unsigned x y
 let[@inline] add x y = I.add x y
 let[@inline] sub x y = I.sub x y
-let[@inline] neg x = I.(mul_sign x (all_ones ()))
+let[@inline] neg x = I.(mul_sign x all_ones)
 let[@inline] abs x = I.abs x
 
 external shifti_left_bytes_lanes
@@ -176,7 +176,7 @@ external shifti_left_bytes_lanes
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_shift_left_bytes"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shifti_right_bytes_lanes
   :  int64#
@@ -184,7 +184,7 @@ external shifti_right_bytes_lanes
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_vec128x2_shift_right_bytes"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shifti_left_logical
   :  int64#
@@ -192,7 +192,7 @@ external shifti_left_logical
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_int32x8_slli"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shifti_right_logical
   :  int64#
@@ -200,7 +200,7 @@ external shifti_right_logical
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_int32x8_srli"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 external shifti_right_arithmetic
   :  int64#
@@ -208,7 +208,7 @@ external shifti_right_arithmetic
   -> t
   @@ portable
   = "ocaml_simd_avx_unreachable" "caml_avx2_int32x8_srai"
-[@@noalloc] [@@builtin]
+[@@noalloc] [@@builtin amd64]
 
 let[@inline] horizontal_add_lanes x y = I.horizontal_add x y
 let[@inline] horizontal_sub_lanes x y = I.horizontal_sub x y
@@ -221,7 +221,7 @@ let[@inline] ( - ) x y = I.sub x y
 let[@inline] ( lor ) x y = I.or_ x y
 let[@inline] ( land ) x y = I.and_ x y
 let[@inline] ( lxor ) x y = I.xor x y
-let[@inline] lnot m = I.(xor (all_ones ()) m)
+let[@inline] lnot m = I.(xor all_ones m)
 let[@inline] landnot ~not y = I.andnot ~not y
 let[@inline] unsafe_of_int32x4 x = I.low_of_i32x4 x
 let[@inline] of_float16x16_bits x = I.of_float16x16 x

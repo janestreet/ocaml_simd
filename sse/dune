@@ -2,11 +2,19 @@
  (foreign_stubs
   (language c)
   (names sse_stubs)
-  (flags :standard -msse4.2))
+  (flags
+   (:standard
+    (:include c_flags.sexp))
+   (-I ../simde)))
  (name ocaml_simd_sse)
  (public_name ocaml_simd.sse)
  (modes native)
  (libraries base unboxed.float32_u unboxed.float_u unboxed.int32_u
    unboxed.int64_u stdlib_stable)
  (preprocess
-  (pps ppx_simd ppx_template)))
+  (pps ppx_simd ppx_template ppx_builtin)))
+
+(rule
+ (targets c_flags.sexp)
+ (action
+  (run ./discover/ocaml_simd_sse_discover.exe %{targets})))

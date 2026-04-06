@@ -1,0 +1,5 @@
+(executables
+ (modes byte exe)
+ (names ocaml_simd_sse_discover)
+ (libraries ocaml-compiler-libs.common)
+ (preprocess no_preprocessing))

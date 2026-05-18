@@ -47,8 +47,6 @@ BUILTIN(caml_int8x16_const16)
 BUILTIN(caml_int8x16_low_of_int8)
 BUILTIN(caml_int8x16_low_to_int8)
 
-BUILTIN(caml_popcnt_int32)
-BUILTIN(caml_popcnt_int64)
 BUILTIN(caml_sse_float32x4_add)
 BUILTIN(caml_sse_float32x4_cmp)
 BUILTIN(caml_sse_float32x4_div)
@@ -344,6 +342,10 @@ BUILTIN(caml_neon_vec128_high_64_to_low_64)
 // are emulated using simd-everywhere.
 #ifdef __x86_64__
 
+BUILTIN(caml_popcnt_int16)
+BUILTIN(caml_popcnt_int32)
+BUILTIN(caml_popcnt_int64)
+
 BUILTIN(caml_sse_vec128_load_aligned)
 BUILTIN(caml_sse_vec128_load_unaligned)
 BUILTIN(caml_sse_vec128_store_aligned)
@@ -450,6 +452,10 @@ typedef __int64_t __int64;
 #define CASE64(F, i) CASE32(F, i) CASE32(F, i + 32)
 #define CASE128(F, i) CASE64(F, i) CASE64(F, i + 64)
 #define CASE256(F, i) CASE128(F, i) CASE128(F, i + 128)
+
+uint16_t caml_popcnt_int16(int16_t x) { return __builtin_popcount((uint16_t)x); }
+uint32_t caml_popcnt_int32(int32_t x) { return __builtin_popcount(x); }
+uint64_t caml_popcnt_int64(int64_t x) { return __builtin_popcountll(x); }
 
 __m128i caml_sse_vec128_load_aligned(intnat addr) {
   return _mm_load_si128((__m128i *)addr);

@@ -413,6 +413,11 @@ module Parse = struct
   exception Error of string
   exception Restart of int
 
+  type byte_range =
+    { start_offset : int
+    ; end_offset : int
+    }
+
   type t =
     { mutable top : Sexp.t list (* List of sexps parsed at this depth *)
     ; mutable consumed : int (* Largest index the parser has consumed *)
@@ -425,9 +430,16 @@ module Parse = struct
         (* Stack of depths at which we need to ignore a sexp due to a sexp comment. *)
     ; quoted_string_buffer : Buffer.t
     ; extract_16_buffer : Bigstring.t
+    ; track_positions : bool
+    ; mutable current_sexp_start : int
+        (* Byte offset where the current top-level sexp started. Only meaningful when
+           [track_positions] is true. *)
+    ; mutable top_ranges : byte_range list
+    (* Byte ranges for top-level sexps, in reverse order (parallel to [top]). Only
+       populated when [track_positions] is true. *)
     }
 
-  let[@inline] create () =
+  let[@inline] create ~track_positions =
     { top = []
     ; stack = Vec.create ~initial_capacity:16 ()
     ; consumed = -1
@@ -435,6 +447,9 @@ module Parse = struct
     ; block_comment_depth = 0
     ; quoted_string_buffer = Buffer.create ()
     ; extract_16_buffer = Bigstring.create 16
+    ; track_positions
+    ; current_sexp_start = 0
+    ; top_ranges = []
     }
   ;;
 
@@ -522,6 +537,8 @@ module Parse = struct
      that we have processed up until its end. *)
   let[@inline] parse_quoted_string input ~buffer ~idx ~extract_16_buffer =
     let len = String.length input in
+    (* Returns the index of the closing quote (or [idx] if the string is truncated at
+       EOF). *)
     let[@inline] rec advance_from idx =
       bounds_check ~len ~idx ~msg:"quoted string";
       let v = String_intrin.extract_16 input ~len ~idx ~extract_16_buffer in
@@ -534,10 +551,10 @@ module Parse = struct
         (* Otherwise, check for escaped chars or end of string. *)
         let idx = idx + n in
         if idx >= len
-        then ()
+        then idx
         else (
           match String.unsafe_get input idx with
-          | '"' -> ()
+          | '"' -> idx
           | '\\' ->
             let c, idx = parse_escaped input ~len ~idx:(idx + 1) ~extract_16_buffer in
             Option.iter c ~f:(fun c -> Buffer.push buffer ~c);
@@ -547,10 +564,10 @@ module Parse = struct
             advance_from (idx + 1))
     in
     Buffer.clear buffer;
-    advance_from idx;
-    let len = Buffer.length buffer in
-    (* Build result string from buffer *)
-    String.init len ~f:(Buffer.get buffer), len + 2
+    let closing_quote_idx = advance_from idx in
+    let decoded_len = Buffer.length buffer in
+    (* Build result string from buffer. Raw length includes both quotes. *)
+    String.init decoded_len ~f:(Buffer.get buffer), closing_quote_idx - idx + 2
   ;;
 
   (*=If we get a # or | inside an unquoted string, we must check that
@@ -594,14 +611,23 @@ module Parse = struct
   ;;
 
   (* Check for valid state at EOF. *)
-  let[@inline] complete t =
+  let[@inline] check_eof t =
     if Vec.length t.stack > 0
     then raise (Error "Found unclosed parentheses at end of input.");
     if t.block_comment_depth > 0
     then raise (Error "Found unclosed block comment at end of input.");
     if Vec.length t.sexp_comment_depth > 0
-    then raise (Error "Found unclosed sexp comment at end of input.");
+    then raise (Error "Found unclosed sexp comment at end of input.")
+  ;;
+
+  let[@inline] complete t =
+    check_eof t;
     List.rev t.top
+  ;;
+
+  let[@inline] complete_with_positions t =
+    check_eof t;
+    List.rev_map2_exn t.top t.top_ranges ~f:(fun sexp range -> sexp, range)
   ;;
 
   (* Complete one sexp: either push it to the current list or ignore it and update the
@@ -609,7 +635,13 @@ module Parse = struct
   let[@inline] complete_one t ~sexp =
     let len = Vec.length t.sexp_comment_depth in
     if len = 0
-    then t.top <- sexp :: t.top
+    then (
+      t.top <- sexp :: t.top;
+      if t.track_positions && Vec.length t.stack = 0
+      then
+        t.top_ranges
+        <- { start_offset = t.current_sexp_start; end_offset = t.consumed + 1 }
+           :: t.top_ranges)
     else (
       match Vec.unsafe_get t.sexp_comment_depth (len - 1) with
       | d when d = Vec.length t.stack -> Vec.pop_back_unit_exn t.sexp_comment_depth
@@ -681,6 +713,7 @@ module Parse = struct
     | ('#' | '|') when try_transition_complex_comment t ~input ~idx ~ctrl -> ()
     (* Begin nested sexp *)
     | '(' when no_comment ->
+      if t.track_positions && Vec.length t.stack = 0 then t.current_sexp_start <- idx;
       Vec.push_back t.stack t.top;
       t.top <- []
     (* End nested sexp *)
@@ -696,6 +729,8 @@ module Parse = struct
       complete_one t ~sexp
     (* Quoted string *)
     | '"' ->
+      if t.track_positions && no_comment && Vec.length t.stack = 0
+      then t.current_sexp_start <- idx;
       let atom, len =
         parse_quoted_string
           input
@@ -707,6 +742,7 @@ module Parse = struct
       if no_comment then complete_one t ~sexp:(Sexp.Atom atom)
     (* All other characters indicate an unquoted string *)
     | _ when no_comment ->
+      if t.track_positions && Vec.length t.stack = 0 then t.current_sexp_start <- idx;
       let atom =
         parse_unquoted_string input ~idx ~extract_16_buffer:t.extract_16_buffer
       in
@@ -756,13 +792,66 @@ let[@inline] parse_from input ~(parse : Parse.t) ~pos =
 
 (* Parse a list of sexps from a string. *)
 let of_string_many input =
-  let parse = Parse.create () in
+  let parse = Parse.create ~track_positions:false in
   let[@inline] rec aux idx =
     try parse_from input ~parse ~pos:idx with
     | Parse.Restart idx -> aux idx
   in
   aux 0;
   Parse.complete parse
+;;
+
+module Position = struct
+  type t = Parsexp.Positions.pos =
+    { line : int
+    ; col : int
+    ; offset : int
+    }
+  [@@deriving sexp_of]
+end
+
+module Range = struct
+  type t = Parsexp.Positions.range =
+    { start_pos : Position.t
+    ; end_pos : Position.t
+    }
+  [@@deriving sexp_of]
+end
+
+(* Convert byte-offset ranges to line/col positions with a single linear scan of the
+   input. Both the input and the byte ranges are in increasing offset order, so we advance
+   a cursor through the input, counting newlines as we go. *)
+let resolve_positions input byte_results =
+  let len = String.length input in
+  let line = ref 1 in
+  let line_start = ref 0 in
+  let cursor = ref 0 in
+  let advance_to offset =
+    while !cursor < offset && !cursor < len do
+      if Char.equal (String.unsafe_get input !cursor) '\n'
+      then (
+        Int.incr line;
+        line_start := !cursor + 1);
+      Int.incr cursor
+    done;
+    { Position.line = !line; col = offset - !line_start; offset }
+  in
+  List.map byte_results ~f:(fun (sexp, (byte_range : Parse.byte_range)) ->
+    let start_pos = advance_to byte_range.start_offset in
+    let end_pos = advance_to byte_range.end_offset in
+    sexp, { Range.start_pos; end_pos })
+;;
+
+(* Parse a list of sexps from a string, with position ranges for each. *)
+let of_string_many_with_positions input =
+  let parse = Parse.create ~track_positions:true in
+  let[@inline] rec aux idx =
+    try parse_from input ~parse ~pos:idx with
+    | Parse.Restart idx -> aux idx
+  in
+  aux 0;
+  let byte_results = Parse.complete_with_positions parse in
+  resolve_positions input byte_results
 ;;
 
 (* Parse exactly one sexp from a string. *)

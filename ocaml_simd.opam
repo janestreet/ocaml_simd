@@ -15,6 +15,7 @@ depends: [
   "base"
   "core"
   "ocaml_intrinsics"
+  "parsexp"
   "ppx_builtin"
   "ppx_jane"
   "ppx_template"
@@ -25,7 +26,7 @@ depends: [
   "ocaml-compiler-libs" {= "v0.17.0+ox"}
   "ppxlib"              {= "0.33.0+ox"}
 ]
-available: arch != "arm32" & arch != "x86_32"
+available: arch != "x86_32"
 synopsis: "SIMD intrinsics supported by the OxCaml compiler."
 description: "
  SIMD intrinsics supported by the OxCaml compiler.

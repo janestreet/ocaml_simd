@@ -6,6 +6,7 @@
 
 module Float32 = Float32
 module Float64 = Float64
+module Int16 = Int16
 module Int32 = Int32
 module Int64 = Int64
 

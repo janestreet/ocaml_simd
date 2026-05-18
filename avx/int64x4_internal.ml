@@ -8,14 +8,14 @@ module I64x2 = struct
     -> t
     @@ portable
     = "ocaml_simd_avx_unreachable" "caml_int64x2_low_of_int64"
-  [@@noalloc] [@@builtin amd64]
+  [@@noalloc] [@@builtin]
 
   external low_to
     :  t
     -> int64#
     @@ portable
     = "ocaml_simd_avx_unreachable" "caml_int64x2_low_to_int64"
-  [@@noalloc] [@@builtin amd64]
+  [@@noalloc] [@@builtin]
 end
 
 external low_of

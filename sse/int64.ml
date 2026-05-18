@@ -4,5 +4,5 @@ external count_set_bits
   :  int64#
   -> int64#
   @@ portable
-  = "ocaml_simd_sse_unreachable" "caml_int64_popcnt_unboxed_to_untagged"
-[@@noalloc] [@@builtin]
+  = "ocaml_simd_sse_unreachable" "caml_popcnt_int64"
+[@@noalloc] [@@builtin amd64]

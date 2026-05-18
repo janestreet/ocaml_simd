@@ -2,7 +2,7 @@
  (name simd_sexp)
  (public_name ocaml_simd.sexp)
  (modes native)
- (libraries core unboxed.int64_u ocaml_intrinsics ocaml_simd_sse sexplib
-   stdlib_stable vec)
+ (libraries core unboxed.int64_u ocaml_intrinsics ocaml_simd_sse parsexp
+   sexplib stdlib_stable vec)
  (preprocess
   (pps ppx_jane ppx_simd)))

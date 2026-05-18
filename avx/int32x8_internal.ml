@@ -8,14 +8,14 @@ module I32x4 = struct
     -> t
     @@ portable
     = "ocaml_simd_avx_unreachable" "caml_int32x4_low_of_int32"
-  [@@noalloc] [@@builtin amd64]
+  [@@noalloc] [@@builtin]
 
   external low_to
     :  t
     -> int32#
     @@ portable
     = "ocaml_simd_avx_unreachable" "caml_int32x4_low_to_int32"
-  [@@noalloc] [@@builtin amd64]
+  [@@noalloc] [@@builtin]
 
   external cvt_f64
     :  t

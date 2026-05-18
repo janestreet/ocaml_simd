@@ -115,6 +115,11 @@ static __m256d of_camld(caml__m256d x) {
 #define CASE128(F, i) CASE64(F, i) CASE64(F, i + 64)
 #define CASE256(F, i) CASE128(F, i) CASE128(F, i + 128)
 
+uint16_t caml_lzcnt_int16(uint16_t x) {
+  if (x == 0)
+    return 16;
+  return __builtin_clzs(x);
+}
 uint32_t caml_lzcnt_int32(uint32_t x) {
   if (x == 0)
     return 32;
@@ -126,6 +131,11 @@ uint64_t caml_lzcnt_int64(uint64_t x) {
   return __builtin_clzll(x);
 }
 
+uint16_t caml_bmi_tzcnt_int16(uint16_t x) {
+  if (x == 0)
+    return 16;
+  return __builtin_ctzs(x);
+}
 uint32_t caml_bmi_tzcnt_int32(uint32_t x) {
   if (x == 0)
     return 32;

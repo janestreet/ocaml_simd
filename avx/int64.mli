@@ -29,8 +29,8 @@ val clear_lowest_set_bit : int64# -> int64#
 (** [_bzhi_u64]. Clears bits at and above index [idx]. *)
 val zero_high_bits : int64# -> idx:int64# -> int64#
 
-(** [_mulx_u64]. Performs an unsigned 32-bit multiply of [x] and [y], returning the full
-    64-bit result as an unboxed pair of 32-bit values. Does not set flags. *)
+(** [_mulx_u64]. Performs an unsigned 64-bit multiply of [x] and [y], returning the full
+    128-bit result as an unboxed pair of 64-bit values. Does not set flags. *)
 val mul_unsigned : int64# -> int64# -> #(low:int64# * high:int64#)
 
 (** [_pext_u64]. Uses [mask] to select which bits to extract from [x]. Selected bits are

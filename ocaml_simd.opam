@@ -23,10 +23,13 @@ depends: [
   "unboxed"
   "vec"
   "dune"                {>= "3.17.0"}
-  "ocaml-compiler-libs" {= "v0.17.0+ox"}
-  "ppxlib"              {= "0.33.0+ox"}
+  "ocaml-compiler-libs" {>= "v0.11.0"}
+  "ppxlib"              {>= "0.33.0" & < "0.36.0"}
 ]
 available: arch != "x86_32"
+conflicts: [
+  "oxcaml-compiler" {< "5.2.0minus39"}
+]
 synopsis: "SIMD intrinsics supported by the OxCaml compiler."
 description: "
  SIMD intrinsics supported by the OxCaml compiler.

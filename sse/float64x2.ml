@@ -10,8 +10,6 @@ module Raw = Load_store.Raw_Float64x2
 module String = Load_store.String_Float64x2
 module Bytes = Load_store.Bytes_Float64x2
 module Bigstring = Load_store.Bigstring_Float64x2
-module Float_array = Load_store.Float_array
-module Float_iarray = Load_store.Float_iarray
 module Floatarray = Load_store.Floatarray
 module Float_u_array = Load_store.Float_u_array
 

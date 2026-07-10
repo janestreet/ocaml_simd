@@ -313,28 +313,6 @@ module type Bigstring_accessors = sig @@ portable
   val unsafe_aligned_set : bigstring @ local -> byte:index -> t -> unit
 end
 
-module type Float_array_accessors = sig @@ portable
-  type index : any
-
-  (** Load four floats from a [float array] at an arbitrary (unaligned) index.
-
-      @raise Invalid_argument if [idx..idx+3] fails bounds checking. *)
-  val get : float array @ local read -> idx:index -> float64x4#
-
-  (** Load four floats from a [float array] at an arbitrary (unaligned) index. Does not
-      check bounds. *)
-  val unsafe_get : float array @ local read -> idx:index -> float64x4#
-
-  (** Store four floats to a [float array] at an arbitrary (unaligned) index.
-
-      @raise Invalid_argument if [idx..idx+3] fails bounds checking. *)
-  val set : float array @ local -> idx:index -> float64x4# -> unit
-
-  (** Store four floats to a [float array] at an arbitrary (unaligned) index. Does not
-      check bounds. *)
-  val unsafe_set : float array @ local -> idx:index -> float64x4# -> unit
-end
-
 module type Floatarray_accessors = sig @@ portable
   type index : any
 
@@ -355,19 +333,6 @@ module type Floatarray_accessors = sig @@ portable
   (** Store four floats to a [floatarray] at an arbitrary (unaligned) index. Does not
       check bounds. *)
   val unsafe_set : floatarray @ local -> idx:index -> float64x4# -> unit
-end
-
-module type Float_iarray_accessors = sig @@ portable
-  type index : any
-
-  (** Load four floats from a [float iarray] at an arbitrary (unaligned) index.
-
-      @raise Invalid_argument if [idx..idx+3] fails bounds checking. *)
-  val get : float iarray @ local -> idx:index -> float64x4#
-
-  (** Load four floats from a [float iarray] at an arbitrary (unaligned) index. Does not
-      check bounds. *)
-  val unsafe_get : float iarray @ local -> idx:index -> float64x4#
 end
 
 module type Unsafe_immediate_array_accessors = sig @@ portable
@@ -657,9 +622,7 @@ module type Load_store = sig @@ portable
   module type String_accessors = String_accessors
   module type Bytes_accessors = Bytes_accessors
   module type Bigstring_accessors = Bigstring_accessors
-  module type Float_array_accessors = Float_array_accessors
   module type Floatarray_accessors = Floatarray_accessors
-  module type Float_iarray_accessors = Float_iarray_accessors
   module type Unsafe_immediate_array_accessors = Unsafe_immediate_array_accessors
   module type Unsafe_immediate_iarray_accessors = Unsafe_immediate_iarray_accessors
   module type Float_u_array_accessors = Float_u_array_accessors
@@ -670,16 +633,6 @@ module type Load_store = sig @@ portable
   module type Int16_u_array_accessors = Int16_u_array_accessors
   module type Int32_u_array_accessors = Int32_u_array_accessors
 
-  module Float_array : sig
-    include Float_array_accessors with type index := int (** @inline *)
-
-    module Int8_u : Float_array_accessors with type index := int8#
-    module Int16_u : Float_array_accessors with type index := int16#
-    module Int32_u : Float_array_accessors with type index := int32#
-    module Int64_u : Float_array_accessors with type index := int64#
-    module Nativeint_u : Float_array_accessors with type index := nativeint#
-  end
-
   module Floatarray : sig
     include Floatarray_accessors with type index := int (** @inline *)
 
@@ -688,16 +641,6 @@ module type Load_store = sig @@ portable
     module Int32_u : Floatarray_accessors with type index := int32#
     module Int64_u : Floatarray_accessors with type index := int64#
     module Nativeint_u : Floatarray_accessors with type index := nativeint#
-  end
-
-  module Float_iarray : sig
-    include Float_iarray_accessors with type index := int (** @inline *)
-
-    module Int8_u : Float_iarray_accessors with type index := int8#
-    module Int16_u : Float_iarray_accessors with type index := int16#
-    module Int32_u : Float_iarray_accessors with type index := int32#
-    module Int64_u : Float_iarray_accessors with type index := int64#
-    module Nativeint_u : Float_iarray_accessors with type index := nativeint#
   end
 
   module Unsafe_immediate_array : sig
